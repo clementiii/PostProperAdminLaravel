@@ -5,7 +5,9 @@
     <div class="flex items-center space-x-4">
         <span class="text-sm">{{ Auth::user()->name }}</span>
         <a href="{{ route('profile') }}">
-            <img src="{{ asset('assets/profile.jpg') }}" class="w-12 h-12 rounded-full border-2 border-white hover:scale-110 transition" alt="Profile">
+            <img src="{{ Auth::user()->profile_picture }}" 
+                 class="w-12 h-12 rounded-full border-2 border-white hover:scale-110 transition" 
+                 alt="Profile">
         </a>
     </div>
 </div>
