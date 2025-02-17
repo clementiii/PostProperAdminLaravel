@@ -11,7 +11,7 @@
             <li><a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-4 py-2 rounded-md hover:bg-purple-700 transition">
                 <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
             </a></li>
-            <li><a href="{{ route('admin_staff.index') }}" class="flex items-center space-x-3 px-4 py-2 rounded-md hover:bg-purple-700 transition">
+            <li><a href="{{ route('admin.staff') }}" class="flex items-center space-x-3 px-4 py-2 rounded-md hover:bg-purple-700 transition">
                 <i class="fas fa-users"></i> <span>Admin Staff</span>
             </a></li>
             <li><a href="{{ route('users.index') }}" class="flex items-center space-x-3 px-4 py-2 rounded-md hover:bg-purple-700 transition">

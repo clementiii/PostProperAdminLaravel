@@ -4,13 +4,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class IncidentReport extends Model
+class AdminStaff extends Model
 {
     use HasFactory;
 
-    protected $table = 'incident_reports'; //table name
+    protected $table = 'admin_staff'; //database table
 
     protected $fillable = [
-        'id', 'name', 'title', 'description', 'date_submitted', 'status',
+        'name', 'role', 'profile_picture',
     ];
 }

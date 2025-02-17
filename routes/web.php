@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UsersController;
 
 // Redirect root to login
@@ -36,11 +37,11 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/admin-staff', [AdminStaffController::class, 'index'])->name('admin.staff');
+    });
+    
     // Temporary placeholders for all pages
-    Route::get('/admin-staff', function () {
-        return "Admin Staff Page (Coming Soon)";
-    })->name('admin_staff.index');
-
     Route::get('/users', function () {
         return "User Accounts Page (Coming Soon)";
     })->name('users.index');

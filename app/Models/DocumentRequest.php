@@ -8,7 +8,7 @@ class DocumentRequest extends Model
 {
     use HasFactory;
 
-    protected $table = 'document_requests'; // ✅ Ensure this matches your database table name
+    protected $table = 'document_requests'; //table name
 
     protected $fillable = [
         'id', 'document_type', 'name', 'status',
