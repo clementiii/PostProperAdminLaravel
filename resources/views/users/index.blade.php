@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
+@section('title', 'User Accounts')
+
 @section('content')
 <div class="p-6">
-    <h2 class="text-2xl font-semibold mb-4">Resident Users</h2>
-
     <!-- User Statistics -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-blue-500 text-white p-6 rounded-xl shadow">
