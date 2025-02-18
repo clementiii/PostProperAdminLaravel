@@ -1,10 +1,10 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AnnouncementController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -45,11 +45,12 @@ Route::middleware([
         Route::get('/users', [UserController::class, 'index'])->name('users.view');
     });
 
-    // Temporary placeholders for all pages
-    Route::get('/announcement', function () {
-        return "Announcement Page (Coming Soon)";
-    })->name('announcement.index');
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    });
 
+    // Temporary placeholders for all pages
     Route::get('/documents', function () {
         return "Document Requests Page (Coming Soon)";
     })->name('documents.index');
