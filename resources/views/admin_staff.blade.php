@@ -3,6 +3,7 @@
 @section('title', 'Admin Staff')
 
 @section('content')
+
 <div class="p-6">
     <!-- Admin Staff Table Card -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
