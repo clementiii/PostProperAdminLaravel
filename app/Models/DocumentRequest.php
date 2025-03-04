@@ -11,6 +11,6 @@ class DocumentRequest extends Model
     protected $table = 'document_requests'; //table name
 
     protected $fillable = [
-        'id', 'document_type', 'name', 'status',
+        'id', 'document_type', 'name', 'status', 'address', 'quantity', 'date_requested'
     ];
 }

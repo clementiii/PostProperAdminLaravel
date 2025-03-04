@@ -15,6 +15,7 @@ class DashboardController extends Controller
         $pendingDocuments = DocumentRequest::where('status', 'pending')->count();
         $incidentReports = IncidentReport::count();
 
+
         return view('dashboard', compact('registeredResidents', 'pendingDocuments', 'incidentReports'));
     }
 
