@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnnouncementController;
 
+use App\Http\Controllers\ProfileController;
 // Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -73,3 +74,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/fetch-data', [DashboardController::class, 'fetchData'])->name('dashboard.fetch');
 });
+
+Route::get('/document-request/{id}', [DashboardController::class, 'show']);

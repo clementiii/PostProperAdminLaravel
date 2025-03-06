@@ -11,4 +11,6 @@ class AdminStaffController extends Controller
         $adminStaff = Admin::all(); // Fetch all admin staff from admin_accounts
         return view('admin_staff', compact('adminStaff'));
     }
+
+    
 }
