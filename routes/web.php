@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\DocumentRequestController;
 
 use App\Http\Controllers\ProfileController;
 // Redirect root to login
@@ -51,10 +52,15 @@ Route::middleware([
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
     });
 
+    Route::get('/documents', [DocumentRequestController::class, 'index'])->name('documents.index');
+    Route::get('/document-requests/{id}', [DocumentRequestController::class, 'show'])->name('document-requests.show');
+    Route::put('/document-requests/{id}', [DocumentRequestController::class, 'update'])->name('document-requests.update');
+    Route::post('/documents/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])->name('documents.updatePickupStatus');
+
     // Temporary placeholders for all pages
-    Route::get('/documents', function () {
-        return "Document Requests Page (Coming Soon)";
-    })->name('documents.index');
+    //Route::get('/documents', function () {
+    //    return "Document Requests Page (Coming Soon)";
+    //})->name('documents.index');
 
     Route::get('/reports', function () {
         return "Reports Page (Coming Soon)";
