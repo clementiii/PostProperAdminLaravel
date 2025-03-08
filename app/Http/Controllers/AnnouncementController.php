@@ -60,4 +60,5 @@ class AnnouncementController extends Controller
 
         return redirect()->back()->with('success', 'Announcement posted successfully!');
     }
+    
 }

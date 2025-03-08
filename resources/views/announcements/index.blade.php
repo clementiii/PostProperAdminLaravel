@@ -1,57 +1,76 @@
 @extends('layouts.app')
-
 @section('title', 'Announcements')
-
 @section('content')
-
-<div class="p-6">
-    <!-- Post New Announcement Form -->
-    <div class="bg-white p-6 rounded-md shadow-md">
-        <h3 class="text-lg font-semibold text-purple-700 mb-4">Post New Announcement</h3>
-        <form action="{{ route('announcements.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium">Title</label>
-                <input type="text" name="announcement_title" class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium">Description</label>
-                <textarea name="description_text" class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required></textarea>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium">Upload Images</label>
-                <input type="file" name="announcement_images[]" multiple class="w-full px-4 py-2 border rounded-md">
-            </div>
-            <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition">Post</button>
-        </form>
-    </div>
-
-    <!-- Recent Announcements -->
-    <div class="mt-6 bg-white p-6 rounded-md shadow-md">
-        <h3 class="text-xl font-semibold text-purple-700 mb-4">Recent Announcements</h3>
-        <div class="space-y-4">
-            @foreach ($announcements as $announcement)
-                <div class="p-4 border rounded-md shadow-md">
-                    <h4 class="text-lg font-semibold text-purple-700">{{ $announcement->announcement_title }}</h4>
-                    <p class="text-gray-600">{{ $announcement->description_text }}</p>
-                    
-                    @php
-                        $images = json_decode($announcement->announcement_images, true);
-                    @endphp
-
-                    @if ($images && is_array($images))
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            @foreach ($images as $image)
-                                <img src="{{ url('assets/uploads/announcements/' . basename($image)) }}" class="w-32 h-32 object-cover rounded-md shadow-md">
-                            @endforeach
+    <div class="mb-6 px-6 flex flex-col md:flex-row gap-6">
+        <!-- Post New Announcement Form -->
+        <div class="bg-white rounded-md shadow-md overflow-hidden flex-grow md:w-2/3">
+            <div class="h-1 bg-purple-800 w-full"></div>
+            <div class="p-6">
+                <h3 class="text-2xl font-semibold text-purple-700 mb-6">Add New Announcement</h3>
+                <form id="announcement-form" action="{{ route('announcements.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Announcement Title</label>
+                        <input type="text" name="announcement_title" placeholder="Enter announcement title"
+                               class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Description</label>
+                        <textarea name="description_text" rows="5" placeholder="Enter announcement description"
+                                  class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Images (Maximum 5)</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer"
+                             id="upload-container">
+                            <span class="material-icons text-gray-400 text-3xl">file_upload</span>
+                            <p class="mt-2">Click to upload images</p>
+                            <p class="text-sm text-gray-500">PNG, JPG up to 10MB (Maximum 5 images)</p>
+                            <input type="file" name="announcement_images[]" multiple class="hidden file-input"
+                                   id="file-upload" accept=".jpg,.jpeg,.png">
                         </div>
-                    @endif
-                </div>
-            @endforeach
+                        <!-- Image preview container -->
+                        <div id="image-preview-container" class="mt-4 flex flex-wrap"></div>
+                        <!-- Error message container -->
+                        <div id="upload-error" class="text-red-500 mt-2 hidden"></div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition mr-2 btn-save">
+                            Post Announcement
+                        </button>
+                        <button type="reset"
+                                class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 transition">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Announcements -->
+        <div class="bg-white p-6 rounded-lg shadow-md md:w-1/4 overflow-hidden">
+            <h3 class="text-2xl font-semibold text-purple-700 mb-6">Recent Posts</h3>
+            <div class="space-y-4">
+                @foreach ($announcements as $announcement)
+                    <div class="bg-gray-100 rounded-md">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-800">{{ $announcement->announcement_title }}</h4>
+                            <p class="text-sm text-gray-600">Posted on {{ date('d/m/Y', strtotime($announcement->created_at)) }}</p>
+                            <div class="flex justify-end mt-3 space-x-2">
+                                <button class="bg-gray-200 text-gray-800 px-4 py-1 text-sm rounded-md hover:bg-gray-300 transition">Edit</button>
+                                <button class="bg-red-600 text-white px-4 py-1 text-sm rounded-md hover:bg-red-700 transition">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
-</div>
 
-<!-- JavaScript -->
-<script src="{{ asset('js/announcement.js') }}"></script>
+    <!-- Add Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- JavaScript -->
+    <script src="{{ asset('js/announcement.js') }}"></script>
 @endsection

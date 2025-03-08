@@ -1,57 +1,79 @@
 document.addEventListener("DOMContentLoaded", function () {
-   const fileInput = document.querySelector(".file-input");
-   const imagePreviewContainer = document.getElementById("image-preview-container");
+    const uploadContainer = document.getElementById("upload-container");
+    const fileInput = document.querySelector(".file-input");
+    const imagePreviewContainer = document.getElementById(
+        "image-preview-container"
+    );
+    const errorContainer = document.getElementById("upload-error");
+    const announcementForm = document.getElementById("announcement-form");
 
-   // Check if the file input exists
-   if (fileInput) {
-       fileInput.addEventListener("change", function (event) {
-           const files = Array.from(event.target.files);
+    
+    uploadContainer.addEventListener("click", () => fileInput.click());
 
-           files.forEach((file) => {
-               const reader = new FileReader();
-               reader.onload = function (e) {
-                   const imageContainer = document.createElement("div");
-                   imageContainer.className = "image-preview position-relative me-2 mb-2";
+   
+    fileInput.addEventListener("change", function (event) {
+        const files = Array.from(event.target.files);
 
-                   imageContainer.innerHTML = `
-                       <img src="${e.target.result}" class="img-fluid">
-                       <button class="btn-close" aria-label="Remove image"></button>
-                   `;
+        errorContainer.classList.add("hidden");
+        errorContainer.textContent = "";
 
-                   imagePreviewContainer.appendChild(imageContainer);
+        // Validate image count
+        const currentImages =
+            imagePreviewContainer.querySelectorAll(".image-preview").length;
+        if (files.length + currentImages > 5) {
+            showError(
+                `You can upload a maximum of 5 images. Current: ${currentImages}`
+            );
+            fileInput.value = "";
+            return;
+        }
 
-                   // Remove image on button click
-                   imageContainer.querySelector(".btn-close").addEventListener("click", function () {
-                       imageContainer.remove();
-                   });
-               };
-               reader.readAsDataURL(file);
-           });
-       });
-   }
+        // Validate image size and type
+        files.forEach((file) => {
+            if (!["image/jpeg", "image/png"].includes(file.type)) {
+                showError(
+                    `${file.name} is not a valid image type (JPG/PNG only).`
+                );
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showError(`${file.name} exceeds the maximum size of 10MB.`);
+                return;
+            }
+            previewImage(file);
+        });
 
-   const publishButton = document.querySelector(".btn-save");
-   const confirmPublishButton = document.getElementById("confirmPublish");
+        fileInput.value = "";
+    });
 
-   // Trigger the modal when clicking "Post"
-   if (publishButton) {
-       publishButton.addEventListener("click", function () {
-           const publishModal = new bootstrap.Modal(document.getElementById("publishModal"));
-           publishModal.show();
-       });
-   }
+    function showError(message) {
+        errorContainer.textContent = message;
+        errorContainer.classList.remove("hidden");
+    }
 
-   // Handle the "Yes, confirm" button inside the publish modal
-   if (confirmPublishButton) {
-       confirmPublishButton.addEventListener("click", function () {
-           const form = document.querySelector("form[action='process_announcement.php']");
-           if (form) {
-               form.submit(); // Submit the form when "Yes, confirm" is clicked
-           }
+    // Preview image
+    function previewImage(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = document.createElement("div");
+            preview.className = "image-preview relative mr-2 mb-2";
+            preview.innerHTML = `
+                <img src="${e.target.result}" class="w-24 h-24 object-cover rounded">
+                <button type="button" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center" aria-label="Remove">
+                    <span class="material-icons text-sm">close</span>
+                </button>`;
+            preview
+                .querySelector("button")
+                .addEventListener("click", () => preview.remove());
+            imagePreviewContainer.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    }
 
-           // Close the modal after confirming
-           const publishModal = bootstrap.Modal.getInstance(document.getElementById("publishModal"));
-           publishModal.hide();
-       });
-   }
+    // Confirmation before submitting the form
+    announcementForm.addEventListener("submit", function (e) {
+        if (!confirm("Are you sure you want to post this announcement?")) {
+            e.preventDefault();
+        }
+    });
 });

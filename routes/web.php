@@ -57,6 +57,8 @@ Route::middleware([
     Route::put('/document-requests/{id}', [DocumentRequestController::class, 'update'])->name('document-requests.update');
     Route::post('/documents/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])->name('documents.updatePickupStatus');
 
+    Route::get('/documents/{id}', [DocumentRequestController::class, 'show'])->name('documents.show');
+
     // Temporary placeholders for all pages
     //Route::get('/documents', function () {
     //    return "Document Requests Page (Coming Soon)";

@@ -269,52 +269,7 @@
 
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            $(document).ready(function () {
-                $(".view-btn").on("click", function () {
-                    let requestId = $(this).data("id");
-
-
-                    $.ajax({
-                        url: `/document-request/${requestId}`,
-                        type: "GET",
-                        success: function (data) {
-                            // Populate modal fields
-                            $("#modalTxnId").text(`TXN-${data.id}`);
-                            $("#modalDocumentType").text(data.DocumentType);
-                            $("#modalPrice").text(data.price ?? "N/A");
-                            $("#modalDate").text(data.DateRequested);
-                            $("#modalName").text(data.Name);
-                            $("#modalGender").text(data.Gender ?? "N/A");
-                            $("#modalCivilStatus").text(data.CivilStatus ?? "N/A");
-                            $("#modalAddress").text(data.Address);
-                            $("#modalTin").text(data.TIN ?? "N/A");
-                            $("#modalCtc").text(data.CTCNumber ?? "N/A");
-
-
-                            // Show modal
-                            $("#modal").removeClass("hidden");
-                        },
-                        error: function () {
-                            alert("Error fetching document request details.");
-                        }
-                    });
-                });
-
-
-                // Close modal function
-                function closeModal() {
-                    $("#modal").addClass("hidden");
-                }
-
-
-                window.closeModal = closeModal;
-            });
-        </script>
-
-
-
-
+    
     @endsection
 
 
