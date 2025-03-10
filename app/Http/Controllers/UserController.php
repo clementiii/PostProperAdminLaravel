@@ -8,17 +8,19 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Set inactive threshold
-        $inactiveThreshold = now()->subDays(30);
+        return view('users.index');
+    }
 
-        // Fetch users
-        $users = UserAccount::select('id', 'firstName', 'lastName', 'adrHouseNo', 'adrZone', 'adrStreet', 'status', 'last_active')->get();
+    public function view($id)
+    {
+        $user = UserAccount::findOrFail($id);
+        return view('users.view', compact('user'));
+    }
 
-        // Count statistics
-        $registeredResidentsCount = $users->count();
-        $activeUsersCount = $users->where('last_active', '>=', $inactiveThreshold)->count();
-        $inactiveUsersCount = $registeredResidentsCount - $activeUsersCount;
-
-        return view('users.index', compact('users', 'registeredResidentsCount', 'activeUsersCount', 'inactiveUsersCount'));
+    public function delete($id)
+    {
+        $user = UserAccount::findOrFail($id);
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'User deleted successfully');
     }
 }
