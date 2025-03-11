@@ -6,8 +6,9 @@ use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DocumentRequestController;
-
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ProfileController;
+
 // Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -64,9 +65,11 @@ Route::middleware([
     //    return "Document Requests Page (Coming Soon)";
     //})->name('documents.index');
 
-    Route::get('/reports', function () {
-        return "Reports Page (Coming Soon)";
-    })->name('reports.index');
+    //Route::get('/reports', function () {
+    //    return "Reports Page (Coming Soon)";
+    //})->name('reports.index');
+
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
     Route::get('/desk-support', function () {
         return "Desk Support Page (Coming Soon)";
