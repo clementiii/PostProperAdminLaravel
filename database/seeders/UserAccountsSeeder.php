@@ -15,7 +15,7 @@ class UserAccountsSeeder extends Seeder
         $faker = Faker::create();
 
         $users = [
-            ['firstName' => 'John', 'lastName' => 'Doe', 'gender' => 'male'],
+            ['firstName' => 'Pedro', 'lastName' => 'Arroyo', 'gender' => 'male'],
             ['firstName' => 'Jane', 'lastName' => 'Smith', 'gender' => 'female'],
             ['firstName' => 'Michael', 'lastName' => 'Johnson', 'gender' => 'male'],
             ['firstName' => 'Emily', 'lastName' => 'Clark', 'gender' => 'female'],

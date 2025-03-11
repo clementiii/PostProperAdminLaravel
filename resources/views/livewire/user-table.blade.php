@@ -133,7 +133,7 @@
                                                 </span>
                                             </td>
                                             <td class="p-2 flex justify-center items-center space-x-4">
-                                                <a href="{{ route('users.view', $user->id) }}" class="text-blue-500 hover:text-blue-600">
+                                                <a href="{{ route('users.verify', $user->id) }}" class="text-blue-500 hover:text-blue-600">
                                                     <i class="material-icons-outlined text-[24px]">visibility</i>
                                                 </a>
                                                 <button onclick="confirmDelete({{ $user->id }})" class="text-red-500 hover:text-red-600">

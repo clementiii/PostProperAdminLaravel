@@ -6,17 +6,20 @@ $(document).ready(function () {
             url: `/document-request/${requestId}`,
             type: "GET",
             success: function (data) {
-                // Populate modal fields
-                $("#modalTxnId").text(`TXN-${data.id}`);
-                $("#modalDocumentType").text(data.DocumentType);
-                $("#modalPrice").text(data.price ?? "N/A");
-                $("#modalDate").text(data.DateRequested);
-                $("#modalName").text(data.Name);
-                $("#modalGender").text(data.Gender ?? "N/A");
-                $("#modalCivilStatus").text(data.CivilStatus ?? "N/A");
-                $("#modalAddress").text(data.Address);
-                $("#modalTin").text(data.TIN ?? "N/A");
-                $("#modalCtc").text(data.CTCNumber ?? "N/A");
+                // Populate modal fields with correct field names
+                $("#modalTxnId").text(
+                    data.id ? `TXN-${data.id}` : "TXN-undefined"
+                );
+                $("#modalDocumentType").text(data.DocumentType || "N/A");
+                $("#modalPrice").text("N/A"); // Since price isn't in the model
+                $("#modalDate").text(data.created_at || "N/A");
+                $("#modalName").text(data.Name || "N/A");
+                $("#modalGender").text(data.Gender || "N/A");
+                $("#modalCivilStatus").text(data.CivilStatus || "N/A");
+                $("#modalAddress").text(data.Address || "N/A");
+                $("#modalTin").text(data.TIN_No || "N/A");
+                $("#modalCtc").text(data.CTC_No || "N/A");
+                
 
                 // Show modal
                 $("#modal").removeClass("hidden");

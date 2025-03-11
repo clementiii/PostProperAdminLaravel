@@ -45,6 +45,9 @@ Route::middleware([
     
     Route::middleware(['auth'])->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.view');
+        Route::get('/users/verify/{id}', [UserController::class, 'verifyUser'])->name('users.verify');
+        Route::post('/users/verify/{id}/approve', [UserController::class, 'approveUser'])->name('users.approve');
+        Route::post('/users/verify/{id}/reject', [UserController::class, 'rejectUser'])->name('users.reject');
     });
 
     Route::middleware(['auth'])->group(function () {
