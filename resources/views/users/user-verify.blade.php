@@ -15,38 +15,32 @@
 
     @section('title', 'User Verify')
     @section('content')
-        <div class="container mx-auto p-6">
+        <div class="container mx-auto pt-0 px-3">
             <!-- Header with Back Button -->
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
-                    <a href="{{ route('users.view') }}" class="text-gray-600 mr-4">
+                    <a href="{{ route('users.view') }}" class="text-gray-600 mr-2">
                         <span class="material-icons-outlined">arrow_back</span>
                     </a>
-                    <h1 class="text-2xl font-semibold text-purple-900">Verify Users</h1>
-                </div>
-                <!-- User Avatar -->
-                <div class="w-10 h-10 rounded-full bg-gray-200">
-                    <!-- Add admin avatar here -->
+                    <h1 class="text-xl font-semibold text-purple-900">Verify Users</h1>
                 </div>
             </div>
 
-            <div class="flex gap-6">
+            <div class="flex gap-4">
                 <!-- Left Column -->
                 <div class="w-1/4">
                     <!-- Profile Picture Section -->
-                    <div class="bg-white rounded-lg shadow-sm mb-6">
-                        <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg">
+                    <div class="bg-white rounded-lg shadow-sm mb-4">
+                        <div class="bg-purple-900 text-white p-4 rounded-t-lg">
                             <div class="flex items-center">
-                                <span class="material-icons-outlined mr-2">account_circle</span>
-                                <span class="font-semibold">Profile Picture</span>
+                                <span class="material-icons-outlined mr-2">person</span>
+                                <span class="font-medium text-2xl">Profile Picture</span>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div
-                                class="w-full aspect-square bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                                @if($user->user_profile_picture && $user->user_profile_picture !== '')
-                                    <img src="{{ asset($user->user_profile_picture) }}" alt="Profile Picture"
-                                        class="w-full h-full object-cover">
+                        <div class="p-8">
+                            <div class="w-full aspect-square bg-gray-100 rounded-full flex items-center justify-center">
+                                @if($user->user_profile_picture)
+                                    <img src="{{ asset($user->user_profile_picture) }}" alt="Profile Picture" class="w-full h-full object-cover rounded-full">
                                 @else
                                     <span class="material-icons-outlined text-gray-400 text-6xl">person</span>
                                 @endif
@@ -56,143 +50,169 @@
 
                     <!-- Valid ID Section -->
                     <div class="bg-white rounded-lg shadow-sm">
-                        <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg">
+                        <div class="bg-purple-900 text-white p-4 rounded-t-lg">
                             <div class="flex items-center">
-                                <span class="material-icons-outlined mr-2">verified</span>
-                                <span class="font-semibold">Valid ID</span>
+                                <span class="material-icons-outlined mr-2">badge</span>
+                                <span class="font-medium text-2xl">Valid ID</span>
                             </div>
                         </div>
-                        <div class="p-6 space-y-4">
-                            <div>
-                                <p class="text-sm mb-2">Front</p>
-                                <div
-                                    class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden {{ $user->user_valid_id ? 'p-0' : 'p-4' }} flex items-center justify-center h-32">
-                                    @if($user->user_valid_id && $user->user_valid_id !== '')
-                                        <img src="{{ asset($user->user_valid_id) }}" alt="ID Front"
-                                            class="w-full h-full object-contain">
-                                    @else
-                                        <span class="material-icons-outlined text-gray-400">image</span>
-                                    @endif
-                                </div>
+                        <div class="p-4">
+                            <!-- ID Navigation Tabs -->
+                            <div class="flex border-b mb-4">
+                                <button onclick="showIDSide('front')" class="flex-1 py-2 px-4 text-center border-b-2 border-purple-900 font-medium text-purple-900">Front</button>
+                                <button onclick="showIDSide('back')" class="flex-1 py-2 px-4 text-center text-gray-500">Back</button>
                             </div>
-                            <div>
-                                <p class="text-sm mb-2">Back</p>
-                                <div
-                                    class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden {{ $user->user_valid_id_back ? 'p-0' : 'p-4' }} flex items-center justify-center h-32">
-                                    @if($user->user_valid_id_back && $user->user_valid_id_back !== '')
-                                        <img src="{{ asset($user->user_valid_id_back) }}" alt="ID Back"
-                                            class="w-full h-full object-contain">
-                                    @else
-                                        <span class="material-icons-outlined text-gray-400">image</span>
-                                    @endif
-                                </div>
+                            
+                            <!-- ID Display Areas -->
+                            <div id="frontID" class="border-2 border-dashed border-gray-300 rounded-lg p-4 h-48 flex items-center justify-center">
+                                @if($user->user_valid_id)
+                                    <img src="{{ asset($user->user_valid_id) }}" alt="ID Front" class="max-h-full object-contain">
+                                @else
+                                    <div class="text-center text-gray-400">
+                                        <span class="material-icons-outlined text-4xl">image</span>
+                                        <p>No ID picture (Front)</p>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div id="backID" class="hidden border-2 border-dashed border-gray-300 rounded-lg p-4 h-48  items-center justify-center">
+                                @if($user->user_valid_id_back)
+                                    <img src="{{ asset($user->user_valid_id_back) }}" alt="ID Back" class="max-h-full object-contain">
+                                @else
+                                    <div class="text-center text-gray-400">
+                                        <span class="material-icons-outlined text-4xl">image</span>
+                                        <p>No ID picture (Back)</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column -->
-                <div class="w-3/4">
-                    <div class="bg-white rounded-lg shadow-sm">
-                        <div class="bg-purple-900 text-white px-6 py-3 rounded-t-lg">
-                            <h2 class="text-xl font-semibold">User Information</h2>
+                <div class="w-2/3">
+                    <div class="bg-white rounded-lg shadow-sm h-full flex flex-col">
+                        <div class="bg-purple-900 text-white p-4 rounded-t-lg">
+                            <h2 class="text-2xl font-medium">User Information</h2>
                         </div>
-                        <div class="p-6">
-                            <!-- Personal Information -->
-                            <div class="mb-8">
-                                <h3 class="text-purple-900 font-semibold mb-4">Personal Information</h3>
-                                <div class="grid grid-cols-2 gap-y-6">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Full Name</p>
-                                        <p class="font-medium">{{ $user->firstName }} {{ $user->lastName }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Username</p>
-                                        <p class="font-medium">{{ $user->username }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Age</p>
-                                        <p class="font-medium">{{ $user->age }} years old</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Gender</p>
-                                        <p class="font-medium">{{ $user->gender }}</p>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <span class="material-icons-outlined text-gray-500 mr-2">calendar_today</span>
-                                        <div>
-                                            <p class="text-sm text-gray-600">Date of Birth</p>
-                                            <p class="font-medium">{{ $user->birthday }}</p>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <!-- Information Tabs -->
+                            <div class="flex border-b mb-6">
+                                <button onclick="showInfo('personal')" class="mr-6 text-xl py-2 border-b-2 border-purple-900 font-medium text-purple-900">Personal Information</button>
+                                <button onclick="showInfo('account')" class="text-xl py-2 text-gray-500">Account Information</button>
+                            </div>
+
+                            <!-- Content wrapper -->
+                            <div class="flex-1 flex flex-col justify-between">
+                                <!-- Information sections wrapper -->
+                                <div>
+                                    <!-- Personal Information Section -->
+                                    <div id="personalInfo" class="space-y-6">
+                                        <div class="grid grid-cols-2 gap-8">
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Full Name</p>
+                                                <p class="font-medium text-xl">{{ $user->firstName }} {{ $user->lastName }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Username</p>
+                                                <p class="font-medium text-xl">{{ $user->username }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Age</p>
+                                                <p class="font-medium text-xl">{{ $user->age }} years old</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Gender</p>
+                                                <p class="font-medium text-xl">{{ $user->gender }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Date of Birth</p>
+                                                <p class="font-medium text-xl">{{ $user->birthday }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Address</p>
+                                                <p class="font-medium text-xl">{{ $user->adrHouseNo }} {{ $user->adrStreet }} {{ $user->adrZone }}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="flex items-start">
-                                        <span class="material-icons-outlined text-gray-500 mr-2">location_on</span>
-                                        <div>
-                                            <p class="text-sm text-gray-600">Address</p>
-                                            <p class="font-medium">{{ $user->adrHouseNo }} {{ $user->adrStreet }}
-                                                {{ $user->adrZone }}
-                                            </p>
+
+                                    <!-- Account Information Section -->
+                                    <div id="accountInfo" class="hidden space-y-6">
+                                        <div class="grid grid-cols-2 gap-8">
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Account Status</p>
+                                                <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+                                                    {{ $user->status ?? 'Pending' }}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Registration Date</p>
+                                                <p class="font-medium text-xl">{{ $user->created_at ? date('F d, Y', strtotime($user->created_at)) : 'Not available' }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500 text-lg">Last Login</p>
+                                                <p class="font-medium text-xl">{{ $user->updated_at ? date('F d, Y h:i A', strtotime($user->updated_at)) : 'Not available' }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Account Information -->
-                            <div>
-                                <h3 class="text-purple-900 font-semibold mb-4">Account Information</h3>
-                                <div class="grid grid-cols-2 gap-y-6">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Account Status</p>
-                                        <span
-                                            class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
-                                            {{ $user->status ?? 'Pending' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Registration Date</p>
-                                        <p class="font-medium">
-                                            @if($user->created_at)
-                                                {{ date('F d, Y', strtotime($user->created_at)) }}
-                                            @else
-                                                Not available
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Last Login</p>
-                                        <p class="font-medium">
-                                            @if($user->updated_at)
-                                                {{ date('F d, Y h:i A', strtotime($user->updated_at)) }}
-                                            @else
-                                                Not available
-                                            @endif
-                                        </p>
-                                    </div>
+                                <!-- Action Buttons - will stay at bottom -->
+                                <div class="flex justify-end space-x-3 mt-auto pt-6 border-t border-gray-200 dark:bg-white/10">
+                                    <button class="px-6 py-3 text-lg font-medium bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-500 hover:text-white">Reject</button>
+                                    <button class="px-6 py-3 text-lg font-medium bg-purple-700 text-white rounded-lg hover:bg-purple-800">Approve</button>
                                 </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="flex justify-end space-x-3 mt-8">
-                                <form action="{{ route('users.reject', $user->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                                        Reject
-                                    </button>
-                                </form>
-                                <form action="{{ route('users.approve', $user->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800">
-                                        Approve
-                                    </button>
-                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Add this JavaScript to handle tab switching -->
+        <script>
+        function showIDSide(side) {
+            const frontID = document.getElementById('frontID');
+            const backID = document.getElementById('backID');
+            const buttons = document.querySelectorAll('[onclick^="showIDSide"]');
+            
+            buttons.forEach(button => {
+                button.classList.remove('border-b-2', 'border-purple-900', 'text-purple-900');
+                button.classList.add('text-gray-500');
+            });
+            
+            if (side === 'front') {
+                frontID.classList.remove('hidden');
+                backID.classList.add('hidden');
+                buttons[0].classList.add('border-b-2', 'border-purple-900', 'text-purple-900');
+            } else {
+                frontID.classList.add('hidden');
+                backID.classList.remove('hidden');
+                buttons[1].classList.add('border-b-2', 'border-purple-900', 'text-purple-900');
+            }
+        }
+
+        function showInfo(type) {
+            const personalInfo = document.getElementById('personalInfo');
+            const accountInfo = document.getElementById('accountInfo');
+            const buttons = document.querySelectorAll('[onclick^="showInfo"]');
+            
+            buttons.forEach(button => {
+                button.classList.remove('border-b-2', 'border-purple-900', 'text-purple-900');
+                button.classList.add('text-gray-500');
+            });
+            
+            if (type === 'personal') {
+                personalInfo.classList.remove('hidden');
+                accountInfo.classList.add('hidden');
+                buttons[0].classList.add('border-b-2', 'border-purple-900', 'text-purple-900');
+            } else {
+                personalInfo.classList.add('hidden');
+                accountInfo.classList.remove('hidden');
+                buttons[1].classList.add('border-b-2', 'border-purple-900', 'text-purple-900');
+            }
+        }
+        </script>
     @endsection
 
 </body>

@@ -1,6 +1,6 @@
 <div>
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
+    <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
         <div
             class="h-[150px] w-[500px] bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg shadow-blue-700 flex items-center">
             <div class="mr-4">
@@ -145,74 +145,77 @@
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- Pagination Section -->
-    <div class="mt-2 px-6">
-        <div class="flex items-center justify-between border-t pt-3">
-            <!-- Showing Results Text -->
-            <div class="text-lg text-gray-700">
-                Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} results
-            </div>
-
-            <div class="flex items-center gap-4">
-                <!-- Items Per Page Dropdown -->
-                <div class="flex items-center gap-2">
-                    <span class="text-lg text-gray-700">Rows per page</span>
-                    <select wire:model.live="perPage" class="border rounded px-2 py-1 text-lg text-gray-600">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-
-                    </select>
+        <!-- Pagination Section -->
+        <div class="mt-2 px-6 pb-4">
+            <div class="flex items-center justify-between border-t pt-3">
+                <!-- Showing Results Text -->
+                <div class="text-lg text-gray-700">
+                    Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }}
+                    results
                 </div>
 
-                <!-- Navigation Buttons -->
-                <div class="flex items-center space-x-2">
-                    <!-- First Page -->
-                    <button wire:click="gotoPage(1)" @if($users->onFirstPage()) disabled @endif
-                        class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
-                        «
-                    </button>
+                <div class="flex items-center gap-4">
+                    <!-- Items Per Page Dropdown -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg text-gray-700">Rows per page</span>
+                        <select wire:model.live="perPage" class="border rounded px-2 py-1 text-lg text-gray-600">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
 
-                    <!-- Previous Page -->
-                    <button wire:click="previousPage" @if($users->onFirstPage()) disabled @endif
-                        class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
-                        ‹
-                    </button>
+                        </select>
+                    </div>
 
-                    <!-- Page Numbers -->
-                    @for ($i = 1; $i <= $users->lastPage(); $i++)
-                        @if($i == $users->currentPage())
-                            <button wire:click="gotoPage({{ $i }})"
-                                class="px-3 py-1 rounded-full bg-purple-900 text-white text-lg">
-                                {{ $i }}
-                            </button>
-                        @elseif($i == 1 || $i == $users->lastPage() || abs($users->currentPage() - $i) <= 2)
-                            <button wire:click="gotoPage({{ $i }})"
-                                class="px-3 py-1 text-lg text-gray-600 hover:text-purple-800">
-                                {{ $i }}
-                            </button>
-                        @elseif(abs($users->currentPage() - $i) == 3)
-                            <span class="text-gray-600">...</span>
+                    <!-- Navigation Buttons -->
+                    <div class="flex items-center space-x-2">
+                        <!-- First Page -->
+                        <button wire:click="gotoPage(1)" @if($users->onFirstPage()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
+                            «
+                        </button>
+
+                        <!-- Previous Page -->
+                        <button wire:click="previousPage" @if($users->onFirstPage()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
+                            ‹
+                        </button>
+
+                        <!-- Page Numbers -->
+                        @for ($i = 1; $i <= $users->lastPage(); $i++)
+                            @if($i == $users->currentPage())
+                                <button wire:click="gotoPage({{ $i }})"
+                                    class="px-3 py-1 rounded-full bg-purple-900 text-white text-lg">
+                                    {{ $i }}
+                                </button>
+                            @elseif($i == 1 || $i == $users->lastPage() || abs($users->currentPage() - $i) <= 2)
+                                <button wire:click="gotoPage({{ $i }})"
+                                    class="px-3 py-1 text-lg text-gray-600 hover:text-purple-800">
+                                    {{ $i }}
+                                </button>
+                            @elseif(abs($users->currentPage() - $i) == 3)
+                                <span class="text-gray-600">...</span>
+                            @endif
+                        @endfor
+
+                        <!-- Next Page -->
+                        <button wire:click="nextPage" @if(!$users->hasMorePages()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
+                            ›
+                        </button>
+
+                        <!-- Last Page -->
+                        <button wire:click="gotoPage({{ $users->lastPage() }})" @if(!$users->hasMorePages()) disabled
                         @endif
-                    @endfor
-
-                    <!-- Next Page -->
-                    <button wire:click="nextPage" @if(!$users->hasMorePages()) disabled @endif
-                        class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
-                        ›
-                    </button>
-
-                    <!-- Last Page -->
-                    <button wire:click="gotoPage({{ $users->lastPage() }})" @if(!$users->hasMorePages()) disabled @endif
-                        class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
-                        »
-                    </button>
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
+                            »
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+
 
     <script>
         function confirmDelete(userId) {

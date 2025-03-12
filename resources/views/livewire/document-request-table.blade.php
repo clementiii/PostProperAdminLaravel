@@ -1,6 +1,6 @@
 <div>
     <!-- Stats Cards -->
-    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
+    <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
         <div
             class="h-[150px] w-[500px] bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg shadow-blue-700 flex items-center">
             <div class="mr-4">

@@ -6,8 +6,9 @@ use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DocumentRequestController;
-
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminProfileController;
+
 // Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -87,3 +88,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/document-request/{id}', [DashboardController::class, 'show']);
+
+// Admin Profile Routes
+Route::middleware(['auth'])->group(function () {
+    // View profile
+    Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+    
+    // Update profile
+    Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+});
