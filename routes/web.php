@@ -8,6 +8,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\IncidentReportController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -68,9 +69,7 @@ Route::middleware([
     //    return "Document Requests Page (Coming Soon)";
     //})->name('documents.index');
 
-    Route::get('/reports', function () {
-        return "Reports Page (Coming Soon)";
-    })->name('reports.index');
+  
 
     Route::get('/desk-support', function () {
         return "Desk Support Page (Coming Soon)";
@@ -79,6 +78,10 @@ Route::middleware([
     Route::get('/profile', function () {
         return "Profile Page (Coming Soon)";
     })->name('profile');
+
+    // Add the incident reports route here
+    Route::get('/incident-reports', [IncidentReportController::class, 'index'])
+        ->name('incident.reports');
 });
 
 // Dashboard routes
