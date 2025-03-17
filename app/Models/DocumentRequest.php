@@ -12,6 +12,7 @@ class DocumentRequest extends Model
     protected $table = 'document_requests'; // Assuming your table name is 'document_requests'
 
     protected $fillable = [
+        'Id',
         'Name',
         'Address',
         'Age',
@@ -30,6 +31,7 @@ class DocumentRequest extends Model
         'Quantity',
         'Status',
         'rejection_reason',
+        'DateRequested',
         'date_approved',
         'valid_id_front',
         'valid_id_back',

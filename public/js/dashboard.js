@@ -8,11 +8,23 @@ $(document).ready(function () {
             success: function (data) {
                 // Populate modal fields with correct field names
                 $("#modalTxnId").text(
-                    data.id ? `TXN-${data.id}` : "TXN-undefined"
+                    data.Id ? `TXN-${data.Id}` : "TXN-undefined"
                 );
                 $("#modalDocumentType").text(data.DocumentType || "N/A");
-                $("#modalPrice").text("N/A"); // Since price isn't in the model
-                $("#modalDate").text(data.created_at || "N/A");
+                
+                // Get quantity from the model (default to 1 if not available)
+                const quantity = data.Quantity || 1;
+                
+                // Set price based on document type and multiply by quantity
+                if (data.DocumentType && data.DocumentType.toLowerCase() === "cedula") {
+                    $("#modalPrice").text("Depends on the income");
+                } else {
+                    // Calculate total price (₱50 × quantity)
+                    const totalPrice = 50 * quantity;
+                    $("#modalPrice").text(`₱${totalPrice.toFixed(2)}`);
+                }
+                
+                $("#modalDate").text(data.DateRequested || "N/A");
                 $("#modalName").text(data.Name || "N/A");
                 $("#modalGender").text(data.Gender || "N/A");
                 $("#modalCivilStatus").text(data.CivilStatus || "N/A");
@@ -20,7 +32,6 @@ $(document).ready(function () {
                 $("#modalTin").text(data.TIN_No || "N/A");
                 $("#modalCtc").text(data.CTC_No || "N/A");
                 
-
                 // Show modal
                 $("#modal").removeClass("hidden");
             },
