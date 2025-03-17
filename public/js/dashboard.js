@@ -1,29 +1,23 @@
 $(document).ready(function () {
     $(".view-btn").on("click", function () {
         let requestId = $(this).data("id");
-
+    
         $.ajax({
             url: `/document-request/${requestId}`,
             type: "GET",
             success: function (data) {
-                // Populate modal fields with correct field names
-                $("#modalTxnId").text(
-                    data.Id ? `TXN-${data.Id}` : "TXN-undefined"
-                );
+                // Populate modal fields
+                $("#modalTxnId").text(data.Id ? `TXN-${data.Id}` : "TXN-undefined");
                 $("#modalDocumentType").text(data.DocumentType || "N/A");
-                
-                // Get quantity from the model (default to 1 if not available)
+    
                 const quantity = data.Quantity || 1;
-                
-                // Set price based on document type and multiply by quantity
                 if (data.DocumentType && data.DocumentType.toLowerCase() === "cedula") {
                     $("#modalPrice").text("Depends on the income");
                 } else {
-                    // Calculate total price (₱50 × quantity)
                     const totalPrice = 50 * quantity;
                     $("#modalPrice").text(`₱${totalPrice.toFixed(2)}`);
                 }
-                
+                $("#modalStatus").text(data.Status || "N/A");
                 $("#modalDate").text(data.DateRequested || "N/A");
                 $("#modalName").text(data.Name || "N/A");
                 $("#modalGender").text(data.Gender || "N/A");
@@ -31,7 +25,25 @@ $(document).ready(function () {
                 $("#modalAddress").text(data.Address || "N/A");
                 $("#modalTin").text(data.TIN_No || "N/A");
                 $("#modalCtc").text(data.CTC_No || "N/A");
-                
+    
+                // Update status badge color dynamically
+                const status = (data.Status || "").toLowerCase();
+                const statusColors = {
+                    pending: "bg-yellow-100 text-yellow-800",
+                    overdue: "bg-red-100 text-red-800",
+                    rejected: "bg-gray-200 text-gray-700",
+                    approved: "bg-green-100 text-green-800",
+                    cancelled: "bg-gray-300 text-gray-600",
+                    complete: "bg-blue-100 text-blue-800",
+                };
+    
+                // Remove all possible status classes before applying the new one
+                $("#modalStatusContainer")
+                    .removeClass()
+                    .addClass(
+                        `text-sm font-semibold px-3 py-1 rounded-full ${statusColors[status] || "bg-gray-100 text-gray-800"}`
+                    );
+    
                 // Show modal
                 $("#modal").removeClass("hidden");
             },

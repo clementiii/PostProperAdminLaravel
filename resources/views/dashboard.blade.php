@@ -49,8 +49,9 @@
                         <h2 class="text-2xl font-semibold">Request Details</h2>
                         <p class="text-gray-500">View complete information about this document request</p>
                         <div class="absolute top-[2.5rem] right-[2.5rem] flex items-center space-x-12">
-                            <span
-                                class="bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full">Pending</span>
+                            <span id="modalStatusContainer" class="text-sm font-semibold px-3 py-1 rounded-full">
+                                <span id="modalStatus"></span>
+                            </span>
                             <button onclick="closeModal()" class="material-icons-outlined">close</button>
                         </div>
                     </div>
