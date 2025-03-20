@@ -1,3 +1,6 @@
+<head>
+    <title>Admin Profile</title>
+</head>
 @extends('layouts.app')
 
 @section('content')
