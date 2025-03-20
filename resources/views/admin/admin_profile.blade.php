@@ -1,65 +1,79 @@
-<head>
-    <title>Admin Profile</title>
-</head>
 @extends('layouts.app')
 
 @section('content')
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="bg-white shadow-lg rounded-lg w-full max-w-md">
-        <!-- Profile Header -->
-        <div class="bg-purple-700 rounded-t-lg py-6 flex flex-col items-center">
-            <img src="{{ asset($admin->profile_picture) }}" 
-                alt="Profile Picture" 
-                class="w-24 h-24 rounded-full border-4 border-white">
-            <h2 class="text-white text-2xl font-semibold mt-2">{{ $admin->name }}</h2>
-            <p class="text-gray-300">Administrator</p>
+<div class="flex justify-center items-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+        <div class="flex flex-col items-center">
+            <div class="relative">
+                <img src="{{ asset(Auth::user()->profile_picture) }}" 
+                    class="w-24 h-24 rounded-full border-4 border-purple-500 object-cover" 
+                    alt="Profile Picture">
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mt-2">{{ Auth::user()->name }}</h2>
+            <p class="text-gray-600">Administrator</p>
         </div>
 
-        <!-- Profile Form -->
-        <div class="p-6">
-            <form action="{{ route('admin.profile.update') }}" method="POST" class="space-y-4">
-                @csrf
-                @method('PUT')
+        <!-- Update Profile Form -->
+        <form method="POST" action="{{ route('admin.profile.update') }}" class="mt-4">
+            @csrf
 
-                <div>
-                    <label class="block text-gray-700 font-medium">Name</label>
-                    <input type="text" name="name" value="{{ old('name', $admin->name) }}" 
-                        class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300">
-                </div>
+            <!-- Username -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700">Username</label>
+                <input type="text" name="username" value="{{ Auth::user()->username }}" 
+                    class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+            </div>
 
-                <div>
-                    <label class="block text-gray-700 font-medium">Username</label>
-                    <input type="text" name="username" value="{{ old('username', $admin->username) }}" 
-                        class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300">
-                </div>
-
-                <div>
-                    <label class="block text-gray-700 font-medium">Current Password</label>
-                    <input type="password" name="current_password" 
-                        class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300">
-                </div>
-
-                <div>
-                    <label class="block text-gray-700 font-medium">New Password</label>
-                    <input type="password" name="new_password" 
-                        class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300">
-                </div>
-
-                <div>
-                    <label class="block text-gray-700 font-medium">Confirm New Password</label>
-                    <input type="password" name="password_confirmation" 
-                        class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300">
-                </div>
-
-                <!-- Submit Button -->
-                <div class="mt-4">
-                    <button type="submit" class="w-full bg-purple-700 text-white py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-purple-800">
-                        <span class="material-icons">lock</span>
-                        <span>Save Changes</span>
+            <!-- Current Password -->
+            <div class="mb-4" x-data="{ showPassword: false }">
+                <label class="block text-sm font-semibold text-gray-700">Current Password</label>
+                <div class="relative">
+                    <input :type="showPassword ? 'text' : 'password'" name="current_password" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
+                        @click="showPassword = !showPassword">
+                        <i x-show="!showPassword" class="fas fa-eye"></i>
+                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <!-- New Password -->
+            <div class="mb-4" x-data="{ showPassword: false }">
+                <label class="block text-sm font-semibold text-gray-700">New Password</label>
+                <div class="relative">
+                    <input :type="showPassword ? 'text' : 'password'" name="new_password" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
+                        @click="showPassword = !showPassword">
+                        <i x-show="!showPassword" class="fas fa-eye"></i>
+                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-4" x-data="{ showPassword: false }">
+                <label class="block text-sm font-semibold text-gray-700">Confirm New Password</label>
+                <div class="relative">
+                    <input :type="showPassword ? 'text' : 'password'" name="confirm_password" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
+                        @click="showPassword = !showPassword">
+                        <i x-show="!showPassword" class="fas fa-eye"></i>
+                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Save Changes Button -->
+            <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
+                Save Changes
+            </button>
+        </form>
     </div>
 </div>
+
+<!-- Alpine.js for toggle functionality -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 @endsection

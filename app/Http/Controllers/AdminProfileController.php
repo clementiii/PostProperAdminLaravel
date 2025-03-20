@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Storage;
 
 class AdminProfileController extends Controller
 {
@@ -20,24 +20,51 @@ class AdminProfileController extends Controller
         $admin = Auth::user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:admin_accounts,username,' . $admin->id,
-            'current_password' => 'nullable|required_with:new_password,password_confirmation|min:6',
-            'new_password' => ['nullable', 'confirmed', Password::min(8)->letters()->numbers()],
+            'current_password' => 'required_with:new_password|nullable|string|min:6',
+            'new_password' => 'nullable|string|min:6|confirmed',
         ]);
 
-        $admin->name = $request->name;
-        $admin->username = $request->username;
-
+        // Check if the user wants to update their username or password
         if ($request->filled('current_password')) {
             if (!Hash::check($request->current_password, $admin->password)) {
-                return back()->withErrors(['current_password' => 'Incorrect current password.']);
+                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
             }
-            $admin->password = Hash::make($request->new_password);
+
+            // Update username if provided
+            $admin->username = $request->username;
+
+            // Update password if provided
+            if ($request->filled('new_password')) {
+                $admin->password = Hash::make($request->new_password);
+            }
         }
 
         $admin->save();
 
         return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    public function updateProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpg,jpeg,png|max:10240',
+        ]);
+
+        $admin = Auth::user();
+
+        if ($request->hasFile('profile_picture')) {
+            // Delete old profile picture if it exists
+            if ($admin->profile_picture && Storage::exists('public/' . $admin->profile_picture)) {
+                Storage::delete('public/' . $admin->profile_picture);
+            }
+
+            // Store new image
+            $path = $request->file('profile_picture')->store('admin_profile_pictures', 'public');
+            $admin->profile_picture = 'storage/' . $path;
+            $admin->save();
+        }
+
+        return redirect()->route('admin.profile')->with('success', 'Profile picture updated successfully.');
     }
 }
