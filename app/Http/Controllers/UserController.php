@@ -46,12 +46,12 @@ class UserController extends Controller
     {
         $user = UserAccount::findOrFail($id);
         $user->update([
-            'status' => 'approved',
+            'status' => 'verified',
             'verified_at' => now()
         ]);
 
-        return redirect()->route('users.view')
-            ->with('success', 'User has been approved successfully');
+        // Return to the verification page with a success message instead of immediately redirecting
+        return back()->with('success', 'User has been verified successfully');
     }
 
     public function rejectUser($id)
@@ -62,7 +62,7 @@ class UserController extends Controller
             'rejected_at' => now()
         ]);
 
-        return redirect()->route('users.view')
-            ->with('success', 'User has been rejected');
+        // Return to the verification page with a success message instead of immediately redirecting
+        return back()->with('success', 'User has been rejected');
     }
 }

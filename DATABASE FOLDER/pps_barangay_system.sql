@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 16, 2025 at 04:25 AM
+-- Generation Time: Mar 22, 2025 at 05:33 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,17 +48,19 @@ CREATE TABLE `admin_accounts` (
   `name` varchar(100) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `profile_picture` varchar(255) NOT NULL
+  `profile_picture` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin_accounts`
 --
 
-INSERT INTO `admin_accounts` (`id`, `name`, `username`, `password`, `profile_picture`) VALUES
-(1, 'Rannie Camba', 'rannie', '$2y$12$djddEwGN0wTPnj6d6A.0meS2NyrbQvZVhqeoiFjyMjK.pqgPG8Zyy', 'assets/admin_profile_pictures/testprof1.jpg\n'),
-(4, 'Quirino Saruno', 'saruno', 'Password@', 'uploads/profile_pictures/1733971040_a79b3e17-90b7-49d0-98ea-e3208f8dd1ef.png'),
-(8, 'Admin 2', 'admin2', 'password', '');
+INSERT INTO `admin_accounts` (`id`, `name`, `username`, `password`, `profile_picture`, `created_at`, `updated_at`) VALUES
+(1, 'Rannie Camba', 'rannie', '$2y$12$TCA6Q9wgT7OCs62A7W4q5ef1QPPEBXsz7WRan8zv8/y8v01u8vr/e', 'storage/admin_profile_pictures/admin_1742642507_2830.jpg', NULL, '2025-03-22 03:25:14'),
+(4, 'Quirino Saruno', 'saruno', 'Password@', 'assets/admin_profile_pictures/1733971040_a79b3e17-90b7-49d0-98ea-e3208f8dd1ef.png', NULL, NULL),
+(8, 'Admin 2', 'admin2', 'password', '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -83,7 +85,8 @@ INSERT INTO `barangay_announcements` (`id`, `announcement_title`, `description_t
 (34, 'Nagsagawa ng pagti-trim ng puno sa Agila Street,G2 Village sina Kagawad on Clean and Green', 'Bilang tugon sa concerned citizen ay nagsagawa ng pagti-trim ng puno sa Agila Street,G2 Village sina Kagawad on Clean and Green, Kagawad Elmer Baldonado kasama ang ating masisipag na Environmental Police at Barangay Enforcers.\r\nAng nasabing puno ang nakaharang na sa mga wire ng kuryente kung kaya\'t kinakailangan na itong bawasan upang maiwasan ang anumang hindi magandang pwedeng mangyari.\r\nMula sa Pamunuan ng ating Punong Barangay Quirino Sarono ay nais naming laging maging ligtas ang bawat mamamayan ng Barangay Post Proper Southside.\r\n.\r\n.\r\n#ᴋᴀᴘQꜱ\r\n#ꜱᴇʀʙɪꜱʏᴏɴɢꜱᴀʀᴏɴᴏ\r\n#ɪLOVEꜱᴏᴜᴛʜꜱɪᴅᴇ\r\n#ꜱᴏᴜᴛʜꜱɪᴅᴇ2024', '[\"uploads\\/announcements\\/1733500679_469533685_960707952771984_4186303642133741615_n.jpg\",\"uploads\\/announcements\\/1733500679_469545587_960707896105323_7268418601890999976_n.jpg\",\"uploads\\/announcements\\/1733500679_469465618_960707826105330_8388280861290474215_n.jpg\",\"uploads\\/announcements\\/1733500679_469547374_960707966105316_7787706121310746654_n.jpg\",\"uploads\\/announcements\\/1733967337_469651827_960707949438651_6966504280532260782_n.jpg\"]', '2024-12-11 18:35:37', '2024-12-12 02:35:37'),
 (35, 'Ongoing FREE Eye Check -up', 'Ongoing FREE Eye Check -up\r\n@Fox Satellite office', '[\"uploads\\/announcements\\/1733924287_469710194_962336132609166_5394994954942165739_n.jpg\",\"uploads\\/announcements\\/1733924287_469863653_962336075942505_1188672549198688813_n.jpg\",\"uploads\\/announcements\\/1733924287_469793291_962336029275843_1649697623784366509_n.jpg\"]', '2024-12-11 06:38:07', '2024-12-11 14:38:07'),
 (36, 'FREE EYE CHECKUP', '@FOX SATELITE OFFICE\r\nDEC. 9, 2024 8am - 4pm\r\n(Eye check-up only)', '[]', '2024-12-11 06:39:33', '2024-12-11 14:39:33'),
-(37, 'TAGUIG BARANGAY NUTRITION ACTION OFFICER QUARTERLY MEETING ANDOATH-TAKING CEREMONY FOR NEWLY ELECTED OFFICERS', 'TAGUIG BARANGAY NUTRITION ACTION OFFICER QUARTERLY MEETING ANDOATH-TAKING CEREMONY FOR NEWLY ELECTED OFFICERS\r\nIsinagawa ang Taguig Barangay Nutrition Action Officer Quarterly Meeting and Oath-Taking Ceremony for Newly Elected Officers ngayong araw, Disyembre 5 sa Training Plaza, Multipurpose Building, Purok 2, Barangay Upper Bicutan.\r\nPinangunahan ni Mayor Ate Lani Cayetano  ang pagbubukas ng programa kasama sina Congressman Ricardo Ading Cruz, Jr.  (Representative 1st District, Taguig City),\r\nKonsehal Rodil \"Tikboy\" Marcelino (Chair, Committee on Health), Konsehala Marisse Balina-Eron  (Co-Chair, Committee on Health), Dr. Norena R. Osano (City Health Officer), at Ms. Julie S. Bernabe (City Nutrition Action Officer).\r\nNanumpa rin ang mga bagong halal na opisyales ng Taguig City Barangay Nutrition Action Officers Association kasama ang ating Kagawad on Health at BNAO Jobert Quiambao  matapos ang naganap na special election noong Setyembre 27 upang mapunan ang mga bakanteng posisyong naiwan ng mga opisyales na nagtapos na ang termino sa kanilang mga barangay.\r\nNagkaroon din ng lecture tungkol sa kahalagahan ng pagpapatupad ng Nutrition in Emergencies (NiE) sa mga barangay at kung ano ang tungkulin ng mga Barangay Nutrition Action Officers (BNAO) sa panahon ng kalamidad.\r\nCtto: Taguig Nutrition Office', '[\"uploads\\/announcements\\/1733924411_469223371_960587896117323_5318530719560085577_n.jpg\",\"uploads\\/announcements\\/1733924411_469340425_960587886117324_1436298450426928014_n.jpg\",\"uploads\\/announcements\\/1733924411_469165537_960587669450679_3822209838079120184_n.jpg\",\"uploads\\/announcements\\/1733924411_469409440_960587579450688_8226622029199845635_n.jpg\"]', '2024-12-11 06:43:10', '2024-12-11 14:43:10');
+(37, 'TAGUIG BARANGAY NUTRITION ACTION OFFICER QUARTERLY MEETING ANDOATH-TAKING CEREMONY FOR NEWLY ELECTED OFFICERS', 'TAGUIG BARANGAY NUTRITION ACTION OFFICER QUARTERLY MEETING ANDOATH-TAKING CEREMONY FOR NEWLY ELECTED OFFICERS\r\nIsinagawa ang Taguig Barangay Nutrition Action Officer Quarterly Meeting and Oath-Taking Ceremony for Newly Elected Officers ngayong araw, Disyembre 5 sa Training Plaza, Multipurpose Building, Purok 2, Barangay Upper Bicutan.\r\nPinangunahan ni Mayor Ate Lani Cayetano  ang pagbubukas ng programa kasama sina Congressman Ricardo Ading Cruz, Jr.  (Representative 1st District, Taguig City),\r\nKonsehal Rodil \"Tikboy\" Marcelino (Chair, Committee on Health), Konsehala Marisse Balina-Eron  (Co-Chair, Committee on Health), Dr. Norena R. Osano (City Health Officer), at Ms. Julie S. Bernabe (City Nutrition Action Officer).\r\nNanumpa rin ang mga bagong halal na opisyales ng Taguig City Barangay Nutrition Action Officers Association kasama ang ating Kagawad on Health at BNAO Jobert Quiambao  matapos ang naganap na special election noong Setyembre 27 upang mapunan ang mga bakanteng posisyong naiwan ng mga opisyales na nagtapos na ang termino sa kanilang mga barangay.\r\nNagkaroon din ng lecture tungkol sa kahalagahan ng pagpapatupad ng Nutrition in Emergencies (NiE) sa mga barangay at kung ano ang tungkulin ng mga Barangay Nutrition Action Officers (BNAO) sa panahon ng kalamidad.\r\nCtto: Taguig Nutrition Office', '[\"uploads\\/announcements\\/1733924411_469223371_960587896117323_5318530719560085577_n.jpg\",\"uploads\\/announcements\\/1733924411_469340425_960587886117324_1436298450426928014_n.jpg\",\"uploads\\/announcements\\/1733924411_469165537_960587669450679_3822209838079120184_n.jpg\",\"uploads\\/announcements\\/1733924411_469409440_960587579450688_8226622029199845635_n.jpg\"]', '2024-12-11 06:43:10', '2024-12-11 14:43:10'),
+(51, 'daw', 'd awda', NULL, '2025-03-15 06:09:20', '2025-03-15 14:09:20');
 
 -- --------------------------------------------------------
 
@@ -102,8 +105,8 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('fb2a2903c4eeb01175b519bf509ed7aa', 'i:1;', 1739675523),
-('fb2a2903c4eeb01175b519bf509ed7aa:timer', 'i:1739675523;', 1739675523);
+('fb2a2903c4eeb01175b519bf509ed7aa', 'i:2;', 1742654219),
+('fb2a2903c4eeb01175b519bf509ed7aa:timer', 'i:1742654219;', 1742654219);
 
 -- --------------------------------------------------------
 
@@ -168,7 +171,8 @@ INSERT INTO `document_requests` (`Id`, `userId`, `DocumentType`, `Name`, `Addres
 (49, 22, 'Barangay Certification', 'Raul Menendez', '123  Street Zone', '123456789012', '123456789012', 'y', 25, '12-05-99', 'y', '7', 7, 'y', 'Male', 'Single', 'y', 'cancelled', 2, '2024-12-07 15:00:53', '', 'uploads/valid_ids/1733554220_6753f02ccacd7_front.jpg', 'uploads/valid_ids/1733554220_6753f02ccaf2f_back.jpg', '', '', 'foyditdit', 'pending', NULL),
 (50, 22, 'Barangay Clearance', 'Raul Menendez', '123  Street Zone', '921586239123', '921586239123', 'joy', 25, '12-05-99', 'tacloban  city', 'govt employee', 23, 'filipino', 'Male', 'Single', 'for nbi clearance', 'cancelled', 2, '2024-12-07 20:44:08', '', 'uploads/valid_ids/1733575501_6754434dd82a9_front.jpg', 'uploads/valid_ids/1733575501_6754434dd8c4a_back.jpg', '', '', 'No longer needed', 'pending', NULL),
 (51, 27, 'Barangay Certification', 'John Marston', '123  Street Zone', '123456789012', '123456789012', 'john', 34, '12-07-90', 'asfddf', 'Student', 15, 'dasfsdf', 'Male', 'Single', 'For my lani scholarship', 'rejected', 2, '2024-12-11 19:17:16', '', 'uploads/valid_ids/1733915849_675974c96b286_front.jpg', 'uploads/valid_ids/1733915849_675974c96bb50_back.jpg', '', 'You have inputted the wrong information', NULL, 'pending', NULL),
-(53, 31, 'Barangay Clearance', 'Clement Harold Miguel Cabus', '497-A  Street Zone', '123456789012', '123456789012', 'chummy', 20, '12-22-03', 'Makati Medical Center', 'Student', 15, 'Filipino', 'Male', 'Single', 'For my job requirement', 'OVERDUE', 2, '2024-12-12 10:28:07', '', 'uploads/valid_ids/1733970529_675a4a617722b_front.jpg', 'uploads/valid_ids/1733970529_675a4a617750b_back.jpg', '', '', NULL, 'picked_up', '2024-12-12 10:45:00');
+(53, 31, 'Barangay Clearance', 'Clement Harold Miguel Cabus', '497-A  Street Zone', '123456789012', '123456789012', 'chummy', 20, '12-22-03', 'Makati Medical Center', 'Student', 15, 'Filipino', 'Male', 'Single', 'For my job requirement', 'OVERDUE', 2, '2024-12-12 10:28:07', '', 'uploads/valid_ids/1733970529_675a4a617722b_front.jpg', 'uploads/valid_ids/1733970529_675a4a617750b_back.jpg', '', '', NULL, 'picked_up', '2024-12-12 10:45:00'),
+(54, 31, 'Cedula', 'Clement Harold Miguel Cabus', '497-A  Street Zone', '123456789012', '123456789012', 'softengg2', 20, '12-22-03', 'dawd', 'awdawd', 12, 'awdawd', 'Male', 'Widowed', 'awdawda', 'pending', 2, '2025-03-17 18:24:17', '', 'uploads/valid_ids/1742207076_67d7f8647f80c_front.jpg', 'uploads/valid_ids/1742207076_67d7f8647fffb_back.jpg', '', '', NULL, 'pending', NULL);
 
 -- --------------------------------------------------------
 
@@ -385,7 +389,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('K3JrVtO5RELF12gk1vKMWux6Jttmlbv8Zn0UEy4B', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiQnhKbnAzZll2ZGxqaEZIdlEwbkRqUmZJVlJETUhVdFVIa2JMbGI1aSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoyMToicGFzc3dvcmRfaGFzaF9zYW5jdHVtIjtzOjYwOiIkMnkkMTIkZGpkZEV3R04wd1RQbmo2ZDZBLjBtZVMyTnlyYlF2WlZocWVvaUZqeU1qSy5wcWdQRzhaeXkiO30=', 1739676199);
+('KsAx4rO2vV2Z6qEsrRB3htGScYOkVOKvvhNCRlWM', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoid091RjN2QmxZUnprblRxVkYydkg2ZkN5T3RyQnY1dTlnOThQNk5EMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC91c2VycyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoyMToicGFzc3dvcmRfaGFzaF9zYW5jdHVtIjtzOjYwOiIkMnkkMTIkVENBNlE5d2dUN09DczYyQTdXNHE1ZWYxUVBQRUJYc3o3V1Jhbjh6djgveTh2MDF1OHZyL2UiO30=', 1742661204);
 
 -- --------------------------------------------------------
 
@@ -437,19 +441,24 @@ CREATE TABLE `user_accounts` (
   `full_name` varchar(255) GENERATED ALWAYS AS (concat(`firstName`,' ',`lastName`)) STORED,
   `status` enum('pending','verified','rejected') NOT NULL DEFAULT 'pending',
   `user_valid_id` longtext DEFAULT NULL,
-  `user_valid_id_back` longtext DEFAULT NULL
+  `user_valid_id_back` longtext DEFAULT NULL,
+  `verified_at` timestamp NULL DEFAULT NULL,
+  `rejected_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_accounts`
 --
 
-INSERT INTO `user_accounts` (`id`, `firstName`, `lastName`, `username`, `age`, `gender`, `adrHouseNo`, `adrZone`, `adrStreet`, `birthday`, `password`, `user_profile_picture`, `last_active`, `status`, `user_valid_id`, `user_valid_id_back`) VALUES
-(22, 'Raul', 'Menendez', 'walt', 25, 'male', '123', '12', 'asda', '1999-12-05', '1IdXOTyMch/yApTuQoriJvEFXv01l0HTxEPvvwk6w0g=', 'uploads/user_profile_pictures/1733909661_67595c9d43914.jpg', '2024-12-11 18:51:42', 'verified', 'uploads/valid_ids/67519f205a3c4_front_valid_id_3658849476003197956.jpg', 'uploads/valid_ids/67519f205ab49_back_valid_id_back_3791201348274179855.jpg'),
-(24, 'James', 'Charles', 'james', 25, 'male', '123', '12', '123', '1999-12-06', 'kKov9QAModWIO8WVQRy7UK8pToZNkIdumwOCF2wY6iQ=', '', NULL, 'rejected', 'uploads/valid_ids/675298f5c2048_front_valid_id_1425142091750092768.jpg', 'uploads/valid_ids/675298f5c263b_back_valid_id_back_1578866002197435821.jpg'),
-(25, 'Harry', 'Potter', 'harry', 25, 'male', '123', '123', '123', '1999-12-06', '1IdXOTyMch/yApTuQoriJvEFXv01l0HTxEPvvwk6w0g=', '', '2024-12-06 23:24:26', 'verified', 'uploads/valid_ids/67529943c7234_front_valid_id_960509828584422992.jpg', 'uploads/valid_ids/67529943c7f68_back_valid_id_back_4268192904904854930.jpg'),
-(27, 'John', 'Marston', 'john', 34, 'male', '123', '123', '123', '1990-12-07', '+GWRDCz+w/V2Vx3dwBDMMT+QIYR5k9J7iEL5+fFpBKk=', 'uploads/user_profile_pictures/1733915875_675974e393a46.jpg', '2024-12-11 08:08:42', 'verified', 'uploads/valid_ids/675436666a43b_front_valid_id_55441369582974318.jpg', 'uploads/valid_ids/675436666a901_back_valid_id_back_2213364385378847230.jpg'),
-(31, 'Clement Harold Miguel', 'Cabus', 'clementcabus', 20, 'male', '497-A', 'ISU Village', 'Kalaw', '2003-12-22', '+GWRDCz+w/V2Vx3dwBDMMT+QIYR5k9J7iEL5+fFpBKk=', 'uploads/user_profile_pictures/1733970833_675a4b91cef3f.jpg', '2024-12-11 19:48:07', 'verified', 'uploads/valid_ids/675a48ee228cc_front_valid_id_5617341577447130155.jpg', 'uploads/valid_ids/675a48ee22eac_back_valid_id_back_7352009403199391101.jpg');
+INSERT INTO `user_accounts` (`id`, `firstName`, `lastName`, `username`, `age`, `gender`, `adrHouseNo`, `adrZone`, `adrStreet`, `birthday`, `password`, `user_profile_picture`, `last_active`, `status`, `user_valid_id`, `user_valid_id_back`, `verified_at`, `rejected_at`, `created_at`, `updated_at`) VALUES
+(22, 'Raul', 'Menendez', 'walt', 25, 'male', '123', '12', 'asda', '1999-12-05', '1IdXOTyMch/yApTuQoriJvEFXv01l0HTxEPvvwk6w0g=', 'uploads/user_profile_pictures/1733909661_67595c9d43914.jpg', '2024-12-11 18:51:42', 'verified', 'uploads/valid_ids/67519f205a3c4_front_valid_id_3658849476003197956.jpg', 'uploads/valid_ids/67519f205ab49_back_valid_id_back_3791201348274179855.jpg', NULL, NULL, NULL, NULL),
+(24, 'James', 'Charles', 'james', 25, 'male', '123', '12', '123', '1999-12-06', 'kKov9QAModWIO8WVQRy7UK8pToZNkIdumwOCF2wY6iQ=', '', NULL, 'rejected', 'uploads/valid_ids/675298f5c2048_front_valid_id_1425142091750092768.jpg', 'uploads/valid_ids/675298f5c263b_back_valid_id_back_1578866002197435821.jpg', '2025-03-22 08:33:13', '2025-03-22 08:33:20', NULL, '2025-03-22 08:33:20'),
+(25, 'Harry', 'Potter', 'harry', 25, 'male', '123', '123', '123', '1999-12-06', '1IdXOTyMch/yApTuQoriJvEFXv01l0HTxEPvvwk6w0g=', '', '2024-12-06 23:24:26', 'verified', 'uploads/valid_ids/67529943c7234_front_valid_id_960509828584422992.jpg', 'uploads/valid_ids/67529943c7f68_back_valid_id_back_4268192904904854930.jpg', NULL, NULL, NULL, NULL),
+(27, 'John', 'Marston', 'john', 34, 'male', '123', '123', '123', '1990-12-07', '+GWRDCz+w/V2Vx3dwBDMMT+QIYR5k9J7iEL5+fFpBKk=', 'uploads/user_profile_pictures/1733915875_675974e393a46.jpg', '2024-12-11 08:08:42', 'verified', 'uploads/valid_ids/675436666a43b_front_valid_id_55441369582974318.jpg', 'uploads/valid_ids/675436666a901_back_valid_id_back_2213364385378847230.jpg', NULL, NULL, NULL, NULL),
+(31, 'Clement Harold Miguel', 'Cabus', 'clementcabus', 20, 'male', '497-A', 'ISU Village', 'Kalaw', '2003-12-22', '+GWRDCz+w/V2Vx3dwBDMMT+QIYR5k9J7iEL5+fFpBKk=', 'uploads/user_profile_pictures/1733970833_675a4b91cef3f.jpg', '2025-03-17 03:34:27', 'verified', 'uploads/valid_ids/675a48ee228cc_front_valid_id_5617341577447130155.jpg', 'uploads/valid_ids/675a48ee22eac_back_valid_id_back_7352009403199391101.jpg', NULL, NULL, NULL, NULL),
+(33, 'Csdawdawda', 'Cabus', 'dawdawd', 20, 'male', '497-A', 'ISU Village', 'Kalaw', '2003-12-22', '+GWRDCz+w/V2Vx3dwBDMMT+QIYR5k9J7iEL5+fFpBKk=', 'uploads/user_profile_pictures/1733970833_675a4b91cef3f.jpg', '2024-12-11 19:48:07', 'verified', 'uploads/valid_ids/675a48ee228cc_front_valid_id_5617341577447130155.jpg', 'uploads/valid_ids/675a48ee22eac_back_valid_id_back_7352009403199391101.jpg', NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -554,13 +563,13 @@ ALTER TABLE `admin_accounts`
 -- AUTO_INCREMENT for table `barangay_announcements`
 --
 ALTER TABLE `barangay_announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `document_requests`
 --
 ALTER TABLE `document_requests`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `incident_reports`
@@ -596,7 +605,7 @@ ALTER TABLE `status_change_logs`
 -- AUTO_INCREMENT for table `user_accounts`
 --
 ALTER TABLE `user_accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables

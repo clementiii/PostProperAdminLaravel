@@ -17,6 +17,35 @@
     @section('title', 'Verify User')
     @section('content')
         <div class="container mx-auto pt-0 px-3">
+            <!-- Success Alert Message -->
+            @if (session('success'))
+                <div id="success-alert" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
+                    <div class="flex items-center">
+                        <span class="material-icons-outlined mr-2">check_circle</span>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                    <div class="mt-2 text-sm">
+                        Redirecting to users list in <span id="countdown">3</span> seconds...
+                    </div>
+                </div>
+
+                <script>
+                    // Countdown and redirect
+                    let secondsLeft = 3;
+                    const countdownElement = document.getElementById('countdown');
+                    
+                    const countdownInterval = setInterval(function() {
+                        secondsLeft--;
+                        countdownElement.textContent = secondsLeft;
+                        
+                        if (secondsLeft <= 0) {
+                            clearInterval(countdownInterval);
+                            window.location.href = "{{ route('users.view') }}";
+                        }
+                    }, 1000);
+                </script>
+            @endif
+
             <!-- Header with Back Button -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
@@ -158,11 +187,19 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons - will stay at bottom -->
+                                <!-- Action Buttons - only show if no success message -->
+                                @if (!session('success'))
                                 <div class="flex justify-end space-x-3 mt-auto pt-6 border-t border-gray-200 dark:bg-white/10">
-                                    <button class="px-6 py-3 text-lg font-medium bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-500 hover:text-white">Reject</button>
-                                    <button class="px-6 py-3 text-lg font-medium bg-purple-700 text-white rounded-lg hover:bg-purple-800">Approve</button>
+                                    <form action="{{ route('users.reject', $user->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-6 py-3 text-lg font-medium bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-500 hover:text-white">Reject</button>
+                                    </form>
+                                    <form action="{{ route('users.approve', $user->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-6 py-3 text-lg font-medium bg-purple-700 text-white rounded-lg hover:bg-purple-800">Approve</button>
+                                    </form>
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>

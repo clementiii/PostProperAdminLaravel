@@ -60,8 +60,8 @@ Route::middleware([
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.view');
         Route::get('/verify/{id}', [UserController::class, 'verifyUser'])->name('users.verify');
-        Route::post('/verify/{id}/approve', [UserController::class, 'approveUser'])->name('users.approve');
-        Route::post('/verify/{id}/reject', [UserController::class, 'rejectUser'])->name('users.reject');
+        Route::post('/users/{id}/approve', 'App\Http\Controllers\UserController@approveUser')->name('users.approve');
+        Route::post('/users/{id}/reject', 'App\Http\Controllers\UserController@rejectUser')->name('users.reject');
     });
     
     // Announcements

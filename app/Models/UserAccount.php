@@ -13,7 +13,7 @@ class UserAccount extends Model
     protected $fillable = [
         'id', 'firstName', 'lastName', 'username', 'age', 'gender', 
         'adrHouseNo', 'adrZone', 'adrStreet', 'birthday', 'password', 
-        'user_profile_picture', 'valid_id_front', 'valid_id_back',
+        'user_profile_picture', 'user_valid_id', 'user_valid_id_back',
         'status', 'last_active', 'verified_at', 'rejected_at'
     ];
 
