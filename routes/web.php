@@ -95,11 +95,6 @@ Route::middleware([
     // Incident Reports
     Route::get('/incident-reports', [IncidentReportController::class, 'index'])->name('incident.reports');
     
-    // Profile Page (Coming Soon)
-    Route::get('/profile', function () {
-        return "Profile Page (Coming Soon)";
-    })->name('profile');
-    
     // Desk Support (Coming Soon)
     Route::get('/desk-support', function () {
         return "Desk Support Page (Coming Soon)";

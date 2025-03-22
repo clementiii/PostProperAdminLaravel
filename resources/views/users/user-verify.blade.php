@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title')</title>
+    <title>View User Details</title>
+    <link rel="icon" href="{{ asset('/assets/Southside.png') }}" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
@@ -13,7 +14,7 @@
 <body class="bg-gray-50">
     @extends('layouts.app')
 
-    @section('title', 'User Verify')
+    @section('title', 'Verify User')
     @section('content')
         <div class="container mx-auto pt-0 px-3">
             <!-- Header with Back Button -->
@@ -151,7 +152,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-gray-500 text-lg">Last Login</p>
-                                                <p class="font-medium text-xl">{{ $user->updated_at ? date('F d, Y h:i A', strtotime($user->updated_at)) : 'Not available' }}</p>
+                                                <p class="font-medium text-xl">{{ $user->last_active ? \Carbon\Carbon::parse($user->last_active)->format('M d, Y h:i A') : 'Not available' }}</p>
                                             </div>
                                         </div>
                                     </div>
