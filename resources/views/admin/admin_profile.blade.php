@@ -1,5 +1,9 @@
-@extends('layouts.app')
+<head>
+    <title>Admin Profile</title>
+</head>
 
+@extends('layouts.app')
+@section('title', 'Admin Profile')
 @section('content')
 <div class="flex justify-center items-center min-h-screen">
     <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
@@ -25,10 +29,14 @@
         @endif
 
         <div class="flex flex-col items-center">
-            <div class="relative">
+            <div class="relative group">
                 <img src="{{ asset(Auth::user()->profile_picture) }}" 
                     class="w-24 h-24 rounded-full border-4 border-purple-500 object-cover" 
                     alt="Profile Picture">
+                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                     onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')">
+                    <i class="fas fa-camera text-white text-xl"></i>
+                </div>
             </div>
             <h2 class="text-xl font-bold text-gray-800 mt-2">{{ Auth::user()->name }}</h2>
             <p class="text-gray-600">Administrator</p>
@@ -106,6 +114,120 @@
     </div>
 </div>
 
+<!-- Profile Picture Upload Modal -->
+<div id="profile-picture-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Update Profile Picture</h3>
+            <button type="button" class="text-gray-500 hover:text-gray-700" 
+                onclick="document.getElementById('profile-picture-modal').classList.add('hidden')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form method="POST" action="{{ route('admin.profile.update-picture') }}" enctype="multipart/form-data">
+            @csrf
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Choose a new profile picture</label>
+                <div class="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <div class="text-center" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                        <p class="text-sm text-gray-500">Click to browse or drag and drop</p>
+                        <p class="text-xs text-gray-400 mt-1">JPG, JPEG or PNG (max. 10MB)</p>
+                        <input type="file" name="profile_picture" id="profile-picture-input" class="hidden" 
+                            accept="image/jpeg,image/jpg,image/png" onchange="previewImage(this)">
+                    </div>
+                    <div id="preview-container" class="hidden">
+                        <img id="preview-image" class="max-h-40 rounded">
+                        <button type="button" class="mt-2 text-sm text-red-500" onclick="resetUpload()">Remove</button>
+                    </div>
+                </div>
+                @error('profile_picture')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            
+            <div class="flex justify-end mt-4">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg mr-2 hover:bg-gray-100"
+                    onclick="document.getElementById('profile-picture-modal').classList.add('hidden')">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    Upload
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Alpine.js for toggle functionality -->
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Script for image preview -->
+<script>
+    document.getElementById('upload-area').addEventListener('click', function() {
+        document.getElementById('profile-picture-input').click();
+    });
+    
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('upload-area').classList.add('hidden');
+                document.getElementById('preview-container').classList.remove('hidden');
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function resetUpload() {
+        document.getElementById('profile-picture-input').value = '';
+        document.getElementById('preview-container').classList.add('hidden');
+        document.getElementById('upload-area').classList.remove('hidden');
+    }
+    
+    // Add drag and drop functionality
+    const uploadArea = document.getElementById('upload-area');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        uploadArea.classList.add('border-purple-500', 'bg-purple-50');
+    }
+    
+    function unhighlight() {
+        uploadArea.classList.remove('border-purple-500', 'bg-purple-50');
+    }
+    
+    uploadArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length) {
+            document.getElementById('profile-picture-input').files = files;
+            previewImage(document.getElementById('profile-picture-input'));
+        }
+    }
+</script>
 @endsection

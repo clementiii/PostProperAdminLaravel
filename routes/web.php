@@ -89,7 +89,7 @@ Route::middleware([
     Route::middleware(['auth'])->group(function () {
         Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
         Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
-        Route::post('/admin/profile/update-picture', [AdminProfileController::class, 'updateProfilePicture'])->name('admin.profile.updatePicture');
+        Route::post('/admin/profile/update-picture', [App\Http\Controllers\AdminProfileController::class, 'updateProfilePicture'])->name('admin.profile.update-picture');
     });
     
     // Incident Reports

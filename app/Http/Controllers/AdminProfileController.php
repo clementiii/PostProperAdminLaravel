@@ -87,14 +87,20 @@ class AdminProfileController extends Controller
 
             if ($request->hasFile('profile_picture')) {
                 // Delete old profile picture if it exists
-                if ($admin->profile_picture && Storage::exists('public/' . $admin->profile_picture)) {
-                    Storage::delete('public/' . $admin->profile_picture);
+                if ($admin->profile_picture) {
+                    $oldPath = str_replace(['storage/', 'public/', 'assets/'], '', $admin->profile_picture);
+                    if (Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
                 }
 
-                // Store new image
-                $path = $request->file('profile_picture')->store('admin_profile_pictures', 'public');
+                // Generate a sanitized filename and store the file
+                $extension = $request->file('profile_picture')->getClientOriginalExtension();
+                $filename = 'admin_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
+                $storagePath = 'admin_profile_pictures';
+                $path = $request->file('profile_picture')->storeAs($storagePath, $filename, 'public');
                 
-                // Update the admin profile with new picture path
+                // Update database with path that includes 'storage/' prefix for asset() helper
                 AdminProfile::where('id', $admin->id)->update([
                     'profile_picture' => 'storage/' . $path
                 ]);
@@ -104,9 +110,7 @@ class AdminProfileController extends Controller
             
             return redirect()->route('admin.profile')->with('error', 'No profile picture was uploaded.');
         } catch (\Exception $e) {
-            // Log the error
             \Log::error('Profile picture update error: ' . $e->getMessage());
-            
             return redirect()->route('admin.profile')->with('error', 'An error occurred while updating your profile picture. Please try again.');
         }
     }
