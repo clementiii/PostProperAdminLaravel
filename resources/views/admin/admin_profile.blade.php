@@ -3,6 +3,27 @@
 @section('content')
 <div class="flex justify-center items-center min-h-screen">
     <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+        <!-- Success Message -->
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        <!-- General Error Message -->
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+        
+        <!-- Info Message -->
+        @if(session('info'))
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                <span class="block sm:inline">{{ session('info') }}</span>
+            </div>
+        @endif
+
         <div class="flex flex-col items-center">
             <div class="relative">
                 <img src="{{ asset(Auth::user()->profile_picture) }}" 
