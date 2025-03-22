@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\AdminProfile;
 
 class AdminProfileController extends Controller
 {
@@ -18,30 +19,40 @@ class AdminProfileController extends Controller
     public function update(Request $request)
     {
         $admin = Auth::user();
-
-        $request->validate([
-            'username' => 'required|string|max:255|unique:admin_accounts,username,' . $admin->id,
-            'current_password' => 'required_with:new_password|nullable|string|min:6',
-            'new_password' => 'nullable|string|min:6|confirmed',
+        
+        // Base validation rules
+        $validator = $request->validate([
+            'username' => ['required', 'string', 'max:255', 'unique:admin_accounts,username,' . $admin->id],
+            'current_password' => ['required', 'string'],
+            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
         ]);
-
-        // Check if the user wants to update their username or password
-        if ($request->filled('current_password')) {
-            if (!Hash::check($request->current_password, $admin->password)) {
-                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
-            }
-
-            // Update username if provided
-            $admin->username = $request->username;
-
-            // Update password if provided
-            if ($request->filled('new_password')) {
-                $admin->password = Hash::make($request->new_password);
-            }
+        
+        // Always verify current password
+        if (!Hash::check($request->current_password, $admin->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
-
-        $admin->save();
-
+        
+        // Check if username is being changed
+        $isUsernameChanged = $request->username !== $admin->username;
+        
+        // Prepare data to update
+        $data = [];
+        
+        // Add username to data if it's changed
+        if ($isUsernameChanged) {
+            $data['username'] = $request->username;
+        }
+        
+        // Add password to data if it's provided
+        if ($request->filled('new_password')) {
+            $data['password'] = Hash::make($request->new_password);
+        }
+        
+        // Update the admin profile
+        if (!empty($data)) {
+            AdminProfile::where('id', $admin->id)->update($data);
+        }
+        
         return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
     }
 
@@ -61,8 +72,11 @@ class AdminProfileController extends Controller
 
             // Store new image
             $path = $request->file('profile_picture')->store('admin_profile_pictures', 'public');
-            $admin->profile_picture = 'storage/' . $path;
-            $admin->save();
+            
+            // Update the admin profile with new picture path
+            AdminProfile::where('id', $admin->id)->update([
+                'profile_picture' => 'storage/' . $path
+            ]);
         }
 
         return redirect()->route('admin.profile')->with('success', 'Profile picture updated successfully.');
