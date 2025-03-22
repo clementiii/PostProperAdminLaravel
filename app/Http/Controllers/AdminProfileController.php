@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\AdminProfile;
 
 class AdminProfileController extends Controller
@@ -69,7 +70,7 @@ class AdminProfileController extends Controller
             return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Profile update error: ' . $e->getMessage());
+            Log::error('Profile update error: ' . $e->getMessage());
             
             // Return generic error message to the user
             return redirect()->route('admin.profile')->with('error', 'An error occurred while updating your profile. Please try again.');
@@ -110,7 +111,7 @@ class AdminProfileController extends Controller
             
             return redirect()->route('admin.profile')->with('error', 'No profile picture was uploaded.');
         } catch (\Exception $e) {
-            \Log::error('Profile picture update error: ' . $e->getMessage());
+            Log::error('Profile picture update error: ' . $e->getMessage());
             return redirect()->route('admin.profile')->with('error', 'An error occurred while updating your profile picture. Please try again.');
         }
     }
