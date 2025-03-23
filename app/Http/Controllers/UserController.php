@@ -20,9 +20,24 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        $user = UserAccount::findOrFail($id);
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully');
+        try {
+            $user = UserAccount::findOrFail($id);
+            $user->delete();
+            return redirect()->route('users.view')->with('success', 'User deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('users.view')->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
+    }
+
+    public function destroyUser(Request $request, $id)
+    {
+        try {
+            $user = UserAccount::findOrFail($id);
+            $user->delete();
+            return redirect()->route('users.view')->with('success', 'User deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('users.view')->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
 
     public function verifyUser($id)

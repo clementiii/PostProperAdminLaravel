@@ -63,6 +63,7 @@ Route::middleware([
         Route::get('/verify/{id}', [UserController::class, 'verifyUser'])->name('users.verify');
         Route::post('/users/{id}/approve', 'App\Http\Controllers\UserController@approveUser')->name('users.approve');
         Route::post('/users/{id}/reject', 'App\Http\Controllers\UserController@rejectUser')->name('users.reject');
+        Route::delete('/users/{id}', [UserController::class, 'destroyUser'])->name('users.delete');
     });
     
     // Announcements
