@@ -26,8 +26,10 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "App\\Models\\Android\\": "app/Models/Android/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "App\\Http\\Controllers\\Android\\": "app/Http/Controllers/Android/"
         }
     },
     "autoload-dev": {
