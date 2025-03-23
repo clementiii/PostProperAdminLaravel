@@ -38,7 +38,7 @@ class UserDetailsController extends Controller
                 'gender' => $user->gender,
                 'dateOfBirth' => $user->birthday,
                 'password' => $user->password,
-                'profilePicture' => $user->user_profile_picture
+                'profilePicture' => url($user->user_profile_picture)
             ]
         ]);
     }
