@@ -13,4 +13,4 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/check_verification_status', [UserController::class, 'checkVerificationStatus']);
 
 // Fetch user details
-Route::get('/user_details', [UserDetailsController::class, 'fetchUserDetails']);
+Route::get('/user/{id}', [UserDetailsController::class, 'getUserDetails']);

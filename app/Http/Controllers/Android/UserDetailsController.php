@@ -3,38 +3,41 @@
 namespace App\Http\Controllers\Android;
 
 use App\Http\Controllers\Controller;
+use App\Models\Android\UserDetails;
 use Illuminate\Http\Request;
-use App\Models\Android\User;
+use Illuminate\Http\JsonResponse;
 
 class UserDetailsController extends Controller
 {
-    public function fetchUserDetails(Request $request)
+    /**
+     * Fetch user details by ID
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getUserDetails($id): JsonResponse
     {
-        $userId = $request->query('id');
-        
-        if (!$userId) {
-            return response()->json(['status' => 'failure', 'message' => 'User ID is required'], 400);
-        }
-        
-        $user = User::find($userId);
-        
+        $user = UserDetails::find($id);
+
         if (!$user) {
-            return response()->json(['status' => 'failure', 'message' => 'User not found'], 404);
+            return response()->json([
+                'status' => 'failure',
+                'message' => 'User not found'
+            ], 404);
         }
-        
+
         return response()->json([
             'status' => 'success',
-            'id' => $user->id,
-            'firstName' => $user->firstName,
-            'lastName' => $user->lastName,
-            'username' => $user->username,
-            'age' => $user->age,
-            'gender' => $user->gender,
-            'adrHouseNo' => $user->adrHouseNo,
-            'adrZone' => $user->adrZone,
-            'adrStreet' => $user->adrStreet,
-            'birthday' => $user->birthday,
-            'profilePicture' => $user->user_profile_picture
+            'user' => [
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'username' => $user->username,
+                'address' => $user->full_address,
+                'age' => (int) $user->age,
+                'gender' => $user->gender,
+                'dateOfBirth' => $user->birthday,
+                'profilePicture' => url($user->user_profile_picture) // Convert to full URL
+            ]
         ]);
     }
 }
