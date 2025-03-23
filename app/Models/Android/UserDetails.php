@@ -9,7 +9,7 @@ class UserDetails extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_accounts'; // Your table name
+    protected $table = 'user_accounts';
 
     protected $primaryKey = 'id';
 
@@ -19,16 +19,17 @@ class UserDetails extends Model
         'firstName',
         'lastName',
         'username',
+        'password',
         'adrHouseNo',
         'adrZone',
         'adrStreet',
         'age',
         'gender',
         'birthday',
-        'user_profile_picture'
+        'user_profile_picture',
+        'last_active'
     ];
 
-    // Full address attribute
     public function getFullAddressAttribute()
     {
         return "{$this->adrHouseNo}, {$this->adrStreet}, Zone {$this->adrZone}";

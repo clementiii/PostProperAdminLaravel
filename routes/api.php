@@ -14,3 +14,5 @@ Route::get('/check_verification_status', [UserController::class, 'checkVerificat
 
 // Fetch user details
 Route::get('/user/{id}', [UserDetailsController::class, 'getUserDetails']);
+
+Route::post('/user/activity', [UserDetailsController::class, 'updateUserActivity']);
