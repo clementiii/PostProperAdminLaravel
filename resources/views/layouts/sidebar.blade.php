@@ -52,10 +52,10 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('desk_support.index') }}"
+                <a href="{{ route('help_desk.index') }}"
                     class="flex items-center space-x-3 px-4 py-2 rounded-md font-normal text-2xl hover:bg-purple-700 transition">
-                    <span class="material-icons">headset_mic</span>
-                    <span>Desk Support</span>
+                    <span class="material-icons">chat</span>
+                    <span>Help Desk</span>
                 </a>
             </li>
         </ul>

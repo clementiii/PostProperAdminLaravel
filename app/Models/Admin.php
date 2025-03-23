@@ -10,7 +10,28 @@ class Admin extends Authenticatable
 
     protected $table = 'admin_accounts';
 
-    protected $fillable = ['name', 'role', 'profile_picture'];
+    protected $fillable = [
+        'name',
+        'username',
+        'password',
+        'profile_picture',
+        'role'
+    ];
+
+    protected $hidden = [
+        'password'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
+    // Relationship with messages
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'admin_id');
+    }
 
     // Handle multiple profile picture locations
     public function getProfilePictureAttribute()

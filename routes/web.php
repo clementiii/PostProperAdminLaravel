@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\IncidentReportController;
+use App\Http\Controllers\HelpDeskController;
 
 // ===================================
 // PUBLIC ROUTES
@@ -101,4 +102,11 @@ Route::middleware([
     Route::get('/desk-support', function () {
         return "Desk Support Page (Coming Soon)";
     })->name('desk_support.index');
+    
+    // Help Desk Routes
+    Route::prefix('help-desk')->group(function () {
+        Route::get('/', [HelpDeskController::class, 'index'])->name('help_desk.index');
+        Route::post('/send-message', [HelpDeskController::class, 'sendMessage'])->name('help_desk.send_message');
+        Route::get('/get-messages', [HelpDeskController::class, 'getMessages'])->name('help_desk.get_messages');
+    });
 });
