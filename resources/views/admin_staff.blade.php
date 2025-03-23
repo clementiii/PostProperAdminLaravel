@@ -32,13 +32,23 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center justify-end gap-">
-                                <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-gray-900 shadow-sm hover:bg-purple-900 h-9 px-4 py-2 border border-gray-200">
-                                    Edit
-                                </button>
-                                <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-500 text-white shadow-sm hover:bg-red-600 h-9 px-4 py-2">
-                                    Delete
-                                </button>
+                            <div class="flex items-center justify-end gap-2">
+                                @if (Auth::id() === $staff->id)
+                                    <a href="{{ route('admin.profile') }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-gray-900 shadow-sm hover:bg-purple-900 h-9 px-4 py-2 border border-gray-200">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('admin.delete', $staff->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')" 
+                                                class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-500 text-white shadow-sm hover:bg-red-600 h-9 px-4 py-2">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-sm text-gray-400"></span>
+                                @endif
                             </div>
                         </td>
                     </tr>

@@ -55,6 +55,7 @@ Route::middleware([
     
     // Admin Staff Management
     Route::get('/admin-staff', [AdminStaffController::class, 'index'])->name('admin.staff');
+    Route::delete('/admin/{id}/delete', [AdminStaffController::class, 'delete'])->name('admin.delete');
     
     // User Management
     Route::prefix('users')->group(function () {
