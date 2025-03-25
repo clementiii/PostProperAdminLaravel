@@ -38,13 +38,16 @@
 
             <!-- Profile Image -->
             <div class="absolute top-6 right-6">
-                <a href="{{ route('admin.profile') }}" class="profile-picture-container">
-                    <img src="{{ Auth::user()->profile_picture }}"
-                        class="w-14 h-14 rounded-full border-2 border-white shadow-lg hover:scale-110 transition duration-200"
-                        alt="Admin Profile">
-                    <div class="profile-picture-overlay">
-                        <span class="material-symbols-outlined camera-icon">person</span>
-                    </div>
+                <a href="{{ route('admin.profile') }}">
+                    @if(Auth::user()->profile_picture)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
+                            class="w-14 h-14 rounded-full border-2 border-white hover:scale-110 transition" 
+                            alt="Profile">
+                    @else
+                        <div class="w-14 h-14 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center hover:scale-110 transition">
+                            <i class="fas fa-user text-gray-400 text-xl"></i>
+                        </div>
+                    @endif
                 </a>
             </div>
         </div>
