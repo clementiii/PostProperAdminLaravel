@@ -30,11 +30,17 @@
 
         <div class="flex flex-col items-center">
             <div class="relative group">
-                <img src="{{ asset(Auth::user()->profile_picture) }}" 
-                    class="w-24 h-24 rounded-full border-4 border-purple-500 object-cover" 
-                    alt="Profile Picture">
+                @if(Auth::user()->profile_picture)
+                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
+                        class="w-24 h-24 rounded-full border-4 border-purple-500 object-cover" 
+                        alt="Profile Picture">
+                @else
+                    <div class="w-24 h-24 rounded-full border-4 border-purple-500 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-3xl"></i>
+                    </div>
+                @endif
                 <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                     onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')">
+                        onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')">
                     <i class="fas fa-camera text-white text-xl"></i>
                 </div>
             </div>
