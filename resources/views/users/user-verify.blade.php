@@ -96,7 +96,7 @@
                             <!-- ID Display Areas -->
                             <div id="frontID" class="border-2 border-dashed border-gray-300 rounded-lg p-4 h-48 flex items-center justify-center">
                                 @if($user->user_valid_id)
-                                    <img src="{{ asset($user->user_valid_id) }}" alt="ID Front" class="max-h-full object-contain">
+                                    <img src="{{ asset(str_replace('uploads/', 'storage/uploads/', $user->user_valid_id)) }}" alt="ID Front" class="max-h-full object-contain">
                                 @else
                                     <div class="text-center text-gray-400">
                                         <span class="material-icons-outlined text-4xl">image</span>
@@ -104,10 +104,10 @@
                                     </div>
                                 @endif
                             </div>
-                            
+
                             <div id="backID" class="hidden border-2 border-dashed border-gray-300 rounded-lg p-4 h-48  items-center justify-center">
                                 @if($user->user_valid_id_back)
-                                    <img src="{{ asset($user->user_valid_id_back) }}" alt="ID Back" class="max-h-full object-contain">
+                                    <img src="{{ asset(str_replace('uploads/', 'storage/uploads/', $user->user_valid_id_back)) }}" alt="ID Back" class="max-h-full object-contain">
                                 @else
                                     <div class="text-center text-gray-400">
                                         <span class="material-icons-outlined text-4xl">image</span>
