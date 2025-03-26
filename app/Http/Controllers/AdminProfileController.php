@@ -89,9 +89,8 @@ class AdminProfileController extends Controller
             if ($request->hasFile('profile_picture')) {
                 // Delete old profile picture if it exists
                 if ($admin->profile_picture) {
-                    $oldPath = str_replace(['storage/', 'public/', 'assets/'], '', $admin->profile_picture);
-                    if (Storage::disk('public')->exists($oldPath)) {
-                        Storage::disk('public')->delete($oldPath);
+                    if (Storage::disk('public')->exists($admin->profile_picture)) {
+                        Storage::disk('public')->delete($admin->profile_picture);
                     }
                 }
 
@@ -101,9 +100,9 @@ class AdminProfileController extends Controller
                 $storagePath = 'admin_profile_pictures';
                 $path = $request->file('profile_picture')->storeAs($storagePath, $filename, 'public');
                 
-                // Update database with path that includes 'storage/' prefix for asset() helper
+                // Update database with the file path
                 AdminProfile::where('id', $admin->id)->update([
-                    'profile_picture' => 'storage/' . $path
+                    'profile_picture' => $path
                 ]);
 
                 return redirect()->route('admin.profile')->with('success', 'Profile picture updated successfully.');
