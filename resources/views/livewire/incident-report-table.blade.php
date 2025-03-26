@@ -108,9 +108,10 @@
                                 </span>
                             </td>
                             <td class="p-2">
-                                <button class="text-blue-500 hover:text-blue-600">
-                                    <i class="material-icons-outlined text-[24px]">visibility</i>
-                                </button>
+                            <a href="{{ route('incident-reports.show', $report->id) }}" class="text-blue-500 hover:text-blue-600" title="View Details">
+                            <i class="material-icons-outlined text-[24px]">visibility</i>
+                            </a>
+                                
                             </td>
                         </tr>
                     @endforeach

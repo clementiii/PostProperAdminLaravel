@@ -11,4 +11,11 @@ class IncidentReportController extends Controller
     {
         return view('reports.incident_report');
     }
+
+    public function show(IncidentReport $incidentReport)
+    {
+        // Return the verification view and pass the report data to it.
+        return view('report_verify', compact('incidentReport'));
+    }
+    
 }

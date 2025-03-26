@@ -96,7 +96,15 @@ Route::middleware([
     });
     
     // Incident Reports
-    Route::get('/incident-reports', [IncidentReportController::class, 'index'])->name('incident.reports');
+    
+    Route::prefix('incident-reports')->name('incident-reports.')->group(function () {
+        // Existing route for the list page (Livewire table)
+        Route::get('/', [IncidentReportController::class, 'index'])->name('index');
+        Route::get('/incident-reports', [IncidentReportController::class, 'index'])->name('incident.reports');
+        // ADD THIS ROUTE FOR VIEWING A SINGLE REPORT:
+        // It uses Route Model Binding ({incidentReport}) assuming your model is named IncidentReport
+        Route::get('/{incidentReport}', [IncidentReportController::class, 'show'])->name('show');
+    });
     
     // Desk Support (Coming Soon)
     Route::get('/desk-support', function () {

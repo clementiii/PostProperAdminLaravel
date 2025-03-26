@@ -45,7 +45,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('incident.reports') }}"
+                <a href="{{ route('incident-reports.index') }}"
                     class="flex items-center space-x-3 px-4 py-2 rounded-md font-normal text-2xl hover:bg-purple-700 transition">
                     <span class="material-icons">report</span>
                     <span>Reports</span>
