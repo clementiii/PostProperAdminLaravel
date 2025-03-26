@@ -8,7 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserProfileUpdateController extends Controller
 {
@@ -44,19 +45,38 @@ class UserProfileUpdateController extends Controller
 
         // Handle profile picture upload if present
         if ($request->hasFile('profile_picture')) {
-            $uploadPath = public_path('uploads/user_profile_pictures/');
-            
-            if (!File::exists($uploadPath)) {
-                File::makeDirectory($uploadPath, 0777, true);
-            }
+            try {
+                $file = $request->file('profile_picture');
+                
+                // Validate file
+                if (!$file->isValid()) {
+                    Log::error("Invalid file upload");
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid file upload'
+                    ], 400);
+                }
 
-            $file = $request->file('profile_picture');
-            $fileName = time() . '_' . uniqid() . '.jpg';
-            $filePath = $uploadPath . $fileName;
-            
-            if ($file->move($uploadPath, $fileName)) {
-                $updates['user_profile_picture'] = 'uploads/user_profile_pictures/' . $fileName;
+                // Generate unique filename
+                $fileName = $userId . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                
+                // Define storage path
+                $storagePath = 'uploads/user_profile_pictures';
+
+                // Store the file
+                $filePath = $file->storeAs($storagePath, $fileName, 'public');
+
+                // Update user's profile picture path
+                $updates['user_profile_picture'] = 'storage/' . $filePath;
                 $user->user_profile_picture = $updates['user_profile_picture'];
+
+                Log::info("Profile picture uploaded successfully: " . $filePath);
+            } catch (\Exception $e) {
+                Log::error("Profile picture upload error: " . $e->getMessage());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to upload profile picture'
+                ], 500);
             }
         }
 
