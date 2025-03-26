@@ -18,7 +18,7 @@
 
 <body class="bg-gray-100">
 
-    @extends('layouts.dashboard-topbar') {{-- Assuming you are using the same layout --}}
+    @extends('layouts.app')
 
     @section('title', 'Document Requests')
 

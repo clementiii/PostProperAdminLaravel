@@ -73,12 +73,12 @@ Route::middleware([
         Route::post('/', [AnnouncementController::class, 'store'])->name('announcements.store');
     });
     
-    // Document Requests
-    Route::prefix('documents')->group(function () {
-        Route::get('/', [DocumentRequestController::class, 'index'])->name('documents.index');
-        Route::get('/{id}', [DocumentRequestController::class, 'show'])->name('documents.show');
-        Route::post('/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])
-            ->name('documents.updatePickupStatus');
+    
+    Route::prefix('documents')->name('documents.')->group(function () { 
+        Route::get('/', [DocumentRequestController::class, 'index'])->name('index'); 
+        Route::get('/{id}', [DocumentRequestController::class, 'show'])->name('show'); 
+        Route::post('/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])->name('updatePickupStatus'); 
+        Route::put('/{id}', [DocumentRequestController::class, 'update'])->name('update'); 
     });
     
     Route::prefix('document-requests')->group(function () {

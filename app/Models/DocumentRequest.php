@@ -37,4 +37,19 @@ class DocumentRequest extends Model
         'valid_id_back',
         'pickup_status'
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * Tells Laravel how to treat the 'birthday' column.
+     * Assuming the format in the DB is consistently 'MM-DD-YY'
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        //'birthday' => 'date:m-d-y', // Tells Laravel to expect 'm-d-y' format
+        'DateRequested' => 'datetime', // Good practice to cast other date/time fields too
+        'date_approved' => 'datetime', // Good practice to cast other date/time fields too
+    ];
+
 }
