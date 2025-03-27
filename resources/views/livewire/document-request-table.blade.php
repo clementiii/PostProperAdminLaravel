@@ -137,9 +137,9 @@
                             <td class="px-6 py-4">{{ $request->Quantity }}</td>
                             <td class="px-6 py-4">{{ $request->DateRequested }}</td>
                             <td class="px-6 py-4">
-                                <button class="view-btn text-blue-600 hover:underline" data-id="{{ $request->id }}"
+                                <button class="view-btn bg-[#61009F] text-lg font-semibold text-white px-6 py-2 rounded-md hover:bg-purple-700 transition" data-id="{{ $request->id }}"
                                     onclick="showModal({{ $request->id }})">
-                                    <i class="material-icons-outlined text-[24px]">visibility</i>
+                                    View
                                 </button>
                             </td>
                         </tr>

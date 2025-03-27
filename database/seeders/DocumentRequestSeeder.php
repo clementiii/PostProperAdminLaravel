@@ -43,6 +43,8 @@ class DocumentRequestSeeder extends Seeder
             'Nancy Hall'
         ];
 
+        $statuses = ['pending', 'approved', 'rejected', 'overdue'];
+
         // Generate 20 document requests
         for ($i = 0; $i < 20; $i++) {
             $date = Carbon::now()->subDays(rand(0, 30))->format('Y-m-d H:i:s');
@@ -64,7 +66,7 @@ class DocumentRequestSeeder extends Seeder
                 'TIN_No' => (string)rand(100000000, 999999999),
                 'CTC_No' => (string)rand(10000, 99999),
                 'Quantity' => rand(1, 5),
-                'Status' => 'pending',
+                'Status' => $statuses[array_rand($statuses)], // Assign random status
                 'rejection_reason' => '',
                 'date_approved' => $date,
                 'valid_id' => 'sample_valid_id.jpg',

@@ -61,11 +61,11 @@
                             </p>
                             <div class="flex justify-end mt-3 space-x-2">
                                 <a href="{{ route('announcements.edit', $announcement->id) }}"
-                                    class="bg-gray-200 text-gray-800 px-4 py-1 text-sm rounded-md hover:bg-gray-300 transition">
+                                    class="bg-gray-200 text-gray-800 px-4 py-1 text-base rounded-md hover:bg-gray-300 transition">
                                     Edit
                                 </a>
                                 <button
-                                    class="bg-red-600 text-white px-4 py-1 text-sm rounded-md hover:bg-red-700 transition btn-delete"
+                                    class="bg-red-600 text-white px-4 py-1 text-base rounded-md hover:bg-red-700 transition btn-delete"
                                     data-id="{{ $announcement->id }}">
                                     Delete
                                 </button>

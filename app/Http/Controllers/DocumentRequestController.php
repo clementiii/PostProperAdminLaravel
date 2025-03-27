@@ -11,7 +11,12 @@ class DocumentRequestController extends Controller
 {
     public function index()
     {
-        $documentRequests = DocumentRequest::all();
+        $documentRequests = DocumentRequest::query()
+            ->when(request('search'), function ($query) {
+                $query->where('Name', 'like', '%' . request('search') . '%')
+                      ->orWhere('Id', 'like', '%' . request('search') . '%');
+            })
+            ->paginate(10); // Paginate the results
 
         // Calculate counts for summary cards
         $totalRequest = DocumentRequest::count();

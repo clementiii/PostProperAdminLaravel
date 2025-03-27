@@ -1,17 +1,22 @@
 $(document).ready(function () {
     $(".view-btn").on("click", function () {
         let requestId = $(this).data("id");
-    
+
         $.ajax({
             url: `/document-request/${requestId}`,
             type: "GET",
             success: function (data) {
                 // Populate modal fields
-                $("#modalTxnId").text(data.Id ? `TXN-${data.Id}` : "TXN-undefined");
+                $("#modalTxnId").text(
+                    data.Id ? `TXN-${data.Id}` : "TXN-undefined"
+                );
                 $("#modalDocumentType").text(data.DocumentType || "N/A");
-    
+
                 const quantity = data.Quantity || 1;
-                if (data.DocumentType && data.DocumentType.toLowerCase() === "cedula") {
+                if (
+                    data.DocumentType &&
+                    data.DocumentType.toLowerCase() === "cedula"
+                ) {
                     $("#modalPrice").text("Depends on the income");
                 } else {
                     const totalPrice = 50 * quantity;
@@ -25,7 +30,7 @@ $(document).ready(function () {
                 $("#modalAddress").text(data.Address || "N/A");
                 $("#modalTin").text(data.TIN_No || "N/A");
                 $("#modalCtc").text(data.CTC_No || "N/A");
-    
+
                 // Update status badge color dynamically
                 const status = (data.Status || "").toLowerCase();
                 const statusColors = {
@@ -36,14 +41,16 @@ $(document).ready(function () {
                     cancelled: "bg-gray-300 text-gray-600",
                     complete: "bg-blue-100 text-blue-800",
                 };
-    
+
                 // Remove all possible status classes before applying the new one
                 $("#modalStatusContainer")
                     .removeClass()
                     .addClass(
-                        `text-sm font-semibold px-3 py-1 rounded-full ${statusColors[status] || "bg-gray-100 text-gray-800"}`
+                        `text-sm font-semibold px-3 py-1 rounded-full ${
+                            statusColors[status] || "bg-gray-100 text-gray-800"
+                        }`
                     );
-    
+
                 // Show modal
                 $("#modal").removeClass("hidden");
             },
@@ -57,6 +64,24 @@ $(document).ready(function () {
     function closeModal() {
         $("#modal").addClass("hidden");
     }
+
+    // Close modal when clicking outside of it
+    $(document).on("click", function (event) {
+        const modal = $("#modal");
+        const modalContent = $(".modal-content"); 
+        if (
+            modal.is(":visible") &&
+            !$(event.target).closest(modalContent).length &&
+            !$(event.target).is(".view-btn")
+        ) {
+            closeModal();
+        }
+    });
+
+    // Close modal when clicking the "X" button
+    $(".close-modal-btn").on("click", function () {
+        closeModal();
+    });
 
     window.closeModal = closeModal;
 });

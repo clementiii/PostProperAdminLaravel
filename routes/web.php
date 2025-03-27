@@ -90,6 +90,11 @@ Route::middleware([
 
     Route::get('/document-request/{id}', [DashboardController::class, 'show']);
 
+    // Document Requests (Livewire)
+    Route::get('/documents', function () {
+        return view('documents'); // Render the Blade view that includes the Livewire component
+    })->name('documents.index');
+
     // Admin Profile
     Route::middleware(['auth'])->group(function () {
         Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
