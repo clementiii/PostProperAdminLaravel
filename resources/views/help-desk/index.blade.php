@@ -18,15 +18,16 @@
         rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #fdf2f8;
-        }
-
         .chat-container {
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            height: calc(100vh - 4rem);
+            /* Increased height */
+            width: calc(100vw - 2rem);
+            /* Increased width */
+            margin: auto;
+            /* Center the container */
         }
 
         .conversation-list {
@@ -70,15 +71,15 @@
     </style>
 </head>
 
-<body class="bg-pink-50">
+<body>
     @extends('layouts.app')
     @section('title', 'Help Desk Chat')
 
     @section('content')
-        <div class="container mx-auto p-4">
-            <div class="chat-container flex h-[800px]">
+        <div class="fluid-container mx-auto p-4 h-full w-full">
+            <div class="chat-container flex h-full w-full">
                 <!-- Left Sidebar - Conversation List -->
-                <div class="conversation-list w-1/4 bg-white rounded-l-lg">
+                <div class="conversation-list w-1/4 bg-white rounded-l-lg h-full">
                     <!-- Search Bar -->
                     <div class="p-4 border-b">
                         <div class="relative">
@@ -136,7 +137,7 @@
                 </div>
 
                 <!-- Right Side - Chat Area -->
-                <div class="flex-1 flex flex-col">
+                <div class="flex-1 flex flex-col h-full">
                     <!-- Chat Header -->
                     <div class="p-4 border-b flex items-center space-x-3">
                         <img src="https://ui-avatars.com/api/?name=Maria+Santos" class="user-avatar" alt="Maria">

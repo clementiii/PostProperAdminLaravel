@@ -95,33 +95,37 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="border rounded-lg p-4">
                             <h5 class="text-2xl font-semibold text-purple-700 mb-4">Personal Details</h5>
-                            <div class="info-item"><span class="font-bold text-lg">Name:</span> <span
-                                    class="text-lg">{{ $documentRequest->Name }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Address:</span> <span
-                                    class="text-lg">{{ $documentRequest->Address }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Age:</span> <span
-                                    class="text-lg">{{ $documentRequest->Age }} years old</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Date of Birth:</span>
-                                <span
-                                    class="text-lg">{{ $documentRequest->birthday ? \Carbon\Carbon::createFromFormat('m-d-y', $documentRequest->birthday)->format('F d, Y') : 'N/A' }}</span>
+                            <div class="space-y-2"> <!-- Added line height spacing -->
+                                <div class="info-item"><span class="font-bold text-xl">Name:</span> <span
+                                        class="text-xl">{{ $documentRequest->Name }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Address:</span> <span
+                                        class="text-xl">{{ $documentRequest->Address ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Age:</span> <span
+                                        class="text-xl">{{ $documentRequest->Age }} years old</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Date of Birth:</span>
+                                    <span
+                                        class="text-xl">{{ $documentRequest->birthday ? \Carbon\Carbon::createFromFormat('m-d-y', $documentRequest->birthday)->format('F d, Y') : 'N/A' }}</span>
+                                </div>
+                                <div class="info-item"><span class="font-bold text-xl">Place of Birth:</span> <span
+                                        class="text-xl">{{ $documentRequest->PlaceOfBirth ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Alias:</span> <span
+                                        class="text-xl">{{ $documentRequest->Alias ?? 'N/A' }}</span></div>
                             </div>
-                            <div class="info-item"><span class="font-bold text-lg">Place of Birth:</span> <span
-                                    class="text-lg">{{ $documentRequest->PlaceOfBirth ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Alias:</span> <span
-                                    class="text-lg">{{ $documentRequest->Alias ?? 'N/A' }}</span></div>
                         </div>
                         <div class="border rounded-lg p-4">
                             <h5 class="text-2xl font-semibold text-purple-700 mb-4">Additional Information</h5>
-                            <div class="info-item"><span class="font-bold text-lg">Citizenship:</span> <span
-                                    class="text-lg">{{ $documentRequest->Citizenship ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Occupation:</span> <span
-                                    class="text-lg">{{ $documentRequest->Occupation ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Gender:</span> <span
-                                    class="text-lg">{{ $documentRequest->Gender ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Civil Status:</span> <span
-                                    class="text-lg">{{ $documentRequest->CivilStatus ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Length of Stay:</span> <span
-                                    class="text-lg">{{ $documentRequest->LengthOfStay ?? 'N/A' }} years</span></div>
+                            <div class="space-y-2"> <!-- Added line height spacing -->
+                                <div class="info-item"><span class="font-bold text-xl">Citizenship:</span> <span
+                                        class="text-xl">{{ $documentRequest->Citizenship ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Occupation:</span> <span
+                                        class="text-xl">{{ $documentRequest->Occupation ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Gender:</span> <span
+                                        class="text-xl">{{ $documentRequest->Gender ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Civil Status:</span> <span
+                                        class="text-xl">{{ $documentRequest->CivilStatus ?? 'N/A' }}</span></div>
+                                <div class="info-item"><span class="font-bold text-xl">Length of Stay:</span> <span
+                                        class="text-xl">{{ $documentRequest->LengthOfStay ?? 'N/A' }} years</span></div>
+                            </div>
                         </div>
                     </div>
 
@@ -129,25 +133,25 @@
                     <div class="border rounded-lg p-4">
                         <h5 class="text-2xl font-semibold text-purple-700 mb-4">Document Details</h5>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="info-item"><span class="font-bold text-lg">Document Type:</span> <span
-                                    class="text-lg">{{ $documentRequest->DocumentType }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Purpose:</span> <span
-                                    class="text-lg">{{ $documentRequest->Purpose }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">TIN No:</span> <span
-                                    class="text-lg">{{ $documentRequest->TIN_No ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">CTC No:</span> <span
-                                    class="text-lg">{{ $documentRequest->CTC_No ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Quantity:</span> <span
-                                    class="text-lg">{{ $documentRequest->Quantity ?? 1 }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Price:</span> <span
-                                    class="text-lg">{{ $price }}</span></div>
-                            <div class="info-item"><span class="font-bold text-lg">Date Requested:</span>
+                            <div class="info-item"><span class="font-bold text-xl">Document Type:</span> <span
+                                    class="text-xl">{{ $documentRequest->DocumentType }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">Purpose:</span> <span
+                                    class="text-xl">{{ $documentRequest->Purpose }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">TIN No:</span> <span
+                                    class="text-xl">{{ $documentRequest->TIN_No ?? 'N/A' }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">CTC No:</span> <span
+                                    class="text-xl">{{ $documentRequest->CTC_No ?? 'N/A' }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">Quantity:</span> <span
+                                    class="text-xl">{{ $documentRequest->Quantity ?? 1 }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">Price:</span> <span
+                                    class="text-xl">{{ $price }}</span></div>
+                            <div class="info-item"><span class="font-bold text-xl">Date Requested:</span>
                                 <span
-                                    class="text-lg">{{ $documentRequest->DateRequested ? \Carbon\Carbon::parse($documentRequest->DateRequested)->format('F d, Y h:i A') : 'N/A' }}</span>
+                                    class="text-xl">{{ $documentRequest->DateRequested ? \Carbon\Carbon::parse($documentRequest->DateRequested)->format('F d, Y h:i A') : 'N/A' }}</span>
                             </div>
-                            <div class="info-item"><span class="font-bold text-lg">Date Approved:</span>
+                            <div class="info-item"><span class="font-bold text-xl">Date Approved:</span>
                                 <span
-                                    class="text-lg">{{ $documentRequest->date_approved ? \Carbon\Carbon::parse($documentRequest->date_approved)->format('F d, Y h:i A') : '-' }}</span>
+                                    class="text-xl">{{ $documentRequest->date_approved ? \Carbon\Carbon::parse($documentRequest->date_approved)->format('F d, Y h:i A') : '-' }}</span>
                             </div>
                         </div>
                     </div>
@@ -157,7 +161,7 @@
                         <h5 class="text-2xl font-semibold text-purple-700 mb-4">Valid ID Images</h5>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Front Side</h6>
+                                <h6 class="text-xl font-medium text-gray-700 mb-2">Front Side</h6>
                                 @if ($documentRequest->valid_id_front)
                                     <img src="{{ asset('storage/' . $documentRequest->valid_id_front) }}"
                                         class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
@@ -168,7 +172,7 @@
                                 @endif
                             </div>
                             <div>
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Back Side</h6>
+                                <h6 class="text-xl font-medium text-gray-700 mb-2">Back Side</h6>
                                 @if ($documentRequest->valid_id_back)
                                     <img src="{{ asset('storage/' . $documentRequest->valid_id_back) }}"
                                         class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
@@ -189,7 +193,7 @@
                             @method('PUT')
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                                 <div>
-                                    <label for="statusSelect" class="block text-lg font-medium text-gray-700 mb-1">Current
+                                    <label for="statusSelect" class="block text-xl font-medium text-gray-700 mb-1">Current
                                         Status</label>
                                     <select id="statusSelect" name="status"
                                         class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg"

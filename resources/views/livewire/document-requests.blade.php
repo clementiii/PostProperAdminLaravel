@@ -67,21 +67,59 @@
                     </div>
                     <div class="flex items-center space-x-4">
                         <span class="px-3 py-1 rounded-full text-sm font-semibold 
-                                                        @if(strtolower($row->Status) === 'pending') bg-yellow-200 text-yellow-800 
-                                                        @elseif(strtolower($row->Status) === 'approved') bg-green-200 text-green-800 
-                                                        @elseif(strtolower($row->Status) === 'rejected') bg-red-200 text-red-800 
-                                                        @else bg-gray-200 text-gray-800 @endif">
+                                @if(strtolower($row->Status) === 'pending') bg-yellow-200 text-yellow-800 
+                                @elseif(strtolower($row->Status) === 'approved') bg-green-200 text-green-800 
+                                @elseif(strtolower($row->Status) === 'rejected') bg-red-200 text-red-800 
+                                @else bg-gray-200 text-gray-800 @endif">
                             {{ ucfirst(strtolower($row->Status)) }}
                         </span>
-                        <a href="{{ route('documents.show', $row->Id) }}" class="text-blue-600 hover:underline">View
-                            Details</a>
+                        <a href="{{ route('documents.show', $row->Id) }}"
+                            class="px-4 py-2 rounded-lg text-white bg-[#0F172A] hover:bg-opacity-90">
+                            View Details
+                        </a>
                     </div>
                 </div>
             @endforeach
         </div>
     </div>
 
-    <div class="mt-6">
-        {{ $documentRequests->links() }}
+    <div class="mt-6 flex justify-between items-center">
+        <div class="text-sm text-gray-600">
+            Showing {{ $documentRequests->firstItem() }} to {{ $documentRequests->lastItem() }} of
+            {{ $documentRequests->total() }} results
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-sm">Rows per page</span>
+            <select class="border rounded-lg p-2 text-sm" wire:model="perPage">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            <div class="flex items-center space-x-1">
+                <button class="px-3 py-1 border rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                    wire:click="previousPage" @if(!$documentRequests->onFirstPage()) wire:loading.attr="disabled" @endif
+                    @if($documentRequests->onFirstPage()) disabled @endif>
+                    &laquo;
+                </button>
+                @foreach ($documentRequests->links()->elements[0] as $page => $url)
+                    @if ($page == $documentRequests->currentPage())
+                        <span class="px-3 py-1 border rounded-lg bg-purple-700 text-white text-sm">
+                            {{ $page }}
+                        </span>
+                    @else
+                        <button class="px-3 py-1 border rounded-lg text-sm text-purple-700 hover:bg-gray-100"
+                            wire:click="gotoPage({{ $page }})">
+                            {{ $page }}
+                        </button>
+                    @endif
+                @endforeach
+                <button class="px-3 py-1 border rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                    wire:click="nextPage" @if($documentRequests->hasMorePages()) wire:loading.attr="disabled" @endif
+                    @if(!$documentRequests->hasMorePages()) disabled @endif>
+                    &raquo;
+                </button>
+            </div>
+        </div>
     </div>
 </div>
