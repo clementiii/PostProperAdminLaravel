@@ -7,10 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorContainer = document.getElementById("upload-error");
     const announcementForm = document.getElementById("announcement-form");
 
-    
     uploadContainer.addEventListener("click", () => fileInput.click());
 
-   
     fileInput.addEventListener("change", function (event) {
         const files = Array.from(event.target.files);
 
@@ -70,10 +68,45 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsDataURL(file);
     }
 
-    // Confirmation before submitting the form
+    // Confirmation before delete
     announcementForm.addEventListener("submit", function (e) {
         if (!confirm("Are you sure you want to post this announcement?")) {
             e.preventDefault();
         }
+    });
+
+    const deleteButtons = document.querySelectorAll(".btn-delete");
+
+    deleteButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const announcementId = this.getAttribute("data-id");
+
+            if (
+                window.confirm(
+                    "Are you sure you want to delete this announcement? This action cannot be undone."
+                )
+            ) {
+                fetch(`/announcements/${announcementId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                    },
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert("Failed to delete the announcement.");
+                        }
+                    })
+                    .catch(() =>
+                        alert(
+                            "An error occurred while deleting the announcement."
+                        )
+                    );
+            }
+        });
     });
 });

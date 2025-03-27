@@ -7,27 +7,28 @@
             <div class="h-1 bg-purple-800 w-full"></div>
             <div class="p-6">
                 <h3 class="text-2xl font-semibold text-purple-700 mb-6">Add New Announcement</h3>
-                <form id="announcement-form" action="{{ route('announcements.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="announcement-form" action="{{ route('announcements.store') }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium mb-2">Announcement Title</label>
                         <input type="text" name="announcement_title" placeholder="Enter announcement title"
-                               class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required>
+                            class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium mb-2">Description</label>
                         <textarea name="description_text" rows="5" placeholder="Enter announcement description"
-                                  class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required></textarea>
+                            class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-purple-300" required></textarea>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium mb-2">Images (Maximum 5)</label>
                         <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer"
-                             id="upload-container">
+                            id="upload-container">
                             <span class="material-icons text-gray-400 text-3xl">file_upload</span>
                             <p class="mt-2">Click to upload images</p>
                             <p class="text-sm text-gray-500">PNG, JPG up to 10MB (Maximum 5 images)</p>
                             <input type="file" name="announcement_images[]" multiple class="hidden file-input"
-                                   id="file-upload" accept=".jpg,.jpeg,.png">
+                                id="file-upload" accept=".jpg,.jpeg,.png">
                         </div>
                         <!-- Image preview container -->
                         <div id="image-preview-container" class="mt-4 flex flex-wrap"></div>
@@ -36,11 +37,11 @@
                     </div>
                     <div class="flex justify-end">
                         <button type="submit"
-                                class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition mr-2 btn-save">
+                            class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition mr-2 btn-save">
                             Post Announcement
                         </button>
                         <button type="reset"
-                                class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 transition">
+                            class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 transition">
                             Clear
                         </button>
                     </div>
@@ -56,10 +57,18 @@
                     <div class="bg-gray-100 rounded-md">
                         <div class="p-4">
                             <h4 class="font-semibold text-gray-800">{{ $announcement->announcement_title }}</h4>
-                            <p class="text-sm text-gray-600">Posted on {{ date('d/m/Y', strtotime($announcement->created_at)) }}</p>
+                            <p class="text-sm text-gray-600">Posted on {{ date('d/m/Y', strtotime($announcement->created_at)) }}
+                            </p>
                             <div class="flex justify-end mt-3 space-x-2">
-                                <button class="bg-gray-200 text-gray-800 px-4 py-1 text-sm rounded-md hover:bg-gray-300 transition">Edit</button>
-                                <button class="bg-red-600 text-white px-4 py-1 text-sm rounded-md hover:bg-red-700 transition">Delete</button>
+                                <a href="{{ route('announcements.edit', $announcement->id) }}"
+                                    class="bg-gray-200 text-gray-800 px-4 py-1 text-sm rounded-md hover:bg-gray-300 transition">
+                                    Edit
+                                </a>
+                                <button
+                                    class="bg-red-600 text-white px-4 py-1 text-sm rounded-md hover:bg-red-700 transition btn-delete"
+                                    data-id="{{ $announcement->id }}">
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -67,6 +76,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Add Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
