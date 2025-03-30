@@ -1,60 +1,76 @@
 <div class="p-6 space-y-6">
-    <div class="statistic-container grid grid-cols-1 md:grid-cols-5 gap-6 justify-items-center mb-12">
-        <div
-            class="relative h-[8.5rem] w-[23rem] bg-blue-500 text-white p-6 rounded-lg shadow-lg shadow-blue-700 flex items-center">
-            <div>
-                <h2 class="card-title text-xl font-semibold pb-2">Total Requests</h2>
-                <div class="card-text text-3xl font-bold">{{ $totalRequest }}</div>
+    <div class="statistic-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
+        <div class="relative h-auto w-full bg-blue-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold pb-1">Total Requests</h2>
+                <div class="text-3xl font-bold">{{ $totalRequest }}</div>
             </div>
-            <i class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[48px] ml-auto p-5">info</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="material-icons-outlined !text-[36px]">info</i>
+            </div>
         </div>
-        <div
-            class="relative h-[8.5rem] w-[23rem] bg-yellow-500 text-white p-6 rounded-lg shadow-lg shadow-yellow-700 flex items-center">
-            <div>
-                <h2 class="card-title text-xl font-semibold pb-2">Pending</h2>
-                <div class="card-text text-3xl font-bold">{{ $pendingCount }}</div>
+        <div class="relative h-auto w-full bg-yellow-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold pb-1">Pending</h2>
+                <div class="text-3xl font-bold">{{ $pendingCount }}</div>
             </div>
-            <i
-                class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[48px] ml-auto p-5">hourglass_empty</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="material-icons-outlined !text-[36px]">hourglass_empty</i>
+            </div>
         </div>
-        <div
-            class="relative h-[8.5rem] w-[23rem] bg-green-500 text-white p-6 rounded-lg shadow-lg shadow-green-700 flex items-center">
-            <div>
-                <h2 class="card-title text-xl font-semibold pb-2">Approved</h2>
-                <div class="card-text text-3xl font-bold">{{ $approvedCount }}</div>
+        <div class="relative h-auto w-full bg-green-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold pb-1">Approved</h2>
+                <div class="text-3xl font-bold">{{ $approvedCount }}</div>
             </div>
-            <i
-                class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[48px] ml-auto p-5">check_circle</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="material-icons-outlined !text-[36px]">check_circle</i>
+            </div>
         </div>
-        <div
-            class="relative h-[8.5rem] w-[23rem] bg-red-500 text-white p-6 rounded-lg shadow-lg shadow-red-700 flex items-center">
-            <div>
-                <h2 class="card-title text-xl font-semibold pb-2">Rejected</h2>
-                <div class="card-text text-3xl font-bold">{{ $rejectedCount }}</div>
+        <div class="relative h-auto w-full bg-red-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold pb-1">Rejected</h2>
+                <div class="text-3xl font-bold">{{ $rejectedCount }}</div>
             </div>
-            <i class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[48px] ml-auto p-5">cancel</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="material-icons-outlined !text-[36px]">cancel</i>
+            </div>
         </div>
-        <div
-            class="relative h-[8.5rem] w-[23rem] bg-gray-500 text-white p-6 rounded-lg shadow-lg shadow-gray-700 flex items-center">
-            <div>
-                <h2 class="card-title text-xl font-semibold pb-2">Overdue</h2>
-                <div class="card-text text-3xl font-bold">{{ $overdueCount }}</div>
+        <div class="relative h-auto w-full bg-gray-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold pb-1">Overdue</h2>
+                <div class="text-3xl font-bold">{{ $overdueCount }}</div>
             </div>
-            <i class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[48px] ml-auto p-5">schedule</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="material-icons-outlined !text-[36px]">schedule</i>
+            </div>
         </div>
     </div>
 
     <div>
-        <div class="flex space-x-4 mb-6">
-            <input type="text" placeholder="Search by name or transaction ID" class="w-full p-3 border rounded-lg"
-                wire:model.debounce.500ms="search"> <!-- Added debounce for better performance -->
-            <select class="p-3 border rounded-lg" wire:model="statusFilter">
-                <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="overdue">Overdue</option>
-            </select>
+        <div class="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0 mb-6">
+            <div class="flex-1 relative">
+                <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
+                    <i class="material-icons-outlined text-lg">search</i>
+                </span>
+                <input type="text" 
+                    placeholder="Search by name or transaction ID" 
+                    class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    wire:model.live.debounce.500ms="search">
+            </div>
+            <div class="w-full md:w-60 relative">
+                <select class="w-full py-3 px-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white" 
+                    wire:model.live="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <i class="material-icons-outlined text-gray-400">arrow_drop_down</i>
+                </div>
+            </div>
         </div>
 
         <div class="space-y-4">
