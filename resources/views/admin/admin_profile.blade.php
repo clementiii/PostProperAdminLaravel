@@ -5,118 +5,107 @@
 @extends('layouts.app')
 @section('title', 'Admin Profile')
 @section('content')
-<div class="flex justify-center items-center min-h-screen">
-    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 relative" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        @endif
+<div class="bg-gray-100">
+    <div class="flex justify-center">
+        <div class="bg-white shadow-lg rounded-lg w-full max-w-md">
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
 
-        <!-- General Error Message -->
-        @if(session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative" role="alert">
-                <span class="block sm:inline">{{ session('error') }}</span>
-            </div>
-        @endif
-        
-        <!-- Info Message -->
-        @if(session('info'))
-            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 relative" role="alert">
-                <span class="block sm:inline">{{ session('info') }}</span>
-            </div>
-        @endif
+            <!-- General Error Message -->
+            @if(session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+            @endif
+            
+            <!-- Info Message -->
+            @if(session('info'))
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 relative" role="alert">
+                    <span class="block sm:inline">{{ session('info') }}</span>
+                </div>
+            @endif
 
-        <div class="flex flex-col items-center">
-            <div class="relative group">
-                @if(Auth::user()->profile_picture)
-                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
-                        class="w-24 h-24 rounded-full border-4 border-purple-500 object-cover" 
-                        alt="Profile Picture">
-                @else
-                    <div class="w-24 h-24 rounded-full border-4 border-purple-500 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-user text-gray-400 text-3xl"></i>
+            <div class="flex flex-col items-center bg-purple-800 py-6 rounded-t-lg">
+                <div class="relative group">
+                    @if(Auth::user()->profile_picture)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
+                            class="w-24 h-24 rounded-full border-4 border-white object-cover" 
+                            alt="Profile Picture">
+                    @else
+                        <div class="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-400 text-3xl"></i>
+                        </div>
+                    @endif
+                    <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')">
+                        <i class="fas fa-camera text-white text-xl"></i>
                     </div>
-                @endif
-                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                        onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')">
-                    <i class="fas fa-camera text-white text-xl"></i>
                 </div>
-            </div>
-            <h2 class="text-xl font-bold text-gray-800 mt-2">{{ Auth::user()->name }}</h2>
-            <p class="text-gray-600">Administrator</p>
-        </div>
-
-        <!-- Update Profile Form -->
-        <form method="POST" action="{{ route('admin.profile.update') }}" class="mt-4">
-            @csrf
-
-            <!-- Username -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700">Username</label>
-                <input type="text" name="username" value="{{ Auth::user()->username }}" 
-                    class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
-                @error('username')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
+                <h2 class="text-xl font-bold text-white mt-2">{{ Auth::user()->name }}</h2>
+                <p class="text-white text-sm">Administrator</p>
             </div>
 
-            <!-- Current Password -->
-            <div class="mb-4" x-data="{ showPassword: false }">
-                <label class="block text-sm font-semibold text-gray-700">Current Password <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" name="current_password" 
+            <!-- Update Profile Form -->
+            <form method="POST" action="{{ route('admin.profile.update') }}" class="mt-4 p-4">
+                @csrf
+
+                <!-- Name Field - Add this field based on the image -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-purple-700">Name</label>
+                    <input type="text" name="name" value="{{ Auth::user()->name }}" 
                         class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
-                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
-                        @click="showPassword = !showPassword">
-                        <i x-show="!showPassword" class="fas fa-eye"></i>
-                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
-                    </button>
+                    @error('name')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-                @error('current_password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-                <p class="text-xs text-gray-500 mt-1">* Required for any changes to username or password</p>
-            </div>
 
-            <!-- New Password -->
-            <div class="mb-4" x-data="{ showPassword: false }">
-                <label class="block text-sm font-semibold text-gray-700">New Password</label>
-                <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" name="new_password" 
+                <!-- Username -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-purple-700">Username</label>
+                    <input type="text" name="username" value="{{ Auth::user()->username }}" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                    @error('username')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Current Password - Modified to match design -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-purple-700">Current Password</label>
+                    <input type="password" name="current_password" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                    @error('current_password')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- New Password - Modified to match design -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-purple-700">New Password</label>
+                    <input type="password" name="new_password" 
                         class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
-                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
-                        @click="showPassword = !showPassword">
-                        <i x-show="!showPassword" class="fas fa-eye"></i>
-                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
-                    </button>
+                    @error('new_password')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-                @error('new_password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-                <p class="text-xs text-gray-500 mt-1">Leave blank if you don't want to change the password</p>
-            </div>
 
-            <!-- Confirm Password -->
-            <div class="mb-4" x-data="{ showPassword: false }">
-                <label class="block text-sm font-semibold text-gray-700">Confirm New Password</label>
-                <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" name="new_password_confirmation" 
+                <!-- Confirm Password - Modified to match design -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-purple-700">Confirm New Password</label>
+                    <input type="password" name="new_password_confirmation" 
                         class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
-                    <button type="button" class="absolute inset-y-0 right-2 flex items-center text-gray-600"
-                        @click="showPassword = !showPassword">
-                        <i x-show="!showPassword" class="fas fa-eye"></i>
-                        <i x-show="showPassword" class="fas fa-eye-slash"></i>
-                    </button>
                 </div>
-            </div>
 
-            <!-- Save Changes Button -->
-            <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
-                Save Changes
-            </button>
-        </form>
+                <!-- Save Changes Button - Updated to match design -->
+                <button type="submit" class="w-full bg-purple-700 text-white py-2 rounded-lg hover:bg-purple-800 flex items-center justify-center">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
