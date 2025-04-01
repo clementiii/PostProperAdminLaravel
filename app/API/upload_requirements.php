@@ -5,21 +5,23 @@ require_once 'db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $requestId = $_POST['requestId'];
-        $uploadDir = 'uploads/';
-        $validIdsDir = $uploadDir . 'valid_ids/';
         
-        // Create directories if they don't exist
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-        if (!is_dir($validIdsDir)) mkdir($validIdsDir, 0777, true);
+        // Define the target directory using the server document root
+        $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/valid_ids/";
+        
+        // Create the directory if it doesn't exist
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0777, true)) {
+                throw new Exception("Failed to create target directory");
+            }
+        }
 
         $validIdFrontPath = '';
         $validIdBackPath = '';
         $errors = [];
 
         // Function to handle file upload
-        function handleFileUpload($file, $prefix) {
-            global $validIdsDir;
-            
+        function handleFileUpload($file, $prefix, $targetDir) {
             if ($file['error'] === UPLOAD_ERR_OK) {
                 $fileInfo = pathinfo($file['name']);
                 $extension = strtolower($fileInfo['extension']);
@@ -32,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Generate unique filename
                 $fileName = time() . '_' . uniqid() . '_' . $prefix . '.' . $extension;
-                $dbPath = 'uploads/valid_ids/' . $fileName;
-                $fullPath = __DIR__ . '/' . $dbPath;
+                $dbPath = '/storage/uploads/valid_ids/' . $fileName; // Path to store in DB
+                $fullPath = $targetDir . $fileName; // Full server path for file storage
 
                 if (!move_uploaded_file($file['tmp_name'], $fullPath)) {
                     throw new Exception("Failed to save {$prefix} file");
@@ -47,14 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle front ID upload
         if (isset($_FILES['frontId'])) {
-            $validIdFrontPath = handleFileUpload($_FILES['frontId'], 'front');
+            $validIdFrontPath = handleFileUpload($_FILES['frontId'], 'front', $targetDir);
         } else {
             $errors[] = 'Front ID image is required';
         }
 
         // Handle back ID upload
         if (isset($_FILES['backId'])) {
-            $validIdBackPath = handleFileUpload($_FILES['backId'], 'back');
+            $validIdBackPath = handleFileUpload($_FILES['backId'], 'back', $targetDir);
         } else {
             $errors[] = 'Back ID image is required';
         }

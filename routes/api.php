@@ -63,3 +63,45 @@ Route::post('android/register-user', function(Request $request) {
     // Return the JSON response from the PHP file
     return response($response, 200)->header('Content-Type', 'application/json');
 })->middleware('api');
+
+//Submit Document Request
+Route::post('android/document-requests', function () {
+    require app_path('API/submit_document_request.php');
+});
+
+//Upload Requirements
+Route::post('android/upload-requirements', function(Request $request) {
+    // Properly format $_FILES array to match what PHP expects
+    $_FILES = [];
+    
+    if ($request->hasFile('frontId')) {
+        $frontFile = $request->file('frontId');
+        $_FILES['frontId'] = [
+            'name' => $frontFile->getClientOriginalName(),
+            'type' => $frontFile->getMimeType(),
+            'tmp_name' => $frontFile->getPathname(),
+            'error' => 0,
+            'size' => $frontFile->getSize()
+        ];
+    }
+    
+    if ($request->hasFile('backId')) {
+        $backFile = $request->file('backId');
+        $_FILES['backId'] = [
+            'name' => $backFile->getClientOriginalName(),
+            'type' => $backFile->getMimeType(),
+            'tmp_name' => $backFile->getPathname(),
+            'error' => 0,
+            'size' => $backFile->getSize()
+        ];
+    }
+    
+    // Set all other POST fields
+    $_POST = $request->except(['frontId', 'backId']);
+    
+    ob_start();
+    require app_path('API/upload_requirements.php');
+    $response = ob_get_clean();
+    
+    return response($response, 200)->header('Content-Type', 'application/json');
+})->middleware('api');
