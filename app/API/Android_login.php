@@ -1,27 +1,16 @@
 <?php
-require __DIR__.'/../../vendor/autoload.php';
-$app = require_once __DIR__.'/../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Http\Kernel::class)
-    ->handle($request = Illuminate\Http\Request::capture());
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "pps_barangay_system";
 
-// Get database config from Laravel
-$config = $app->make('config')->get('database.connections.mysql');
-
-// Create connection using Laravel's config
-$conn = new mysqli(
-    $config['host'],
-    $config['username'],
-    $config['password'],
-    $config['database'],
-    $config['port']
-);
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
-    die(json_encode([
-        'status' => 'error',
-        'message' => 'Database connection failed: ' . $conn->connect_error
-    ]));
+    die("Connection failed: " . $conn->connect_error);
 }
 
 if (isset($_POST['username']) && isset($_POST['password'])) {
