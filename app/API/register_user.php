@@ -1,24 +1,17 @@
 <?php
-// Database connection parameters
-$host = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "pps_barangay_system";
 
-// Create connection
-$conn = new mysqli($host, $db_user, $db_pass, $db_name);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+@include 'dbSqli.php';
 
 // Set response header to JSON
 header('Content-Type: application/json');
 
 // Function to handle file upload
-function handleFileUpload($file, $targetDir, $prefix = '') {
-    // Debug file information
+function handleFileUpload($file, $prefix = '') {
+    // Set the correct target directory path 
+    $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/valid_ids/";
+    
+    // Debug information
+    error_log("Target directory: " . $targetDir);
     error_log("File upload details: " . print_r($file, true));
     
     if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
@@ -27,14 +20,18 @@ function handleFileUpload($file, $targetDir, $prefix = '') {
 
     // Create directory if it doesn't exist
     if (!file_exists($targetDir)) {
-        mkdir($targetDir, 0777, true);
+        if (!mkdir($targetDir, 0777, true)) {
+            error_log("Failed to create directory: " . $targetDir);
+            return ["success" => false, "message" => "Failed to create upload directory."];
+        }
     }
 
     // Generate unique filename with prefix
     $uniqueFilename = uniqid() . '_' . $prefix . basename($file["name"]);
     $targetFile = $targetDir . $uniqueFilename;
+    $relativePath = "/storage/uploads/valid_ids/" . $uniqueFilename; // Store relative path in database
     $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($targetFile,PATHINFO_EXTENSION));
+    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
     
     // Check if image file is actual image
     try {
@@ -46,8 +43,8 @@ function handleFileUpload($file, $targetDir, $prefix = '') {
         return ["success" => false, "message" => "Error checking image: " . $e->getMessage()];
     }
     
-    // Check file size (5MB max)
-    if ($file["size"] > 5000000) {
+    // Check file size (10MB max)
+    if ($file["size"] > 10000000) {
         return ["success" => false, "message" => "File is too large (max 5MB)."];
     }
     
@@ -60,10 +57,11 @@ function handleFileUpload($file, $targetDir, $prefix = '') {
     try {
         if (move_uploaded_file($file["tmp_name"], $targetFile)) {
             chmod($targetFile, 0644); // Set proper permissions
-            return ["success" => true, "filepath" => $targetFile];
+            return ["success" => true, "filepath" => $relativePath]; // Return relative path
         } else {
-            error_log("Upload failed. Error: " . error_get_last()['message']);
-            return ["success" => false, "message" => "Failed to move uploaded file."];
+            $errorDetails = error_get_last();
+            error_log("Upload failed. Error: " . ($errorDetails ? $errorDetails['message'] : 'Unknown error'));
+            return ["success" => false, "message" => "Failed to move uploaded file. Check directory permissions."];
         }
     } catch (Exception $e) {
         error_log("Exception during file upload: " . $e->getMessage());
@@ -75,13 +73,23 @@ function handleFileUpload($file, $targetDir, $prefix = '') {
 try {
     // Log received data (excluding password)
     $logData = $_POST;
-    unset($logData['password']);
+    if (isset($logData['password'])) {
+        unset($logData['password']);
+    }
     error_log("Received registration data: " . print_r($logData, true));
+    error_log("Files received: " . print_r($_FILES, true));
 
     // Check required fields
     if (!isset($_POST['firstName'], $_POST['lastName'], $_POST['username'], 
                $_POST['password'], $_FILES['valid_id'], $_FILES['valid_id_back'])) {
-        throw new Exception('Missing required fields');
+        throw new Exception('Missing required fields: ' . implode(', ', array_keys(array_filter([
+            'firstName' => !isset($_POST['firstName']),
+            'lastName' => !isset($_POST['lastName']),
+            'username' => !isset($_POST['username']),
+            'password' => !isset($_POST['password']),
+            'valid_id' => !isset($_FILES['valid_id']),
+            'valid_id_back' => !isset($_FILES['valid_id_back'])
+        ]))));
     }
     
     // Get and sanitize input data
@@ -106,23 +114,15 @@ try {
     $check_stmt->close();
 
     // Handle front valid ID upload
-    $uploadDir = "uploads/valid_ids/";
-    $validIdUpload = handleFileUpload($_FILES['valid_id'], $uploadDir, 'front_');
+    $validIdUpload = handleFileUpload($_FILES['valid_id'], 'front_');
     if (!$validIdUpload['success']) {
         throw new Exception('Front ID: ' . $validIdUpload['message']);
     }
 
     // Handle back valid ID upload
-    $validIdBackUpload = handleFileUpload($_FILES['valid_id_back'], $uploadDir, 'back_');
+    $validIdBackUpload = handleFileUpload($_FILES['valid_id_back'], 'back_');
     if (!$validIdBackUpload['success']) {
         throw new Exception('Back ID: ' . $validIdBackUpload['message']);
-    }
-    
-    // First, check if the user_valid_id_back column exists
-    $checkColumn = $conn->query("SHOW COLUMNS FROM user_accounts LIKE 'user_valid_id_back'");
-    if ($checkColumn->num_rows == 0) {
-        // Add the column if it doesn't exist
-        $conn->query("ALTER TABLE user_accounts ADD COLUMN user_valid_id_back longtext DEFAULT NULL");
     }
     
     // Insert new user with both front and back IDs
@@ -145,10 +145,7 @@ try {
             'id' => $conn->insert_id 
         ]);
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Registration failed: ' . $stmt->error
-        ]);
+        throw new Exception('Registration failed: ' . $stmt->error);
     }
 
 } catch (Exception $e) {
@@ -159,6 +156,6 @@ try {
     ]);
 } finally {
     if (isset($stmt)) $stmt->close();
-    $conn->close();
+    if (isset($conn)) $conn->close();
 }
 ?>

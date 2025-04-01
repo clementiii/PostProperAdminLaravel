@@ -1,15 +1,5 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "pps_barangay_system";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+@include 'dbSqli.php';
 
 // Check if the 'id' parameter is set
 if (isset($_GET['id'])) {

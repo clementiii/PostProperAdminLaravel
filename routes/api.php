@@ -26,14 +26,40 @@ Route::get('android/fetch-user-details', function() {
 });
 
 //Android Register
-Route::post('android/register-user', function() {
-    $_FILES = [
-        'valid_id' => request()->file('valid_id'),
-        'valid_id_back' => request()->file('valid_id_back')
-    ];
+Route::post('android/register-user', function(Request $request) {
+    // Properly format $_FILES array to match what PHP expects
+    $_FILES = [];
     
-    $_POST = request()->except(['valid_id', 'valid_id_back']);
+    if ($request->hasFile('valid_id')) {
+        $frontFile = $request->file('valid_id');
+        $_FILES['valid_id'] = [
+            'name' => $frontFile->getClientOriginalName(),
+            'type' => $frontFile->getMimeType(),
+            'tmp_name' => $frontFile->getPathname(),
+            'error' => 0,
+            'size' => $frontFile->getSize()
+        ];
+    }
     
+    if ($request->hasFile('valid_id_back')) {
+        $backFile = $request->file('valid_id_back');
+        $_FILES['valid_id_back'] = [
+            'name' => $backFile->getClientOriginalName(),
+            'type' => $backFile->getMimeType(),
+            'tmp_name' => $backFile->getPathname(),
+            'error' => 0,
+            'size' => $backFile->getSize()
+        ];
+    }
+    
+    // Set all other POST fields
+    $_POST = $request->except(['valid_id', 'valid_id_back']);
+    
+    // Include the PHP file and capture its output
+    ob_start();
     require app_path('API/register_user.php');
-    return response('', 200, ['Content-Type' => 'application/json']);
+    $response = ob_get_clean();
+    
+    // Return the JSON response from the PHP file
+    return response($response, 200)->header('Content-Type', 'application/json');
 })->middleware('api');
