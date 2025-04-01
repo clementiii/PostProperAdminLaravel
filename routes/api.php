@@ -105,3 +105,17 @@ Route::post('android/upload-requirements', function(Request $request) {
     
     return response($response, 200)->header('Content-Type', 'application/json');
 })->middleware('api');
+
+// User Document Requests (GET)
+Route::get('android/get-user-requests', function() {
+    $_GET = request()->query();
+    require app_path('API/get_user_requests.php');
+    return response('', 200, ['Content-Type' => 'application/json']);
+});
+
+// Cancel Document Request (POST)
+Route::post('android/cancel-request', function() {
+    $_POST = request()->post();
+    require app_path('API/cancel_request.php');
+    return response('', 200, ['Content-Type' => 'application/json']);
+});
