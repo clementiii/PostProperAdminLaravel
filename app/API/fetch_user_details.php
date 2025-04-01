@@ -33,7 +33,7 @@ if (isset($_GET['id'])) {
                 'gender' => $row['gender'],
                 'dateOfBirth' => $row['birthday'],
                 'password' => $row['password'],
-                'profilePicture' => $row['user_profile_picture']
+                'profilePicture' => url($row['user_profile_picture'])
             )
         );
         
