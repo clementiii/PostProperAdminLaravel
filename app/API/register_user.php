@@ -125,17 +125,21 @@ try {
         throw new Exception('Back ID: ' . $validIdBackUpload['message']);
     }
     
-    // Insert new user with both front and back IDs
+    date_default_timezone_set('Asia/Manila');
+    $created_at = date('Y-m-d H:i:s');
+    
+    // Insert new user with both front and back IDs and created_at timestamp
     $insert_query = "INSERT INTO user_accounts (firstName, lastName, username, password, 
                     age, birthday, adrHouseNo, adrZone, adrStreet, gender, 
-                    user_valid_id, user_valid_id_back, status) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+                    user_valid_id, user_valid_id_back, status, created_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)";
     
     $stmt = $conn->prepare($insert_query);
-    $stmt->bind_param("ssssisssssss", 
+    $stmt->bind_param("ssssissssssss", 
         $firstName, $lastName, $username, $password, 
         $age, $birthday, $houseNo, $zone, $street, $gender,
-        $validIdUpload['filepath'], $validIdBackUpload['filepath']
+        $validIdUpload['filepath'], $validIdBackUpload['filepath'],
+        $created_at
     );
     
     if ($stmt->execute()) {
