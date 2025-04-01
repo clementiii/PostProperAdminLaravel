@@ -94,7 +94,10 @@
                             <!-- ID Display Areas -->
                             <div id="frontID" class="p-3 flex items-center justify-center h-56 cursor-zoom-in" onclick="openImageModal('frontID')">
                                 @if($user->user_valid_id)
-                                    <img src="{{ asset(str_replace('uploads/', 'storage/uploads/', $user->user_valid_id)) }}" alt="ID Front" class="max-h-full max-w-full object-contain">
+                                    @php
+                                        $cleanPath = ltrim(str_replace('storage/', '', $user->user_valid_id), '/');
+                                    @endphp
+                                    <img src="{{ asset('storage/' . $cleanPath) }}" alt="ID Front" class="max-h-full max-w-full object-contain">
                                 @else
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full flex items-center justify-center">
                                         <div class="text-center text-gray-400">
@@ -107,7 +110,10 @@
 
                             <div id="backID" class="hidden p-3 flex items-center justify-center h-56 cursor-zoom-in" onclick="openImageModal('backID')">
                                 @if($user->user_valid_id_back)
-                                    <img src="{{ asset(str_replace('uploads/', 'storage/uploads/', $user->user_valid_id_back)) }}" alt="ID Back" class="max-h-full max-w-full object-contain">
+                                    @php
+                                        $cleanPath = ltrim(str_replace('storage/', '', $user->user_valid_id_back), '/');
+                                    @endphp
+                                    <img src="{{ asset('storage/' . $cleanPath) }}" alt="ID Back" class="max-h-full max-w-full object-contain">
                                 @else
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full flex items-center justify-center">
                                         <div class="text-center text-gray-400">
