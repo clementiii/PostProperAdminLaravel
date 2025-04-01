@@ -119,3 +119,31 @@ Route::post('android/cancel-request', function() {
     require app_path('API/cancel_request.php');
     return response('', 200, ['Content-Type' => 'application/json']);
 });
+
+// Android Update User Profile
+Route::post('android/update-user-profile', function(Request $request) {
+    // Properly format $_FILES array to match what PHP expects
+    $_FILES = [];
+    
+    if ($request->hasFile('profile_picture')) {
+        $profilePicture = $request->file('profile_picture');
+        $_FILES['profile_picture'] = [
+            'name' => $profilePicture->getClientOriginalName(),
+            'type' => $profilePicture->getMimeType(),
+            'tmp_name' => $profilePicture->getPathname(),
+            'error' => 0,
+            'size' => $profilePicture->getSize()
+        ];
+    }
+    
+    // Set all other POST fields
+    $_POST = $request->except(['profile_picture']);
+    
+    // Include the PHP file and capture its output
+    ob_start();
+    require app_path('API/update_user_profile.php');
+    $response = ob_get_clean();
+    
+    // Return the JSON response from the PHP file
+    return response($response, 200)->header('Content-Type', 'application/json');
+})->middleware('api');

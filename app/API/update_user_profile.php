@@ -17,18 +17,18 @@ try {
     $updates = array();
 
     // Handle profile picture upload if present
-    $uploadPath = $_SERVER['DOCUMENT_ROOT'] . '/PostProperAdmin/uploads/user_profile_pictures/';
-    if (!file_exists($uploadPath)) {
-        mkdir($uploadPath, 0777, true);
+    $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/user_profile_pictures/";
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
     }
 
     if (isset($_FILES['profile_picture'])) {
         $file = $_FILES['profile_picture'];
         $fileName = time() . '_' . uniqid() . '.jpg';
-        $filePath = $uploadPath . $fileName;
+        $filePath = $targetDir . $fileName;
         
         if (move_uploaded_file($file['tmp_name'], $filePath)) {
-            $updates['user_profile_picture'] = 'uploads/user_profile_pictures/' . $fileName;
+            $updates['user_profile_picture'] = 'storage/uploads/user_profile_pictures/' . $fileName;
         }
     }
 
