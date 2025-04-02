@@ -16,7 +16,7 @@
 
     @section('title', 'Verify User')
     @section('content')
-        <div class="container mx-auto pt-0 px-3">
+        <div class="container mx-auto pt-0 px-8 max-w-full"> <!-- Increased padding and max width -->
             <!-- Success Alert Message -->
             @if (session('success'))
                 <div id="success-alert" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
@@ -53,17 +53,17 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-12 gap-6">
+            <div class="grid grid-cols-12 gap-10"> <!-- Increased gap between columns -->
                 <!-- Left Column -->
-                <div class="col-span-5">
+                <div class="col-span-4"> <!-- Reduced column span -->
                     <!-- Profile Picture Section -->
-                    <div class="bg-white rounded-lg shadow-sm mb-6">
+                    <div class="bg-white rounded-lg shadow-sm mb-10 h-80"> <!-- Increased height -->
                         <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg flex items-center">
                             <span class="material-icons-outlined mr-2">person</span>
                             <span class="font-medium">Profile Picture</span>
                         </div>
                         <div class="p-6 flex justify-center">
-                            <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                            <div class="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                                 @if($user->user_profile_picture)
                                     <img src="{{ asset($user->user_profile_picture) }}" alt="Profile Picture" class="w-full h-full object-cover">
                                 @else
@@ -77,7 +77,7 @@
                     </div>
 
                     <!-- Valid ID Section -->
-                    <div class="bg-white rounded-lg shadow-sm">
+                    <div class="bg-white rounded-lg shadow-sm h-96"> <!-- Increased height -->
                         <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg flex items-center">
                             <span class="material-icons-outlined mr-2">badge</span>
                             <span class="font-medium">Valid ID</span>
@@ -128,27 +128,27 @@
                 </div>
 
                 <!-- Right Column -->
-                <div class="col-span-7">
+                <div class="col-span-8"> <!-- Increased column span -->
                     <div class="bg-white rounded-lg shadow-sm h-full flex flex-col">
-                        <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg">
-                            <h2 class="font-medium">User Information</h2>
+                        <div class="bg-purple-900 text-white px-8 py-6 rounded-t-lg"> <!-- Increased padding -->
+                            <h2 class="font-medium text-xl">User Information</h2> <!-- Increased font size -->
                         </div>
-                        <div class="p-5 flex-1 flex flex-col">
+                        <div class="p-8 flex-1 flex flex-col"> <!-- Increased padding -->
                             <!-- Information Tabs -->
                             <div class="border-b border-gray-200">
                                 <div class="flex">
-                                    <button onclick="showInfo('personal')" id="personalTab" class="px-4 py-2 border-b-2 border-purple-900 font-medium text-purple-900">Personal Information</button>
-                                    <button onclick="showInfo('account')" id="accountTab" class="px-4 py-2 text-gray-500">Account Information</button>
+                                    <button onclick="showInfo('personal')" id="personalTab" class="px-8 py-4 border-b-2 border-purple-900 font-medium text-purple-900">Personal Information</button> <!-- Increased padding -->
+                                    <button onclick="showInfo('account')" id="accountTab" class="px-8 py-4 text-gray-500">Account Information</button> <!-- Increased padding -->
                                 </div>
                             </div>
 
                             <!-- Content wrapper -->
                             <div class="flex-1 flex flex-col justify-between">
                                 <!-- Information sections wrapper -->
-                                <div class="mt-4">
+                                <div class="mt-8"> <!-- Increased margin -->
                                     <!-- Personal Information Section -->
-                                    <div id="personalInfo" class="space-y-6">
-                                        <div class="grid grid-cols-2 gap-x-10 gap-y-6">
+                                    <div id="personalInfo" class="space-y-10"> <!-- Increased spacing -->
+                                        <div class="grid grid-cols-2 gap-x-16 gap-y-10"> <!-- Increased gaps -->
                                             <div>
                                                 <p class="text-gray-500 text-sm">Full Name</p>
                                                 <p class="font-medium">{{ $user->firstName }} {{ $user->lastName }}</p>
@@ -177,8 +177,8 @@
                                     </div>
 
                                     <!-- Account Information Section -->
-                                    <div id="accountInfo" class="hidden space-y-6">
-                                        <div class="grid grid-cols-2 gap-x-10 gap-y-6">
+                                    <div id="accountInfo" class="hidden space-y-10"> <!-- Increased spacing -->
+                                        <div class="grid grid-cols-2 gap-x-16 gap-y-10"> <!-- Increased gaps -->
                                             <div>
                                                 <p class="text-gray-500 text-sm">Account Status</p>
                                                 <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
@@ -197,9 +197,9 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons - only show if no success message -->
+                                <!-- Action Buttons -->
                                 @if (!session('success'))
-                                <div class="flex justify-end space-x-3 mt-auto pt-4">
+                                <div class="flex justify-end space-x-6 mt-auto pt-8"> <!-- Increased spacing -->
                                     <form action="{{ route('users.reject', $user->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="px-5 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-100">Reject</button>

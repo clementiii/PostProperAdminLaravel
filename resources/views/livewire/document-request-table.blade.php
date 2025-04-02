@@ -136,7 +136,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($requests as $request)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+                        <tr class="hover:bg-gray-200 transition-colors duration-150 ease-in-out">
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
                                 <span class="font-medium text-gray-900">TXN-{{ str_pad((string) $request->id, 2, '0', STR_PAD_LEFT) }}</span>
                             </td>
@@ -145,7 +145,7 @@
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->Quantity }}</td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DateRequested }}</td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
-                                <button class="view-btn bg-[#61009F] text-white px-4 py-1.5 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-150"
+                                <button class="view-btn bg-[#61009F] text-white px-6 py-1.5 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-150"
                                     data-id="{{ $request->id }}" onclick="showModal({{ $request->id }})">
                                     View
                                 </button>
