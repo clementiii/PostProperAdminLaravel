@@ -157,3 +157,8 @@ Route::post('android/incident-reports', function () {
 Route::get('android/user-incident-reports', function () {
     require app_path('API/get_user_incident_reports.php');
 });
+
+// update user activity
+Route::post('android/update_user_activity', function () {
+    require app_path('API/update_user_activity.php');
+});
