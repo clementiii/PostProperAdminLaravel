@@ -90,6 +90,13 @@
                         Close
                     </button>
                 </div>
+                <div class="mt-4 flex justify-center">
+                    <ul class="pagination text-xl space-x-3">
+                        <li><button class="px-6 py-3 bg-gray-200 rounded hover:bg-gray-300">1</button></li>
+                        <li><button class="px-6 py-3 bg-gray-200 rounded hover:bg-gray-300">2</button></li>
+                        <li><button class="px-6 py-3 bg-gray-200 rounded hover:bg-gray-300">3</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

@@ -113,41 +113,41 @@
                 </thead>
                 <tbody class="text-gray-700">
                     @foreach($users as $user)
-                    <tr class="border-t text-center">
-                        <td class="p-2">{{ $user->lastName }}</td>
-                        <td class="p-2">{{ $user->firstName }}</td>
-                        <td class="p-2">
-                            {{ $user->adrHouseNo }} {{ $user->adrStreet }} {{ $user->adrZone }}
-                        </td>
-                        <td class="p-2">
-                            @php
-                            $statusClass = match (strtolower($user->status)) {
-                            'pending' => 'bg-[#FEF9C3] text-gray-700',
-                            'verified' => 'bg-[#DCFCE7] text-[#1A6838]',
-                            'rejected' => 'bg-red-500 text-white',
-                            default => ''
-                            };
-                            @endphp
-                            <span class="px-3 py-1 rounded-full {{ $statusClass }}">
-                                {{ ucfirst($user->status ?? 'Pending') }}
-                            </span>
-                        </td>
-                        <td class="p-2 flex justify-center items-center space-x-2">
-                            <a href="{{ route('users.verify', $user->id) }}" 
-                                class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium">
-                                 View
-                             </a>
-                            <form action="{{ route('users.delete', $user->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"
-                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm font-medium">
-                                    Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                                        <tr class="border-t text-center hover:bg-gray-200">
+                                            <td class="p-2">{{ $user->lastName }}</td>
+                                            <td class="p-2">{{ $user->firstName }}</td>
+                                            <td class="p-2">
+                                                {{ $user->adrHouseNo }} {{ $user->adrStreet }} {{ $user->adrZone }}
+                                            </td>
+                                            <td class="p-2">
+                                                @php
+                                                    $statusClass = match (strtolower($user->status)) {
+                                                        'pending' => 'bg-[#FEF9C3] text-gray-700',
+                                                        'verified' => 'bg-[#DCFCE7] text-[#1A6838]',
+                                                        'rejected' => 'bg-red-500 text-white',
+                                                        default => ''
+                                                    };
+                                                @endphp
+                                                <span class="px-3 py-1 rounded-full {{ $statusClass }}">
+                                                    {{ ucfirst($user->status ?? 'Pending') }}
+                                                </span>
+                                            </td>
+                                            <td class="p-2 flex justify-center items-center space-x-2">
+                                                <a href="{{ route('users.verify', $user->id) }}"
+                                                    class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium">
+                                                    View
+                                                </a>
+                                                <form action="{{ route('users.delete', $user->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"
+                                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm font-medium">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
                     @endforeach
                 </tbody>
             </table>

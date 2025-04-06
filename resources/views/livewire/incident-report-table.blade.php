@@ -96,22 +96,23 @@
                 </thead>
                 <tbody class="text-gray-700">
                     @foreach($reports as $report)
-                        <tr class="border-t text-center">
-                            <td class="p-2">{{ $report->name }}</td>
-                            <td class="p-2">{{ $report->title }}</td>
-                            <td class="p-2">{{ $report->description }}</td>
-                            <td class="p-2">{{ date('m/d/Y', strtotime($report->date_submitted)) }}</td>
-                            <td class="p-2">
+                        <tr class="border-t text-center hover:bg-gray-200">
+                            <td class="p-4">{{ $report->name }}</td>
+                            <td class="p-4">{{ $report->title }}</td>
+                            <td class="p-4">{{ $report->description }}</td>
+                            <td class="p-4">{{ date('m/d/Y', strtotime($report->date_submitted)) }}</td>
+                            <td class="p-4">
                                 <span
                                     class="px-3 py-1 rounded-full {{ $report->status === 'pending' ? 'bg-[#FEF9C3] text-gray-700' : 'bg-[#DCFCE7] text-[#1A6838]' }}">
                                     {{ ucfirst($report->status) }}
                                 </span>
                             </td>
                             <td class="p-2">
-                            <a href="{{ route('incident-reports.show', $report->id) }}" class="text-blue-500 hover:text-blue-600" title="View Details">
-                            <i class="material-icons-outlined text-[24px]">visibility</i>
-                            </a>
-                                
+                                <a href="{{ route('incident-reports.show', $report->id) }}"
+                                    class="bg-purple-700 hover:bg-purple-800 text-white font-medium py-2 px-6 rounded-lg"
+                                    title="View Details">
+                                    View
+                                </a>
                             </td>
                         </tr>
                     @endforeach
