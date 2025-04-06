@@ -147,3 +147,13 @@ Route::post('android/update-user-profile', function(Request $request) {
     // Return the JSON response from the PHP file
     return response($response, 200)->header('Content-Type', 'application/json');
 })->middleware('api');
+
+// Submit Incident Report
+Route::post('android/incident-reports', function () {
+    require app_path('API/submit_incident_report.php');
+});
+
+// Get User Incident Reports
+Route::get('android/user-incident-reports', function () {
+    require app_path('API/get_user_incident_reports.php');
+});

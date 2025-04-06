@@ -51,10 +51,11 @@ try {
                 throw new Exception('Invalid image data format');
             }
 
-            // Create directory if it doesn't exist
-            $uploadDir = 'uploads/incident_reports/';
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+           // Create directory if it doesn't exist
+            $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/incident_reports/";
+            $relativePath = "/storage/uploads/incident_reports/"; // Relative path for database storage
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true);
             }
 
             // Process each image in the array
@@ -67,7 +68,12 @@ try {
                 $timestamp = time();
                 $randomString = bin2hex(random_bytes(8));
                 $filename = $timestamp . '_' . $randomString . '.jpg';
-                $filepath = $uploadDir . $filename;
+                
+                // Use absolute path for file operations
+                $filepath = $targetDir . $filename;
+                
+                // Use relative path for database storage
+                $databasePath = $relativePath . $filename;
                 
                 // Decode and save image
                 $imageData = base64_decode($base64Image);
@@ -79,7 +85,8 @@ try {
                     throw new Exception('Failed to save image file');
                 }
 
-                $uploadedImages[] = $filepath;
+                // Store only the relative path in the array for database
+                $uploadedImages[] = $databasePath;
             }
         } catch (Exception $e) {
             error_log("Image processing error: " . $e->getMessage());
