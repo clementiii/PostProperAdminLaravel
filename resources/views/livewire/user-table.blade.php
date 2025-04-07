@@ -1,31 +1,35 @@
 <div>
     <!-- Stats Cards -->
-    <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
+    <div class="mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
         <div
-            class="h-[150px] w-[500px] bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg shadow-blue-700 flex items-center">
+            class="h-[150px] w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-blue-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Registered Residents</h3>
                 <p id="residentsCount" class="text-4xl font-bold">{{ $registeredResidentsCount }}</p>
             </div>
-            <i class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[64px] ml-auto p-5">group</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-icons-outlined !text-[64px]">group</i>
+            </div>
         </div>
         <div
-            class="h-[150px] w-[500px] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-6 rounded-lg shadow-lg shadow-emerald-700 flex items-center">
+            class="h-[150px] w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-6 rounded-lg shadow-lg hover:shadow-emerald-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Active Users</h3>
                 <p id="pendingDocsCount" class="text-4xl font-bold">{{ $activeUsersCount }}</p>
             </div>
-            <i
-                class="material-symbols-outlined bg-white bg-opacity-20 rounded-full !text-[64px] ml-auto p-5">person_check</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-symbols-outlined !text-[64px]">person_check</i>
+            </div>
         </div>
         <div
-            class="h-[150px] w-[500px] bg-gradient-to-r from-slate-500 to-slate-600 text-white p-6 rounded-lg shadow-lg shadow-slate-700 flex items-center">
+            class="h-[150px] w-full bg-gradient-to-r from-slate-500 to-slate-600 text-white p-6 rounded-lg shadow-lg hover:shadow-slate-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Inactive Users</h3>
                 <p id="incidentCount" class="text-4xl font-bold">{{ $inactiveUsersCount }}</p>
             </div>
-            <i
-                class="material-icons-outlined bg-white bg-opacity-20 rounded-full !text-[64px] ml-auto p-5">person_off</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-icons-outlined !text-[64px]">person_off</i>
+            </div>
         </div>
     </div>
 

@@ -1,29 +1,32 @@
 <div class="px-4 sm:px-6 lg:px-8 py-6">
     <!-- Stats Cards -->
     <div class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-blue-200 transition-all duration-300 flex items-center">
+        <div
+            class="h-[150px] bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-blue-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
-                <h3 class="text-lg font-medium opacity-90">Registered Residents</h3>
+                <h3 class="text-xl font-medium">Registered Residents</h3>
                 <p id="residentsCount" class="text-3xl sm:text-4xl font-bold mt-2">{{ $registeredResidents }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto">
                 <i class="material-icons-outlined !text-[48px] sm:!text-[56px]">group</i>
             </div>
         </div>
-        
-        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-lg shadow-lg hover:shadow-yellow-200 transition-all duration-300 flex items-center">
+
+        <div
+            class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-lg shadow-lg hover:shadow-yellow-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
-                <h3 class="text-lg font-medium opacity-90">Pending Documents</h3>
+                <h3 class="text-xl font-medium">Pending Documents</h3>
                 <p id="pendingDocsCount" class="text-3xl sm:text-4xl font-bold mt-2">{{ $pendingDocuments }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto">
                 <i class="material-icons-outlined !text-[48px] sm:!text-[56px]">description</i>
             </div>
         </div>
-        
-        <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg shadow-lg hover:shadow-red-200 transition-all duration-300 flex items-center">
+
+        <div
+            class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg shadow-lg hover:shadow-red-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
-                <h3 class="text-lg font-medium opacity-90">Incident Reports</h3>
+                <h3 class="text-xl font-medium">Incident Reports</h3>
                 <p id="incidentCount" class="text-3xl sm:text-4xl font-bold mt-2">{{ $incidentReports }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto">
@@ -40,7 +43,8 @@
         <!-- Header Section -->
         <div class="p-6 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-semibold font-poppins text-purple-800">Recent Document Requests</h2>
+                <h2 class="text-2xl sm:text-3xl font-semibold font-poppins text-purple-800">Recent Document Requests
+                </h2>
                 <p class="text-gray-500 mt-1">Manage and view all recent document requests from residents</p>
             </div>
 
@@ -50,7 +54,8 @@
                 <div class="relative w-full sm:w-auto">
                     <input type="text" wire:model.live="search" placeholder="Search requests..."
                         class="pl-10 pr-4 py-2 w-full sm:w-72 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
-                    <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+                    <span
+                        class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
                 </div>
 
                 <!-- Filter Dropdown -->
@@ -71,15 +76,20 @@
                         x-transition:leave-end="opacity-0 transform scale-95">
                         <ul class="text-gray-700">
                             <li><button wire:click="$set('filterField', 'id')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Transaction ID</button></li>
+                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Transaction
+                                    ID</button></li>
                             <li><button wire:click="$set('filterField', 'Name')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Name</button></li>
+                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Name</button>
+                            </li>
                             <li><button wire:click="$set('filterField', 'DocumentType')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Document Type</button></li>
+                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Document
+                                    Type</button></li>
                             <li><button wire:click="$set('filterField', 'Quantity')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Quantity</button></li>
+                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Quantity</button>
+                            </li>
                             <li><button wire:click="$set('filterField', 'DateRequested')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Date Requested</button></li>
+                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Date
+                                    Requested</button></li>
                         </ul>
                     </div>
                 </div>
@@ -124,7 +134,8 @@
                             </button>
                         </th>
                         <th class="px-4 sm:px-6 py-3.5 text-sm sm:text-base font-semibold text-purple-800">
-                            <button wire:click="sortBy('DateRequested')" class="flex items-center hover:text-purple-600">
+                            <button wire:click="sortBy('DateRequested')"
+                                class="flex items-center hover:text-purple-600">
                                 Date Requested
                                 <span class="material-icons-outlined align-middle text-sm ml-1">
                                     {{ $sortField === 'DateRequested' ? ($sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'swap_vert' }}
@@ -138,14 +149,18 @@
                     @foreach($requests as $request)
                         <tr class="hover:bg-gray-200 transition-colors duration-150 ease-in-out">
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
-                                <span class="font-medium text-gray-900">TXN-{{ str_pad((string) $request->id, 2, '0', STR_PAD_LEFT) }}</span>
+                                <span
+                                    class="font-medium text-gray-900">TXN-{{ str_pad((string) $request->id, 2, '0', STR_PAD_LEFT) }}</span>
                             </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->Name }}</td>
-                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DocumentType }}</td>
+                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DocumentType }}
+                            </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->Quantity }}</td>
-                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DateRequested }}</td>
+                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DateRequested }}
+                            </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
-                                <button class="view-btn bg-[#61009F] text-white px-6 py-1.5 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-150"
+                                <button
+                                    class="view-btn bg-[#61009F] text-white px-6 py-1.5 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-150"
                                     data-id="{{ $request->id }}" onclick="showModal({{ $request->id }})">
                                     View
                                 </button>
@@ -158,13 +173,15 @@
 
         <!-- Empty State -->
         @if(count($requests) === 0)
-        <div class="text-center py-12">
-            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            <h3 class="mt-2 text-lg font-medium text-gray-900">No requests found</h3>
-            <p class="mt-1 text-gray-500">No document requests match your current filter criteria.</p>
-        </div>
+            <div class="text-center py-12">
+                <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No requests found</h3>
+                <p class="mt-1 text-gray-500">No document requests match your current filter criteria.</p>
+            </div>
         @endif
 
         <!-- Pagination Section -->
@@ -180,7 +197,8 @@
                     <!-- Items Per Page Dropdown -->
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-gray-700">Rows per page</span>
-                        <select wire:model.live="perPage" class="border rounded px-2 py-1 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                        <select wire:model.live="perPage"
+                            class="border rounded px-2 py-1 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
                             <option value="10">10</option>
                             <option value="25">25</option>
                             <option value="50">50</option>

@@ -1,48 +1,58 @@
 <div class="p-6 space-y-6">
-    <div class="statistic-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-        <div class="relative h-auto w-full bg-blue-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+    <div class="statistic-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10"
+        style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div
+            class="relative h-[150px] w-full bg-blue-500 text-white p-6 rounded-lg shadow-lg flex items-center transition-transform hover:scale-105 hover:shadow-md">
             <div class="flex-1">
                 <h2 class="text-lg font-semibold pb-1">Total Requests</h2>
                 <div class="text-3xl font-bold">{{ $totalRequest }}</div>
             </div>
-            <div class="bg-white bg-opacity-20 rounded-full p-4">
-                <i class="material-icons-outlined !text-[36px]">info</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-icons-outlined !text-[48px]">info</i>
             </div>
         </div>
-        <div class="relative h-auto w-full bg-yellow-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+        <div
+            class="relative h-[150px] w-full bg-yellow-500 text-white p-6 rounded-lg shadow-lg flex items-center transition-transform hover:scale-105 hover:shadow-md">
             <div class="flex-1">
                 <h2 class="text-lg font-semibold pb-1">Pending</h2>
                 <div class="text-3xl font-bold">{{ $pendingCount }}</div>
             </div>
-            <div class="bg-white bg-opacity-20 rounded-full p-4">
-                <i class="material-icons-outlined !text-[36px]">hourglass_empty</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-icons-outlined !text-[48px]">hourglass_empty</i>
             </div>
         </div>
-        <div class="relative h-auto w-full bg-green-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
-            <div class="flex-1">
-                <h2 class="text-lg font-semibold pb-1">Approved</h2>
-                <div class="text-3xl font-bold">{{ $approvedCount }}</div>
+        @if($approvedCount > 0)
+            <div
+                class="relative h-[150px] w-full bg-green-500 text-white p-6 rounded-lg shadow-lg flex items-center transition-transform hover:scale-105 hover:shadow-md">
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold pb-1">Approved</h2>
+                    <div class="text-3xl font-bold">{{ $approvedCount }}</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                    <i class="material-icons-outlined !text-[48px]">check_circle</i>
+                </div>
             </div>
-            <div class="bg-white bg-opacity-20 rounded-full p-4">
-                <i class="material-icons-outlined !text-[36px]">check_circle</i>
+        @endif
+        @if($rejectedCount > 0)
+            <div
+                class="relative h-[150px] w-full bg-red-500 text-white p-6 rounded-lg shadow-lg flex items-center transition-transform hover:scale-105 hover:shadow-md">
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold pb-1">Rejected</h2>
+                    <div class="text-3xl font-bold">{{ $rejectedCount }}</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                    <i class="material-icons-outlined !text-[48px]">cancel</i>
+                </div>
             </div>
-        </div>
-        <div class="relative h-auto w-full bg-red-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
-            <div class="flex-1">
-                <h2 class="text-lg font-semibold pb-1">Rejected</h2>
-                <div class="text-3xl font-bold">{{ $rejectedCount }}</div>
-            </div>
-            <div class="bg-white bg-opacity-20 rounded-full p-4">
-                <i class="material-icons-outlined !text-[36px]">cancel</i>
-            </div>
-        </div>
-        <div class="relative h-auto w-full bg-gray-500 text-white p-5 rounded-lg shadow-md flex items-center transition-transform hover:scale-105">
+        @endif
+        <div
+            class="relative h-[150px] w-full bg-gray-500 text-white p-6 rounded-lg shadow-lg flex items-center transition-transform hover:scale-105 hover:shadow-md">
             <div class="flex-1">
                 <h2 class="text-lg font-semibold pb-1">Overdue</h2>
                 <div class="text-3xl font-bold">{{ $overdueCount }}</div>
             </div>
-            <div class="bg-white bg-opacity-20 rounded-full p-4">
-                <i class="material-icons-outlined !text-[36px]">schedule</i>
+            <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
+                <i class="material-icons-outlined !text-[48px]">schedule</i>
             </div>
         </div>
     </div>
@@ -53,13 +63,13 @@
                 <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
                     <i class="material-icons-outlined text-lg">search</i>
                 </span>
-                <input type="text" 
-                    placeholder="Search by name or transaction ID" 
+                <input type="text" placeholder="Search by name or transaction ID"
                     class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     wire:model.live.debounce.500ms="search">
             </div>
             <div class="w-full md:w-60 relative">
-                <select class="w-full py-3 px-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white" 
+                <select
+                    class="w-full py-3 px-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
                     wire:model.live="statusFilter">
                     <option value="">All Statuses</option>
                     <option value="pending">Pending</option>
@@ -83,10 +93,10 @@
                     </div>
                     <div class="flex items-center space-x-4">
                         <span class="px-3 py-1 rounded-full text-sm font-semibold 
-                                @if(strtolower($row->Status) === 'pending') bg-yellow-200 text-yellow-800 
-                                @elseif(strtolower($row->Status) === 'approved') bg-green-200 text-green-800 
-                                @elseif(strtolower($row->Status) === 'rejected') bg-red-200 text-red-800 
-                                @else bg-gray-200 text-gray-800 @endif">
+                            @if(strtolower($row->Status) === 'pending') bg-yellow-200 text-yellow-800 
+                            @elseif(strtolower($row->Status) === 'approved') bg-green-200 text-green-800 
+                            @elseif(strtolower($row->Status) === 'rejected') bg-red-200 text-red-800 
+                            @else bg-gray-200 text-gray-800 @endif">
                             {{ ucfirst(strtolower($row->Status)) }}
                         </span>
                         <a href="{{ route('documents.show', $row->Id) }}"
