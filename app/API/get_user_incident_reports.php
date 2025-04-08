@@ -10,7 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             throw new Exception('User ID is required');
         }
         
-        $sql = "SELECT i.*, ua.full_name as name 
+        $sql = "SELECT i.id, i.title, i.description, i.incident_picture, 
+                       i.date_submitted, i.status, i.resolved_at, ua.full_name as name 
                 FROM incident_reports i 
                 JOIN user_accounts ua ON i.name = ua.full_name 
                 WHERE ua.id = :userId 

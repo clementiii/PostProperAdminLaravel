@@ -103,11 +103,9 @@ Route::middleware([
     });
 
     // Incident Reports
-    Route::prefix('incident-reports')->name('incident-reports.')->group(function () {
-        Route::get('/', [IncidentReportController::class, 'index'])->name('index');
-        Route::get('/incident-reports', [IncidentReportController::class, 'index'])->name('incident.reports');
-        Route::get('/{incidentReport}', [IncidentReportController::class, 'show'])->name('show');
-    });
+    Route::get('/incident-reports', [IncidentReportController::class, 'index'])->name('incident-reports.index');
+    Route::get('/incident-reports/{incidentReport}', [IncidentReportController::class, 'show'])->name('incident-reports.show');
+    Route::patch('/incident-reports/{incidentReport}/resolve', [IncidentReportController::class, 'markAsResolved'])->name('incident-reports.resolve');
 
     // Desk Support (Coming Soon)
     Route::get('/desk-support', function () {
