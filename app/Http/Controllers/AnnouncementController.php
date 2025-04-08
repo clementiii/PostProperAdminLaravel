@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class AnnouncementController extends Controller
 {
+    // Storage path for announcement images
+    protected $storagePath = 'uploads/announcement_images';
+
     public function index()
     {
         $announcements = Announcement::latest()->get();
@@ -18,17 +23,35 @@ class AnnouncementController extends Controller
         $request->validate([
             'announcement_title' => 'required|string|max:255',
             'description_text' => 'required|string',
-            'announcement_images' => 'nullable|array',
-            'announcement_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:51200',
+            'announcement_images' => 'nullable|array|max:5', // Limit to 5 images
+            'announcement_images.*' => 'image|mimes:jpeg,png,jpg|max:10240', // 10MB limit
         ]);
 
         $imagePaths = [];
 
         if ($request->hasFile('announcement_images')) {
-            foreach ($request->file('announcement_images') as $image) {
+            // Check if directory exists, if not create it
+            $this->ensureDirectoryExists();
+            
+            // Limit to 5 images
+            $images = array_slice($request->file('announcement_images'), 0, 5);
+            
+            foreach ($images as $image) {
                 if ($image->isValid()) {
-                    $path = $image->store('uploads/announcements', 'public');
-                    $imagePaths[] = $path; // Save relative path
+                    // Generate unique filename with timestamp
+                    $timestamp = time();
+                    $uniqueId = uniqid();
+                    $extension = $image->getClientOriginalExtension();
+                    $fileName = $timestamp . '_' . $uniqueId . '.' . $extension;
+                    
+                    // Define the path
+                    $path = $this->storagePath . '/' . $fileName;
+                    
+                    // Store the file in the public storage directory
+                    Storage::disk('public')->put($path, File::get($image));
+                    
+                    // Save just the path that will be used in the API
+                    $imagePaths[] = $path;
                 }
             }
         }
@@ -55,8 +78,8 @@ class AnnouncementController extends Controller
         $request->validate([
             'announcement_title' => 'required|string|max:255',
             'description_text' => 'required|string',
-            'announcement_images' => 'nullable|array',
-            'announcement_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:51200',
+            'announcement_images' => 'nullable|array|max:5', // Limit to 5 images
+            'announcement_images.*' => 'image|mimes:jpeg,png,jpg|max:10240', // 10MB limit
         ]);
 
         $announcement->announcement_title = $request->announcement_title;
@@ -67,19 +90,33 @@ class AnnouncementController extends Controller
             if ($announcement->announcement_images) {
                 $oldImages = json_decode($announcement->announcement_images, true);
                 foreach ($oldImages as $image) {
-                    $imagePath = storage_path('app/public/' . $image);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
-                    }
+                    $this->deleteImage($image);
                 }
             }
 
-            // Upload new images
+            // Ensure directory exists
+            $this->ensureDirectoryExists();
+            
+            // Upload new images (max 5)
             $imagePaths = [];
-            foreach ($request->file('announcement_images') as $image) {
+            $images = array_slice($request->file('announcement_images'), 0, 5);
+            
+            foreach ($images as $image) {
                 if ($image->isValid()) {
-                    $path = $image->store('uploads/announcements', 'public');
-                    $imagePaths[] = $path; // Save relative path
+                    // Generate unique filename with timestamp
+                    $timestamp = time();
+                    $uniqueId = uniqid();
+                    $extension = $image->getClientOriginalExtension();
+                    $fileName = $timestamp . '_' . $uniqueId . '.' . $extension;
+                    
+                    // Define the path
+                    $path = $this->storagePath . '/' . $fileName;
+                    
+                    // Store the file in the public storage directory
+                    Storage::disk('public')->put($path, File::get($image));
+                    
+                    // Save just the path that will be used in the API
+                    $imagePaths[] = $path;
                 }
             }
             $announcement->announcement_images = json_encode($imagePaths);
@@ -102,10 +139,7 @@ class AnnouncementController extends Controller
         if ($announcement->announcement_images) {
             $images = json_decode($announcement->announcement_images, true);
             foreach ($images as $image) {
-                $imagePath = public_path($image);
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
+                $this->deleteImage($image);
             }
         }
 
@@ -123,5 +157,26 @@ class AnnouncementController extends Controller
         }
 
         return view('announcements.edit-announcement', compact('announcement'));
+    }
+    
+    /**
+     * Ensure the storage directory exists
+     */
+    private function ensureDirectoryExists()
+    {
+        $path = Storage::disk('public')->path($this->storagePath);
+        if (!File::isDirectory($path)) {
+            File::makeDirectory($path, 0755, true);
+        }
+    }
+    
+    /**
+     * Delete an image from storage
+     */
+    private function deleteImage($path)
+    {
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }
