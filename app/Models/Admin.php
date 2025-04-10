@@ -33,7 +33,7 @@ class Admin extends Authenticatable
         return $this->hasMany(Message::class, 'admin_id');
     }
 
-    // Handle profile picture display
+    // Handle profile picture display from different sources
     public function getProfilePictureAttribute()
     {
         $imagePath = $this->attributes['profile_picture'] ?? null;
@@ -43,12 +43,17 @@ class Admin extends Authenticatable
             return asset('assets/admin_profile_pictures/profile.jpg');
         }
 
-        // If it's a Cloudinary URL, return it directly
+        // If it's a Cloudinary URL (contains cloudinary.com), return it directly
         if (strpos($imagePath, 'cloudinary.com') !== false) {
             return $imagePath;
         }
+        
+        // If it's an HTTP/HTTPS URL, return it directly
+        if (strpos($imagePath, 'http://') === 0 || strpos($imagePath, 'https://') === 0) {
+            return $imagePath;
+        }
 
-        // Handle paths with storage/ prefix (old format)
+        // Handle paths with storage/ prefix
         if (str_starts_with($imagePath, 'storage/')) {
             return asset($imagePath);
         }
@@ -64,7 +69,7 @@ class Admin extends Authenticatable
         }
 
         // Handle paths that are just the filename or relative path without prefix
-        // First check if it's in admin_profile_pictures directory format (old format)
+        // First check if it's in admin_profile_pictures directory format
         if (str_contains($imagePath, 'admin_profile_pictures/')) {
             return asset('storage/' . $imagePath);
         }

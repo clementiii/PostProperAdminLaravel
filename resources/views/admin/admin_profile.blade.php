@@ -28,11 +28,10 @@
                     <span class="block sm:inline">{{ session('info') }}</span>
                 </div>
             @endif
-
+            <!-- Profile picture display section -->
             <div class="flex flex-col items-center bg-purple-800 py-6 rounded-t-lg">
                 <div class="relative group">
                     @if(Auth::user()->profile_picture)
-                        <!-- The Admin model's accessor will format the URL properly, so we don't need to use asset() -->
                         <img src="{{ Auth::user()->profile_picture }}" 
                             class="w-24 h-24 rounded-full border-4 border-white object-cover" 
                             alt="Profile Picture">
@@ -49,7 +48,6 @@
                 <h2 class="text-xl font-bold text-white mt-2">{{ Auth::user()->name }}</h2>
                 <p class="text-white text-sm">Administrator</p>
             </div>
-
             <!-- Update Profile Form -->
             <form method="POST" action="{{ route('admin.profile.update') }}" class="mt-4 p-4">
                 @csrf

@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminProfile;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Exception;
 
 class AdminProfileController extends Controller
 {
@@ -35,7 +34,7 @@ class AdminProfileController extends Controller
                 $rules['name'] = ['required', 'string', 'max:255'];
             }
             
-            $validator = $request->validate($rules);
+            $request->validate($rules);
             
             // Always verify current password
             if (!Hash::check($request->current_password, $admin->password)) {
@@ -84,7 +83,7 @@ class AdminProfileController extends Controller
             }
             
             return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error
             Log::error('Profile update error: ' . $e->getMessage());
             
@@ -103,39 +102,88 @@ class AdminProfileController extends Controller
             $admin = Auth::user();
 
             if ($request->hasFile('profile_picture')) {
-                // Upload image to Cloudinary
-                $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath(), [
-                    'folder' => 'admin_profile_pictures',
-                    'public_id' => 'admin_' . $admin->id . '_' . time(),
-                    'overwrite' => true,
-                    'resource_type' => 'image'
-                ])->getSecurePath();
-
-                // Delete old profile picture from Cloudinary if it exists
-                if ($admin->profile_picture && strpos($admin->profile_picture, 'cloudinary.com') !== false) {
-                    // Extract public_id from the URL
-                    $parts = parse_url($admin->profile_picture);
-                    $path = pathinfo($parts['path']);
-                    $publicId = 'admin_profile_pictures/' . basename($path['dirname']) . '/' . $path['filename'];
-                    
-                    try {
-                        // Delete the old image - wrapped in try/catch since old images might not exist
-                        Cloudinary::destroy($publicId);
-                    } catch (\Exception $e) {
-                        Log::warning('Failed to delete old Cloudinary image: ' . $e->getMessage());
-                    }
+                // Configure Cloudinary directly using cURL
+                $cloudName = env('CLOUDINARY_CLOUD_NAME', '');
+                $apiKey = env('CLOUDINARY_API_KEY', '');
+                $apiSecret = env('CLOUDINARY_API_SECRET', '');
+                
+                if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
+                    Log::error('Cloudinary credentials not found');
+                    return redirect()->route('admin.profile')->with('error', 'Cloud storage is not properly configured. Please contact the administrator.');
+                }
+                
+                // Prepare the file for upload
+                $file = $request->file('profile_picture');
+                $filePath = $file->getRealPath();
+                
+                // Prepare upload parameters
+                $timestamp = time();
+                $folder = 'admin_profile_pictures';
+                $publicId = 'admin_' . $admin->id . '_' . $timestamp;
+                
+                // Generate signature
+                $params = [
+                    'folder' => $folder,
+                    'public_id' => $publicId,
+                    'timestamp' => $timestamp,
+                ];
+                ksort($params); // Sort params alphabetically
+                
+                $signature = '';
+                foreach ($params as $key => $value) {
+                    $signature .= $key . '=' . $value . '&';
+                }
+                $signature = rtrim($signature, '&');
+                $signature .= $apiSecret;
+                $signature = sha1($signature);
+                
+                // Prepare multipart form data
+                $postFields = [
+                    'file' => new \CURLFile($filePath),
+                    'api_key' => $apiKey,
+                    'timestamp' => $timestamp,
+                    'folder' => $folder,
+                    'public_id' => $publicId,
+                    'signature' => $signature,
+                ];
+                
+                // Initialize cURL and set options
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                
+                // Execute the request
+                $response = curl_exec($ch);
+                
+                // Check for errors
+                if (curl_errno($ch)) {
+                    Log::error('Cloudinary cURL error: ' . curl_error($ch));
+                    curl_close($ch);
+                    return redirect()->route('admin.profile')->with('error', 'Failed to upload image to cloud storage.');
+                }
+                
+                curl_close($ch);
+                
+                // Process the response
+                $result = json_decode($response, true);
+                
+                if (!isset($result['secure_url'])) {
+                    Log::error('Cloudinary upload failed: ' . json_encode($result));
+                    return redirect()->route('admin.profile')->with('error', 'Failed to upload image to cloud storage.');
                 }
                 
                 // Update database with the cloudinary URL
                 AdminProfile::where('id', $admin->id)->update([
-                    'profile_picture' => $uploadedFileUrl
+                    'profile_picture' => $result['secure_url']
                 ]);
 
                 return redirect()->route('admin.profile')->with('success', 'Profile picture updated successfully.');
             }
             
             return redirect()->route('admin.profile')->with('error', 'No profile picture was uploaded.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Profile picture update error: ' . $e->getMessage());
             return redirect()->route('admin.profile')->with('error', 'An error occurred while updating your profile picture. Please try again.');
         }
