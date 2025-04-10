@@ -25,7 +25,6 @@
             </div>
         </div>
     </div>
-
     <!-- Right Section - Login Form -->
     <div class="w-1/2 bg-zinc-100 flex items-center justify-center ">
         <div
