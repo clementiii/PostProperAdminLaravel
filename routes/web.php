@@ -26,7 +26,7 @@ Route::get('/', function () {
 // ===================================
 
 // Login routes (for unauthenticated users)
-Route::middleware(['guest'])->group(function () {
+Route::middleware(['web', 'guest'])->group(function () {
     Route::get('/login', function () {
         return view('auth.login');
     })->name('login');
