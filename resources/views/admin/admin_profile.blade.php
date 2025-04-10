@@ -32,7 +32,8 @@
             <div class="flex flex-col items-center bg-purple-800 py-6 rounded-t-lg">
                 <div class="relative group">
                     @if(Auth::user()->profile_picture)
-                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
+                        <!-- The Admin model's accessor will format the URL properly, so we don't need to use asset() -->
+                        <img src="{{ Auth::user()->profile_picture }}" 
                             class="w-24 h-24 rounded-full border-4 border-white object-cover" 
                             alt="Profile Picture">
                     @else

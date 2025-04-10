@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminProfile;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminProfileController extends Controller
 {
@@ -22,12 +23,19 @@ class AdminProfileController extends Controller
         $admin = Auth::user();
         
         try {
-            // Base validation rules
-            $validator = $request->validate([
+            // Validate the request
+            $rules = [
                 'username' => ['required', 'string', 'max:255', 'unique:admin_accounts,username,' . $admin->id],
                 'current_password' => ['required', 'string'],
                 'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            ]);
+            ];
+            
+            // Add name field if it's present in the request
+            if ($request->has('name')) {
+                $rules['name'] = ['required', 'string', 'max:255'];
+            }
+            
+            $validator = $request->validate($rules);
             
             // Always verify current password
             if (!Hash::check($request->current_password, $admin->password)) {
@@ -36,6 +44,7 @@ class AdminProfileController extends Controller
             
             // Check if username is being changed
             $isUsernameChanged = $request->username !== $admin->username;
+            $isNameChanged = isset($request->name) && $request->name !== $admin->name;
             
             // Prepare data to update
             $data = [];
@@ -43,6 +52,11 @@ class AdminProfileController extends Controller
             // Add username to data if it's changed
             if ($isUsernameChanged) {
                 $data['username'] = $request->username;
+            }
+            
+            // Add name to data if it's changed
+            if ($isNameChanged) {
+                $data['name'] = $request->name;
             }
             
             // Add password to data if it's provided
@@ -55,12 +69,14 @@ class AdminProfileController extends Controller
                 AdminProfile::where('id', $admin->id)->update($data);
                 
                 // Provide specific feedback on what was updated
-                if ($isUsernameChanged && $request->filled('new_password')) {
-                    return redirect()->route('admin.profile')->with('success', 'Username and password updated successfully.');
-                } elseif ($isUsernameChanged) {
-                    return redirect()->route('admin.profile')->with('success', 'Username updated successfully.');
-                } elseif ($request->filled('new_password')) {
-                    return redirect()->route('admin.profile')->with('success', 'Password updated successfully.');
+                $updates = [];
+                if ($isUsernameChanged) $updates[] = 'username';
+                if ($isNameChanged) $updates[] = 'name';
+                if ($request->filled('new_password')) $updates[] = 'password';
+                
+                if (count($updates) > 0) {
+                    $updateMsg = implode(' and ', $updates);
+                    return redirect()->route('admin.profile')->with('success', ucfirst($updateMsg) . ' updated successfully.');
                 }
             } else {
                 // No changes were made
@@ -87,22 +103,32 @@ class AdminProfileController extends Controller
             $admin = Auth::user();
 
             if ($request->hasFile('profile_picture')) {
-                // Delete old profile picture if it exists
-                if ($admin->profile_picture) {
-                    if (Storage::disk('public')->exists($admin->profile_picture)) {
-                        Storage::disk('public')->delete($admin->profile_picture);
+                // Upload image to Cloudinary
+                $uploadedFileUrl = Cloudinary::upload($request->file('profile_picture')->getRealPath(), [
+                    'folder' => 'admin_profile_pictures',
+                    'public_id' => 'admin_' . $admin->id . '_' . time(),
+                    'overwrite' => true,
+                    'resource_type' => 'image'
+                ])->getSecurePath();
+
+                // Delete old profile picture from Cloudinary if it exists
+                if ($admin->profile_picture && strpos($admin->profile_picture, 'cloudinary.com') !== false) {
+                    // Extract public_id from the URL
+                    $parts = parse_url($admin->profile_picture);
+                    $path = pathinfo($parts['path']);
+                    $publicId = 'admin_profile_pictures/' . basename($path['dirname']) . '/' . $path['filename'];
+                    
+                    try {
+                        // Delete the old image - wrapped in try/catch since old images might not exist
+                        Cloudinary::destroy($publicId);
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete old Cloudinary image: ' . $e->getMessage());
                     }
                 }
-
-                // Generate a sanitized filename and store the file
-                $extension = $request->file('profile_picture')->getClientOriginalExtension();
-                $filename = 'admin_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
-                $storagePath = 'admin_profile_pictures';
-                $path = $request->file('profile_picture')->storeAs($storagePath, $filename, 'public');
                 
-                // Update database with the file path
+                // Update database with the cloudinary URL
                 AdminProfile::where('id', $admin->id)->update([
-                    'profile_picture' => $path
+                    'profile_picture' => $uploadedFileUrl
                 ]);
 
                 return redirect()->route('admin.profile')->with('success', 'Profile picture updated successfully.');
