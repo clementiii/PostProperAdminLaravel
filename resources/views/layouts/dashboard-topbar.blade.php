@@ -40,7 +40,7 @@
             <div class="absolute top-6 right-6">
                 <a href="{{ route('admin.profile') }}">
                     @if(Auth::user()->profile_picture)
-                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" 
+                        <img src="{{ Auth::user()->profile_picture }}" 
                             class="w-14 h-14 rounded-full border-2 border-white hover:scale-110 transition" 
                             alt="Profile">
                     @else
