@@ -225,7 +225,7 @@
                     {{-- Document Status --}}
                     <div class="border rounded-lg p-4">
                         <h5 class="text-2xl font-semibold text-purple-700 mb-4">Document Status</h5>
-                        <form method="POST" id="statusForm" action="{{ route('documents.update', $documentRequest->Id) }}">
+                        <form method="POST" id="statusForm" action="{{ route('document-requests.update', $documentRequest->Id) }}">
                             @csrf
                             @method('PUT')
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
