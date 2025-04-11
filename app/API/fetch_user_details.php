@@ -1,6 +1,29 @@
 <?php
 @include 'dbSqli.php';
 
+// Helper function to properly format profile picture URL
+function formatProfilePictureUrl($path) {
+    if (empty($path)) {
+        return "";
+    }
+    
+    // If it's already a full URL (Cloudinary or other external source)
+    if (filter_var($path, FILTER_VALIDATE_URL)) {
+        return $path;
+    }
+    
+    // If it starts with storage/ or /storage/
+    if (strpos($path, 'storage/') === 0) {
+        return "https://" . $_SERVER['HTTP_HOST'] . "/" . $path;
+    }
+    
+    // If it has a leading slash, remove it for consistency
+    $path = ltrim($path, '/');
+    
+    // Return a complete URL
+    return "https://" . $_SERVER['HTTP_HOST'] . "/" . $path;
+}
+
 // Check if the 'id' parameter is set
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -33,9 +56,12 @@ if (isset($_GET['id'])) {
                 'gender' => $row['gender'],
                 'dateOfBirth' => $row['birthday'],
                 'password' => $row['password'],
-                'profilePicture' => url($row['user_profile_picture'])
+                'profilePicture' => formatProfilePictureUrl($row['user_profile_picture'])
             )
         );
+        
+        // Log the final response for debugging
+        error_log("User details response: " . json_encode($response));
         
         echo json_encode($response);
     } else {
