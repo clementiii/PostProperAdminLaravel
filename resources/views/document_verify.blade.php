@@ -288,7 +288,7 @@
             <div class="relative bg-white rounded-lg max-w-6xl w-full mx-4">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-xl font-semibold text-gray-900" id="imageModalLabel">Document Preview</h3>
-                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('imageModal')">
+                    <button type="button" class="text-gray-400 hover:text-gray-500" id="closeImageModalBtn">
                         <span class="sr-only">Close</span>
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -306,7 +306,7 @@
             <div class="relative bg-white rounded-lg max-w-md w-full mx-4">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-xl font-semibold text-gray-900">Confirm Changes</h3>
-                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('confirmModal')">
+                    <button type="button" class="text-gray-400 hover:text-gray-500" id="closeConfirmModalBtn">
                         <span class="sr-only">Close</span>
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -319,7 +319,7 @@
                 <div class="px-4 py-3 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
                     <button type="button" 
                         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        onclick="closeModal('confirmModal')">
+                        id="cancelConfirmBtn">
                         Cancel
                     </button>
                     <button type="button"
@@ -354,8 +354,14 @@
             }
 
             function closeModal(modalId) {
-                document.getElementById(modalId).classList.remove('show');
-                document.body.classList.remove('modal-open');
+                console.log(`Closing modal: ${modalId}`);
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('show');
+                    document.body.classList.remove('modal-open');
+                } else {
+                    console.error(`Modal element not found: ${modalId}`);
+                }
             }
 
             function submitForm() {
@@ -407,7 +413,42 @@
                 });
             }
 
+            // Initialize modal close handlers
             document.addEventListener('DOMContentLoaded', function() {
+                // Setup direct event handlers for buttons with IDs
+                const closeImageModalBtn = document.getElementById('closeImageModalBtn');
+                const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
+                const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+                
+                if (closeImageModalBtn) {
+                    closeImageModalBtn.addEventListener('click', function() {
+                        closeModal('imageModal');
+                    });
+                }
+                
+                if (closeConfirmModalBtn) {
+                    closeConfirmModalBtn.addEventListener('click', function() {
+                        closeModal('confirmModal');
+                    });
+                }
+                
+                if (cancelConfirmBtn) {
+                    cancelConfirmBtn.addEventListener('click', function() {
+                        closeModal('confirmModal');
+                    });
+                }
+                
+                // Close modal when clicking outside
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(function(modal) {
+                    modal.addEventListener('click', function(event) {
+                        if (event.target === modal) {
+                            closeModal(modal.id);
+                        }
+                    });
+                });
+                
+                // Other existing event listeners
                 const statusSelect = document.getElementById('statusSelect');
                 const pickupStatus = document.getElementById('pickupStatus');
                 const reasonContainer = document.getElementById('reasonContainer');
@@ -431,14 +472,15 @@
                         }
                     });
                 }
-
-                // Close modal when clicking outside
-                window.onclick = function(event) {
-                    if (event.target.classList.contains('modal')) {
-                        closeModal(event.target.id);
-                    }
-                }
             });
+            
+            // Make jQuery-based button selectors work
+            if (typeof jQuery !== 'undefined') {
+                jQuery.expr[':'].contains = function(a, i, m) {
+                    return jQuery(a).text().toUpperCase()
+                        .indexOf(m[3].toUpperCase()) >= 0;
+                };
+            }
         </script>
 
     @endsection {{-- End of content section --}}
