@@ -85,9 +85,16 @@ class DocumentRequestController extends Controller
             // Prepare data for update
             $updateData = [
                 'Status' => $newStatus,
-                'rejection_reason' => ($newStatus === 'rejected') ? $reason : null,
                 'date_approved' => $dateApproved,
             ];
+
+            // Add rejection_reason only when status is rejected
+            if ($newStatus === 'rejected') {
+                $updateData['rejection_reason'] = $reason;
+            } else {
+                // Set an empty string instead of null for rejection_reason to avoid NOT NULL constraint
+                $updateData['rejection_reason'] = '';
+            }
 
             // Only update pickup status if document is approved
             if ($newStatus === 'approved') {
