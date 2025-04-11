@@ -50,6 +50,61 @@ class DocumentRequest extends Model
         //'birthday' => 'date:m-d-y', // Tells Laravel to expect 'm-d-y' format
         'DateRequested' => 'datetime', // Good practice to cast other date/time fields too
         'date_approved' => 'datetime', // Good practice to cast other date/time fields too
+        'Status' => 'string',
+        'pickup_status' => 'string',
     ];
 
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'DateRequested',
+        'date_approved',
+    ];
+
+    /**
+     * Set the Status attribute.
+     *
+     * @param string $value
+     * @return void
+     */
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['Status'] = strtolower($value);
+    }
+
+    /**
+     * Set the pickup_status attribute.
+     *
+     * @param string $value
+     * @return void
+     */
+    public function setPickupStatusAttribute($value)
+    {
+        $this->attributes['pickup_status'] = strtolower($value);
+    }
+
+    /**
+     * Get the Status attribute.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getStatusAttribute($value)
+    {
+        return strtolower($value);
+    }
+
+    /**
+     * Get the pickup_status attribute.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getPickupStatusAttribute($value)
+    {
+        return strtolower($value);
+    }
 }
