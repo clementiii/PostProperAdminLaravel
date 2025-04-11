@@ -2,6 +2,10 @@
 
 @section('title', 'Report Verification')
 
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 @section('content')
 <div class="p-6 space-y-6" x-data>
     {{-- Status Alert Messages --}}
@@ -66,10 +70,15 @@
                 <div class="flex overflow-x-auto space-x-4 p-2 bg-gray-50 border rounded-md">
                     @if (count($incidentReport->formattedPictures) > 0)
                         @foreach ($incidentReport->formattedPictures as $imagePath)
-                            <img src="{{ asset('storage/' . $imagePath) }}"
+                            @php
+                                // Check if the image is from Cloudinary (starts with https)
+                                $isCloudinaryImage = Str::startsWith($imagePath, 'http');
+                                $imageUrl = $isCloudinaryImage ? $imagePath : asset('storage/' . $imagePath);
+                            @endphp
+                            <img src="{{ $imageUrl }}"
                                  alt="Incident Image"
                                  class="h-40 w-40 object-cover rounded-md border shadow-sm cursor-pointer hover:opacity-80 transition-opacity"
-                                 @click="$dispatch('open-image-modal', { src: '{{ asset('storage/' . $imagePath) }}', title: 'Incident Image Preview' })">
+                                 @click="$dispatch('open-image-modal', { src: '{{ $imageUrl }}', title: 'Incident Image Preview' })">
                         @endforeach
                     @else
                         <p class="text-gray-500 italic">No images uploaded for this report.</p>
