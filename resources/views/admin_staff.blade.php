@@ -75,6 +75,11 @@
             const modalContent = document.getElementById('modal-content');
             
             modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            
+            // Force a reflow before adding the transition classes
+            void modalContent.offsetWidth;
+            
             setTimeout(() => {
                 modalContent.classList.remove('scale-95', 'opacity-0');
                 modalContent.classList.add('scale-100', 'opacity-100');
@@ -90,21 +95,52 @@
             
             setTimeout(() => {
                 modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
                 currentDeleteId = null;
             }, 200);
         }
         
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (currentDeleteId) {
-                document.getElementById('delete-form-' + currentDeleteId).submit();
+        // Execute after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (currentDeleteId) {
+                        document.getElementById('delete-form-' + currentDeleteId).submit();
+                    }
+                });
             }
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideDeleteModal();
+            
+            // Close modal when clicking outside
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideDeleteModal();
+                    }
+                });
             }
         });
     </script>
+
+    <style>
+        /* Additional modal styles */
+        #modal-content {
+            display: block;
+            position: relative;
+            z-index: 60;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* Ensure modal is visible */
+        #deleteModal.flex #modal-content {
+            opacity: 1;
+        }
+        
+        /* Force hardware acceleration for smoother animations */
+        .transform {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+    </style>
 @endsection
