@@ -260,8 +260,8 @@
 
         </div> {{-- End of main content padding --}}
 
-
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true hidden">
+        {{-- Image Preview Modal --}}
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -276,11 +276,12 @@
             </div>
         </div>
 
+        {{-- Confirmation Modal --}}
         <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="confirmModalLabel">Confirm Save</h5>
+                        <h5 class="modal-title" id="confirmModalLabel">Confirm Changes</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -288,19 +289,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        {{-- This button triggers the form submission --}}
                         <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm</button>
                     </div>
                 </div>
             </div>
         </div>
-
-
-        {{-- Include jQuery and Bootstrap JS if not already in layout --}}
-        {{--
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
-        {{--
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -364,21 +357,18 @@
 
                 if (confirmSaveButton) {
                     confirmSaveButton.addEventListener('click', function () {
+                        confirmModal.hide();
                         statusForm.submit();
                     });
                 }
 
                 // Clean up Bootstrap backdrops
-                document.getElementById('confirmModal')?.addEventListener('hidden.bs.modal', function () {
-                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                    document.body.style.overflow = 'auto';
-                    document.body.style.paddingRight = '0px';
-                });
-
-                document.getElementById('imageModal')?.addEventListener('hidden.bs.modal', function () {
-                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                    document.body.style.overflow = 'auto';
-                    document.body.style.paddingRight = '0px';
+                ['confirmModal', 'imageModal'].forEach(modalId => {
+                    document.getElementById(modalId)?.addEventListener('hidden.bs.modal', function () {
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.style.overflow = 'auto';
+                        document.body.style.paddingRight = '0px';
+                    });
                 });
             });
         </script>
