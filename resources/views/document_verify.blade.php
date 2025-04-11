@@ -238,7 +238,7 @@
                                         <option value="approved" {{ strtolower($documentRequest->Status) == 'approved' ? 'selected' : '' }}>Approved</option>
                                         <option value="rejected" {{ strtolower($documentRequest->Status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                         <option value="cancelled" {{ strtolower($documentRequest->Status) == 'cancelled' ? 'selected' : '' }} disabled>Cancelled</option>
-                                        <option value="OVERDUE" {{ strtolower($documentRequest->Status) == 'overdue' ? 'selected' : '' }}>Overdue</option>
+                                        <option value="overdue" {{ strtolower($documentRequest->Status) == 'overdue' ? 'selected' : '' }}>Overdue</option>
                                     </select>
                                     @if (strtolower($documentRequest->Status) == 'cancelled' && $documentRequest->cancellation_reason)
                                         <div class="mt-2 text-sm text-gray-600">
@@ -257,7 +257,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div id="reasonContainer" class="{{ $documentRequest->Status == 'Rejected' ? '' : 'hidden' }} mt-4">
+                            <div id="reasonContainer" class="{{ strtolower($documentRequest->Status) == 'rejected' ? '' : 'hidden' }} mt-4">
                                 <label for="reason" class="block text-lg font-medium text-gray-700 mb-2">Reason for Rejection</label>
                                 <input type="text" id="reason" name="reason"
                                     class="mt-1 block w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
@@ -340,7 +340,7 @@
                 const statusSelect = document.getElementById('statusSelect');
                 const reasonInput = document.getElementById('reason');
 
-                if (statusSelect.value === 'Rejected' && (!reasonInput.value || !reasonInput.value.trim())) {
+                if (statusSelect.value === 'rejected' && (!reasonInput.value || !reasonInput.value.trim())) {
                     alert('Please provide a reason for rejection.');
                     reasonInput.focus();
                     return;
@@ -360,7 +360,13 @@
                 console.log('Submitting form...');
                 console.log('Form action:', form.action);
                 console.log('Form method:', form.method);
-                console.log('Form data:', new FormData(form));
+                
+                // Log all form data to check values
+                const formData = new FormData(form);
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
                 form.submit();
             }
 
@@ -372,7 +378,7 @@
 
                 if (statusSelect) {
                     statusSelect.addEventListener('change', function() {
-                        if (this.value === 'Rejected') {
+                        if (this.value === 'rejected') {
                             reasonContainer.classList.remove('hidden');
                             reasonInput.required = true;
                         } else {
@@ -380,7 +386,7 @@
                             reasonInput.required = false;
                         }
 
-                        if (this.value === 'Approved') {
+                        if (this.value === 'approved') {
                             pickupStatus.disabled = false;
                         } else {
                             pickupStatus.disabled = true;
