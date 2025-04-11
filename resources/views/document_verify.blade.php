@@ -49,24 +49,19 @@
 
         .modal {
             display: none;
-        }
-        
-        .modal.show {
-            display: block;
-        }
-
-        .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 50;
             background-color: rgba(0, 0, 0, 0.5);
-            display: none;
+            align-items: center;
+            justify-content: center;
         }
-
-        .modal-backdrop.show {
-            display: block;
+        
+        .modal.show {
+            display: flex;
         }
 
         body.modal-open {
@@ -285,7 +280,7 @@
         </div> {{-- End of main content padding --}}
 
         {{-- Image Modal --}}
-        <div id="imageModal" class="modal fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+        <div id="imageModal" class="modal">
             <div class="relative bg-white rounded-lg max-w-6xl w-full mx-4">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-xl font-semibold text-gray-900" id="imageModalLabel">Document Preview</h3>
@@ -303,7 +298,7 @@
         </div>
 
         {{-- Confirm Modal --}}
-        <div id="confirmModal" class="modal fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+        <div id="confirmModal" class="modal">
             <div class="relative bg-white rounded-lg max-w-md w-full mx-4">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-xl font-semibold text-gray-900">Confirm Changes</h3>
@@ -390,11 +385,8 @@
 
                 // Close modal when clicking outside
                 window.onclick = function(event) {
-                    const modals = document.getElementsByClassName('modal');
-                    for (let modal of modals) {
-                        if (event.target === modal) {
-                            closeModal(modal.id);
-                        }
+                    if (event.target.classList.contains('modal')) {
+                        closeModal(event.target.id);
                     }
                 }
             });
