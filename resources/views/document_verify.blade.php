@@ -163,9 +163,15 @@
                             <div>
                                 <h6 class="text-xl font-medium text-gray-700 mb-2">Front Side</h6>
                                 @if ($documentRequest->valid_id_front)
-                                    <img src="{{ asset('storage/' . $documentRequest->valid_id_front) }}"
-                                        class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                        alt="Valid ID Front" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @if (strpos($documentRequest->valid_id_front, 'cloudinary.com') !== false)
+                                        <img src="{{ $documentRequest->valid_id_front }}"
+                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                            alt="Valid ID Front" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @else
+                                        <img src="{{ asset('storage/' . $documentRequest->valid_id_front) }}"
+                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                            alt="Valid ID Front" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @endif
                                 @else
                                     <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">No front ID image
                                         uploaded</div>
@@ -174,9 +180,15 @@
                             <div>
                                 <h6 class="text-xl font-medium text-gray-700 mb-2">Back Side</h6>
                                 @if ($documentRequest->valid_id_back)
-                                    <img src="{{ asset('storage/' . $documentRequest->valid_id_back) }}"
-                                        class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                        alt="Valid ID Back" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @if (strpos($documentRequest->valid_id_back, 'cloudinary.com') !== false)
+                                        <img src="{{ $documentRequest->valid_id_back }}"
+                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                            alt="Valid ID Back" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @else
+                                        <img src="{{ asset('storage/' . $documentRequest->valid_id_back) }}"
+                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                            alt="Valid ID Back" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                    @endif
                                 @else
                                     <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">No back ID image
                                         uploaded</div>
