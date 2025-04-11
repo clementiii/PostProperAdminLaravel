@@ -69,16 +69,23 @@
             padding: 20px;
             border-radius: 8px;
             position: relative;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
 
         .custom-modal-close {
             position: absolute;
             top: 10px;
-            right: 10px;
-            font-size: 28px;
+            right: 16px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+        
+        .custom-modal-close:hover {
+            color: #000;
         }
 
         #imageModalContent {
@@ -92,7 +99,7 @@
         }
 
         .modal-header {
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             border-bottom: 1px solid #e2e8f0;
             margin-bottom: 15px;
             position: relative;
@@ -323,7 +330,7 @@
 
         {{-- Image Modal --}}
         <div id="imageModal" class="custom-modal">
-            <div id="imageModalContent" class="custom-modal-content">
+            <div id="imageModalContent" class="custom-modal-content transform transition-all scale-95 opacity-0">
                 <div class="modal-header">
                     <h3 id="imageModalLabel" class="text-xl font-semibold">Document Preview</h3>
                     <span class="custom-modal-close" id="closeImageBtn">&times;</span>
@@ -336,24 +343,28 @@
 
         {{-- Confirm Modal --}}
         <div id="confirmModal" class="custom-modal">
-            <div id="confirmModalContent" class="custom-modal-content">
+            <div id="confirmModalContent" class="custom-modal-content transform transition-all scale-95 opacity-0">
                 <div class="modal-header">
                     <h3 class="text-xl font-semibold">Confirm Changes</h3>
                     <span class="custom-modal-close" id="closeConfirmBtn">&times;</span>
                 </div>
-                <div class="p-4">
-                    <p class="text-gray-700">Are you sure you want to save the changes to the document status?</p>
+                <div class="p-4 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-6">
+                        <span class="material-icons text-purple-600 text-3xl">save</span>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm Status Update</h3>
+                    <p class="text-gray-600 mb-8">Are you sure you want to save these changes to the document status?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" 
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition"
                         id="cancelButton">
                         Cancel
                     </button>
                     <button type="button"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
                         id="confirmButton">
-                        Confirm
+                        Yes, Save Changes
                     </button>
                 </div>
             </div>
@@ -367,6 +378,12 @@
                     $('#imageModalLabel').text(title);
                     $('#imageModal').fadeIn(300);
                     $('body').addClass('modal-open');
+                    
+                    // Add animation delay
+                    setTimeout(() => {
+                        $('#imageModalContent').removeClass('scale-95 opacity-0');
+                        $('#imageModalContent').addClass('scale-100 opacity-100');
+                    }, 10);
                 }
                 
                 function openConfirmationModal() {
@@ -381,11 +398,24 @@
                     
                     $('#confirmModal').fadeIn(300);
                     $('body').addClass('modal-open');
+                    
+                    // Add animation delay
+                    setTimeout(() => {
+                        $('#confirmModalContent').removeClass('scale-95 opacity-0');
+                        $('#confirmModalContent').addClass('scale-100 opacity-100');
+                    }, 10);
                 }
                 
                 function closeModal(modalId) {
-                    $(`#${modalId}`).fadeOut(200);
-                    $('body').removeClass('modal-open');
+                    // Reverse the animation
+                    $(`#${modalId}Content`).removeClass('scale-100 opacity-100');
+                    $(`#${modalId}Content`).addClass('scale-95 opacity-0');
+                    
+                    // Delay the fade out
+                    setTimeout(() => {
+                        $(`#${modalId}`).fadeOut(200);
+                        $('body').removeClass('modal-open');
+                    }, 200);
                 }
                 
                 // Handle image clicks for opening modal
