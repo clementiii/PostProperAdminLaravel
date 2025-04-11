@@ -76,7 +76,36 @@ $(document).ready(function () {
                     $('#modalPickupStatus').remove();
                 }
                 
-                $("#modalDate").text(data.DateRequested || "N/A");
+                // Format dates properly
+                const formatDate = (dateString) => {
+                    if (!dateString) return "N/A";
+                    
+                    try {
+                        // Parse the date (works with both ISO format and already formatted dates)
+                        const date = new Date(dateString);
+                        
+                        // Check if date is valid
+                        if (isNaN(date.getTime())) return dateString;
+                        
+                        // Format the date: Month Day, Year Hour:Minute AM/PM
+                        const options = { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        };
+                        
+                        return date.toLocaleDateString('en-US', options);
+                    } catch (e) {
+                        console.error("Error formatting date:", e);
+                        return dateString;
+                    }
+                };
+                
+                // Set formatted date
+                $("#modalDate").text(formatDate(data.DateRequested));
+                
                 $("#modalName").text(data.Name || "N/A");
                 $("#modalGender").text(data.Gender || "N/A");
                 $("#modalCivilStatus").text(data.CivilStatus || "N/A");
