@@ -200,18 +200,16 @@
                     {{-- Document Status --}}
                     <div class="border rounded-lg p-4">
                         <h5 class="text-2xl font-semibold text-purple-700 mb-4">Document Status</h5>
-                        <form method="POST" id="statusForm">
+                        <form method="POST" id="statusForm" action="{{ route('documents.update', $documentRequest->Id) }}">
                             @csrf
                             @method('PUT')
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="statusSelect" class="block text-xl font-medium text-gray-700 mb-1">Current
-                                        Status</label>
+                                    <label for="statusSelect" class="block text-xl font-medium text-gray-700 mb-2">Current Status</label>
                                     <select id="statusSelect" name="status"
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg"
+                                        class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
                                         {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}>
-                                        <option value="Pending" {{ $documentRequest->Status == 'Pending' ? 'selected' : '' }}>
-                                            Pending</option>
+                                        <option value="Pending" {{ $documentRequest->Status == 'Pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="Approved" {{ $documentRequest->Status == 'Approved' ? 'selected' : '' }}>Approved</option>
                                         <option value="Rejected" {{ $documentRequest->Status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                         <option value="Cancelled" {{ $documentRequest->Status == 'Cancelled' ? 'selected' : '' }} disabled>Cancelled</option>
@@ -223,29 +221,37 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="text-center">
-                                    @if (strtolower($documentRequest->Status) != 'cancelled')
-                                        <button type="button" id="saveBtn"
-                                            class="inline-flex items-center px-10 py-2 bg-purple-600 text-white rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out">
-                                            Save Changes
-                                        </button>
-                                    @else
-                                        <button type="button"
-                                            class="inline-flex items-center px-6 py-2 bg-gray-400 text-white rounded-md shadow-sm cursor-not-allowed"
-                                            disabled>
-                                            Save Changes (Request Cancelled)
-                                        </button>
-                                    @endif
+                                <div>
+                                    <label for="pickupStatus" class="block text-xl font-medium text-gray-700 mb-2">Pickup Status</label>
+                                    <select id="pickupStatus" name="pickup_status"
+                                        class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
+                                        {{ strtolower($documentRequest->Status) != 'approved' ? 'disabled' : '' }}>
+                                        <option value="pending" {{ $documentRequest->pickup_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="picked_up" {{ $documentRequest->pickup_status == 'picked_up' ? 'selected' : '' }}>Picked Up</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div id="reasonContainer"
-                                class="{{ $documentRequest->Status == 'Rejected' ? '' : 'hidden' }} mt-4">
-                                <label for="reason" class="block text-lg font-medium text-gray-700 mb-1">Reason for
-                                    Rejection</label>
+                            <div id="reasonContainer" class="{{ $documentRequest->Status == 'Rejected' ? '' : 'hidden' }} mt-4">
+                                <label for="reason" class="block text-lg font-medium text-gray-700 mb-2">Reason for Rejection</label>
                                 <input type="text" id="reason" name="reason"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg"
+                                    class="mt-1 block w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
                                     placeholder="Enter reason if rejecting"
-                                    value="{{ old('reason', $documentRequest->rejection_reason) }}" {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}>
+                                    value="{{ old('reason', $documentRequest->rejection_reason) }}"
+                                    {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}>
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-4">
+                                @if (strtolower($documentRequest->Status) != 'cancelled')
+                                    <button type="button" id="saveBtn"
+                                        class="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out text-lg">
+                                        Save Changes
+                                    </button>
+                                @else
+                                    <button type="button"
+                                        class="px-6 py-3 bg-gray-400 text-white rounded-lg shadow-sm cursor-not-allowed text-lg"
+                                        disabled>
+                                        Save Changes (Request Cancelled)
+                                    </button>
+                                @endif
                             </div>
                         </form>
                     </div>
@@ -299,78 +305,81 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const statusSelect = document.getElementById('statusSelect');
+                const pickupStatus = document.getElementById('pickupStatus');
                 const reasonContainer = document.getElementById('reasonContainer');
                 const reasonInput = document.getElementById('reason');
-                const saveButton = document.getElementById('saveBtn'); // Button that opens the confirm modal
-                const confirmSaveButton = document.getElementById('confirmSaveBtn'); // Button inside the confirm modal
+                const saveButton = document.getElementById('saveBtn');
+                const confirmSaveButton = document.getElementById('confirmSaveBtn');
                 const statusForm = document.getElementById('statusForm');
-                const imageModal = new bootstrap.Modal(document.getElementById('imageModal')); // Initialize Bootstrap modal JS instance
-                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));// Initialize Bootstrap modal JS instance
+                const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
 
-                // --- Status Change Handler ---
+                // Status Change Handler
                 if (statusSelect) {
                     statusSelect.addEventListener('change', function () {
                         if (this.value === 'Rejected') {
                             reasonContainer.classList.remove('hidden');
                         } else {
                             reasonContainer.classList.add('hidden');
-                            // Optionally clear the reason input when switching away from Rejected
-                            // if(reasonInput) {
-                            //    reasonInput.value = '';
-                            // }
+                        }
+                        
+                        // Enable/disable pickup status based on document status
+                        if (this.value === 'Approved') {
+                            pickupStatus.disabled = false;
+                        } else {
+                            pickupStatus.disabled = true;
+                            pickupStatus.value = 'pending';
                         }
                     });
                 }
 
-                // --- Image Modal Handler ---
+                // Image Modal Handler
                 document.querySelectorAll('.zoomable').forEach(image => {
                     image.addEventListener('click', function () {
                         const modalImage = document.getElementById('modalImage');
-                        const modalTitle = document.getElementById('imageModalLabel'); // Get title element by ID
+                        const modalTitle = document.getElementById('imageModalLabel');
 
                         if (modalImage && modalTitle) {
                             modalImage.src = this.src;
-                            // Update modal title based on the image's alt text
-                            modalTitle.textContent = this.alt === 'Valid ID Front' ? 'Front Side of ID' : (this.alt === 'Valid ID Back' ? 'Back Side of ID' : 'Image Preview');
-                            imageModal.show(); // Use Bootstrap JS instance to show
+                            modalTitle.textContent = this.alt === 'Valid ID Front' ? 'Front Side of ID' : 
+                                                  (this.alt === 'Valid ID Back' ? 'Back Side of ID' : 'Image Preview');
+                            imageModal.show();
                         }
                     });
                 });
 
-
-                // --- Save Confirmation Handler ---
-                if (confirmSaveButton && statusForm) {
-                    confirmSaveButton.addEventListener('click', function () {
+                // Save Confirmation Handler
+                if (saveButton && statusForm) {
+                    saveButton.addEventListener('click', function () {
                         // Check if reason is required and empty
                         if (statusSelect.value === 'Rejected' && (!reasonInput || !reasonInput.value.trim())) {
                             alert('Please provide a reason for rejection.');
-                            // Optionally, keep the modal open or close it and focus the reason input
-                            // confirmModal.hide(); // Hide confirmation modal
-                            // reasonInput.focus(); // Focus the input
-                            return; // Stop the form submission
+                            return;
                         }
-                        // If validation passes, submit the form
+                        
+                        // Show confirmation modal
+                        confirmModal.show();
+                    });
+                }
+
+                if (confirmSaveButton) {
+                    confirmSaveButton.addEventListener('click', function () {
                         statusForm.submit();
                     });
                 }
 
-                // Trigger confirmation modal when main save button is clicked
-                // Note: Bootstrap's data-bs-toggle and data-bs-target handle opening the modal.
-                // This script focuses on handling the *confirmation* within the modal.
-
-                // Optional: Clean up Bootstrap backdrops if they persist after modal closure (sometimes happens)
+                // Clean up Bootstrap backdrops
                 document.getElementById('confirmModal')?.addEventListener('hidden.bs.modal', function () {
                     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                    // Ensure body scroll is restored if Bootstrap fails to do so
                     document.body.style.overflow = 'auto';
                     document.body.style.paddingRight = '0px';
                 });
+
                 document.getElementById('imageModal')?.addEventListener('hidden.bs.modal', function () {
                     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                     document.body.style.overflow = 'auto';
                     document.body.style.paddingRight = '0px';
                 });
-
             });
         </script>
 

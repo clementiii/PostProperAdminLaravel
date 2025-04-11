@@ -51,37 +51,37 @@ class DocumentRequestController extends Controller
     {
         $documentRequest = DocumentRequest::findOrFail($id);
 
-        $request->validate([ // Add basic validation
+        $request->validate([
             'status' => 'required|string|in:Pending,Approved,Rejected,Cancelled',
             'reason' => 'required_if:status,Rejected|nullable|string|max:255',
+            'pickup_status' => 'nullable|string|in:pending,picked_up',
         ]);
 
         $newStatus = $request->input('status');
-        $reason = $request->input('reason'); // Null if not provided
+        $reason = $request->input('reason');
+        $pickupStatus = $request->input('pickup_status');
 
-        $dateApproved = $documentRequest->date_approved; // Keep existing if not changing to Approved
+        $dateApproved = $documentRequest->date_approved;
         if ($newStatus === 'Approved' && $documentRequest->Status !== 'Approved') {
-            // Set approval date only when status changes to Approved
-            $dateApproved = Carbon::now('Asia/Manila'); // Use Carbon and correct timezone
+            $dateApproved = Carbon::now('Asia/Manila');
         }
 
         // Prepare data for update
         $updateData = [
             'Status' => $newStatus,
-            // Store null if status is not 'Rejected' or reason is empty
             'rejection_reason' => ($newStatus === 'Rejected') ? $reason : null,
             'date_approved' => $dateApproved,
         ];
 
-        // If changing *away* from Approved, clear the approval date (optional, depends on logic)
-        // if ($newStatus !== 'Approved') {
-        //     $updateData['date_approved'] = null;
-        // }
-
+        // Only update pickup status if document is approved
+        if ($newStatus === 'Approved') {
+            $updateData['pickup_status'] = $pickupStatus ?? 'pending';
+        } else {
+            $updateData['pickup_status'] = 'pending';
+        }
 
         $documentRequest->update($updateData);
 
-        // Redirect back to the documents list with a success message
         return redirect()->route('documents.index')->with('success', 'Document request updated successfully!');
     }
 
