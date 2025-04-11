@@ -8,7 +8,10 @@
     <link rel="icon" href="{{ asset('/assets/Southside.png') }}" type="image/png">
     {{-- Include Tailwind CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    {{-- Include Font Awesome (if used for icons like the back button) --}}
+    {{-- Include Bootstrap CSS and JS --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Include Font Awesome --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     {{-- Add any specific CSS for this page if needed --}}
     <style>
@@ -37,6 +40,37 @@
 
         .zoomable {
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .zoomable:hover {
+            transform: scale(1.02);
+        }
+
+        .modal {
+            display: none;
+        }
+        
+        .modal.show {
+            display: block;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .modal-backdrop.show {
+            display: block;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         /* Make images look clickable */
@@ -163,35 +197,31 @@
                             <div>
                                 <h6 class="text-xl font-medium text-gray-700 mb-2">Front Side</h6>
                                 @if ($documentRequest->valid_id_front)
-                                    @if (strpos($documentRequest->valid_id_front, 'cloudinary.com') !== false)
-                                        <img src="{{ $documentRequest->valid_id_front }}"
-                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                            alt="Valid ID Front" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                    @else
-                                        <img src="{{ asset('storage/' . $documentRequest->valid_id_front) }}"
-                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                            alt="Valid ID Front" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                    @endif
+                                    <img src="{{ strpos($documentRequest->valid_id_front, 'cloudinary.com') !== false ? 
+                                        $documentRequest->valid_id_front : 
+                                        asset('storage/' . $documentRequest->valid_id_front) }}"
+                                        class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                        alt="Valid ID Front" 
+                                        onclick="openModal(this.src, 'Front Side of ID')">
                                 @else
-                                    <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">No front ID image
-                                        uploaded</div>
+                                    <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">
+                                        No front ID image uploaded
+                                    </div>
                                 @endif
                             </div>
                             <div>
                                 <h6 class="text-xl font-medium text-gray-700 mb-2">Back Side</h6>
                                 @if ($documentRequest->valid_id_back)
-                                    @if (strpos($documentRequest->valid_id_back, 'cloudinary.com') !== false)
-                                        <img src="{{ $documentRequest->valid_id_back }}"
-                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                            alt="Valid ID Back" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                    @else
-                                        <img src="{{ asset('storage/' . $documentRequest->valid_id_back) }}"
-                                            class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
-                                            alt="Valid ID Back" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                    @endif
+                                    <img src="{{ strpos($documentRequest->valid_id_back, 'cloudinary.com') !== false ? 
+                                        $documentRequest->valid_id_back : 
+                                        asset('storage/' . $documentRequest->valid_id_back) }}"
+                                        class="w-full h-auto border rounded shadow-sm zoomable object-contain max-h-[300px]"
+                                        alt="Valid ID Back" 
+                                        onclick="openModal(this.src, 'Back Side of ID')">
                                 @else
-                                    <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">No back ID image
-                                        uploaded</div>
+                                    <div class="text-center py-10 border rounded bg-gray-50 text-gray-500">
+                                        No back ID image uploaded
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -226,7 +256,7 @@
                                     <select id="pickupStatus" name="pickup_status"
                                         class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
                                         {{ strtolower($documentRequest->Status) != 'approved' ? 'disabled' : '' }}>
-                                        <option value="pending" {{ $documentRequest->pickup_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="pending" {{ $documentRequest->pickup_status == 'pending' ? 'selected' : '' }}>Pending Pickup</option>
                                         <option value="picked_up" {{ $documentRequest->pickup_status == 'picked_up' ? 'selected' : '' }}>Picked Up</option>
                                     </select>
                                 </div>
@@ -235,23 +265,17 @@
                                 <label for="reason" class="block text-lg font-medium text-gray-700 mb-2">Reason for Rejection</label>
                                 <input type="text" id="reason" name="reason"
                                     class="mt-1 block w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
-                                    placeholder="Enter reason if rejecting"
+                                    placeholder="Enter reason for rejection"
                                     value="{{ old('reason', $documentRequest->rejection_reason) }}"
                                     {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}>
                             </div>
-                            <div class="mt-6 flex justify-end space-x-4">
-                                @if (strtolower($documentRequest->Status) != 'cancelled')
-                                    <button type="button" id="saveBtn"
-                                        class="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out text-lg">
-                                        Save Changes
-                                    </button>
-                                @else
-                                    <button type="button"
-                                        class="px-6 py-3 bg-gray-400 text-white rounded-lg shadow-sm cursor-not-allowed text-lg"
-                                        disabled>
-                                        Save Changes (Request Cancelled)
-                                    </button>
-                                @endif
+                            <div class="mt-6 flex justify-end">
+                                <button type="button" id="saveBtn"
+                                    class="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}
+                                    onclick="openConfirmModal()">
+                                    Save Changes
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -260,63 +284,101 @@
 
         </div> {{-- End of main content padding --}}
 
-        {{-- Image Preview Modal --}}
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="imageModalLabel">Document Preview</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center p-0">
-                        <img id="modalImage" src="" class="img-fluid" alt="Document Preview"
-                            style="max-height: 80vh; width: 100%; object-fit: contain;">
-                    </div>
+        {{-- Image Modal --}}
+        <div id="imageModal" class="modal fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="relative bg-white rounded-lg max-w-6xl w-full mx-4">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-xl font-semibold text-gray-900" id="imageModalLabel">Document Preview</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('imageModal')">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 flex items-center justify-center">
+                    <img id="modalImage" src="" alt="Document Preview" class="max-h-[80vh] w-auto max-w-full object-contain">
                 </div>
             </div>
         </div>
 
-        {{-- Confirmation Modal --}}
-        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmModalLabel">Confirm Changes</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to save the changes to the document status?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm</button>
-                    </div>
+        {{-- Confirm Modal --}}
+        <div id="confirmModal" class="modal fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="relative bg-white rounded-lg max-w-md w-full mx-4">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-xl font-semibold text-gray-900">Confirm Changes</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('confirmModal')">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700">Are you sure you want to save the changes to the document status?</p>
+                </div>
+                <div class="px-4 py-3 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                    <button type="button" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        onclick="closeModal('confirmModal')">
+                        Cancel
+                    </button>
+                    <button type="button"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        onclick="submitForm()">
+                        Confirm
+                    </button>
                 </div>
             </div>
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+            function openModal(src, title) {
+                document.getElementById('modalImage').src = src;
+                document.getElementById('imageModalLabel').textContent = title;
+                document.getElementById('imageModal').classList.add('show');
+                document.body.classList.add('modal-open');
+            }
+
+            function openConfirmModal() {
+                const statusSelect = document.getElementById('statusSelect');
+                const reasonInput = document.getElementById('reason');
+
+                if (statusSelect.value === 'Rejected' && (!reasonInput.value || !reasonInput.value.trim())) {
+                    alert('Please provide a reason for rejection.');
+                    reasonInput.focus();
+                    return;
+                }
+
+                document.getElementById('confirmModal').classList.add('show');
+                document.body.classList.add('modal-open');
+            }
+
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('show');
+                document.body.classList.remove('modal-open');
+            }
+
+            function submitForm() {
+                document.getElementById('statusForm').submit();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
                 const statusSelect = document.getElementById('statusSelect');
                 const pickupStatus = document.getElementById('pickupStatus');
                 const reasonContainer = document.getElementById('reasonContainer');
                 const reasonInput = document.getElementById('reason');
-                const saveButton = document.getElementById('saveBtn');
-                const confirmSaveButton = document.getElementById('confirmSaveBtn');
-                const statusForm = document.getElementById('statusForm');
-                const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
 
-                // Status Change Handler
                 if (statusSelect) {
-                    statusSelect.addEventListener('change', function () {
+                    statusSelect.addEventListener('change', function() {
                         if (this.value === 'Rejected') {
                             reasonContainer.classList.remove('hidden');
+                            reasonInput.required = true;
                         } else {
                             reasonContainer.classList.add('hidden');
+                            reasonInput.required = false;
                         }
-                        
-                        // Enable/disable pickup status based on document status
+
                         if (this.value === 'Approved') {
                             pickupStatus.disabled = false;
                         } else {
@@ -326,50 +388,15 @@
                     });
                 }
 
-                // Image Modal Handler
-                document.querySelectorAll('.zoomable').forEach(image => {
-                    image.addEventListener('click', function () {
-                        const modalImage = document.getElementById('modalImage');
-                        const modalTitle = document.getElementById('imageModalLabel');
-
-                        if (modalImage && modalTitle) {
-                            modalImage.src = this.src;
-                            modalTitle.textContent = this.alt === 'Valid ID Front' ? 'Front Side of ID' : 
-                                                  (this.alt === 'Valid ID Back' ? 'Back Side of ID' : 'Image Preview');
-                            imageModal.show();
+                // Close modal when clicking outside
+                window.onclick = function(event) {
+                    const modals = document.getElementsByClassName('modal');
+                    for (let modal of modals) {
+                        if (event.target === modal) {
+                            closeModal(modal.id);
                         }
-                    });
-                });
-
-                // Save Confirmation Handler
-                if (saveButton && statusForm) {
-                    saveButton.addEventListener('click', function () {
-                        // Check if reason is required and empty
-                        if (statusSelect.value === 'Rejected' && (!reasonInput || !reasonInput.value.trim())) {
-                            alert('Please provide a reason for rejection.');
-                            return;
-                        }
-                        
-                        // Show confirmation modal
-                        confirmModal.show();
-                    });
+                    }
                 }
-
-                if (confirmSaveButton) {
-                    confirmSaveButton.addEventListener('click', function () {
-                        confirmModal.hide();
-                        statusForm.submit();
-                    });
-                }
-
-                // Clean up Bootstrap backdrops
-                ['confirmModal', 'imageModal'].forEach(modalId => {
-                    document.getElementById(modalId)?.addEventListener('hidden.bs.modal', function () {
-                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                        document.body.style.overflow = 'auto';
-                        document.body.style.paddingRight = '0px';
-                    });
-                });
             });
         </script>
 
