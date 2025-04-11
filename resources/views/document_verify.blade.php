@@ -357,17 +357,51 @@
 
             function submitForm() {
                 const form = document.getElementById('statusForm');
-                console.log('Submitting form...');
-                console.log('Form action:', form.action);
-                console.log('Form method:', form.method);
-                
-                // Log all form data to check values
                 const formData = new FormData(form);
+                
+                // Log form data for debugging
                 for (let pair of formData.entries()) {
                     console.log(pair[0] + ': ' + pair[1]);
                 }
-                
-                form.submit();
+
+                // Disable the submit button to prevent double submission
+                const submitButton = document.querySelector('button[type="button"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                // Submit the form
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-HTTP-Method-Override': 'PUT'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        alert('Status updated successfully!');
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = "{{ route('documents.index') }}";
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Failed to update status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating status: ' + error.message);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Save Changes';
+                });
             }
 
             document.addEventListener('DOMContentLoaded', function() {

@@ -49,40 +49,50 @@ class DocumentRequestController extends Controller
     // Method to handle the status update form submission
     public function update(Request $request, $id)
     {
-        $documentRequest = DocumentRequest::findOrFail($id);
+        try {
+            $documentRequest = DocumentRequest::findOrFail($id);
 
-        $request->validate([
-            'status' => 'required|string|in:pending,approved,rejected,cancelled,OVERDUE',
-            'reason' => 'required_if:status,rejected|nullable|string|max:255',
-            'pickup_status' => 'nullable|string|in:pending,picked_up',
-        ]);
+            $request->validate([
+                'status' => 'required|string|in:pending,approved,rejected,cancelled,overdue',
+                'reason' => 'required_if:status,rejected|nullable|string|max:255',
+                'pickup_status' => 'nullable|string|in:pending,picked_up',
+            ]);
 
-        $newStatus = $request->input('status');
-        $reason = $request->input('reason');
-        $pickupStatus = $request->input('pickup_status');
+            $newStatus = $request->input('status');
+            $reason = $request->input('reason');
+            $pickupStatus = $request->input('pickup_status');
 
-        $dateApproved = $documentRequest->date_approved;
-        if ($newStatus === 'approved' && strtolower($documentRequest->Status) !== 'approved') {
-            $dateApproved = Carbon::now('Asia/Manila');
+            $dateApproved = $documentRequest->date_approved;
+            if ($newStatus === 'approved' && strtolower($documentRequest->Status) !== 'approved') {
+                $dateApproved = Carbon::now('Asia/Manila');
+            }
+
+            // Prepare data for update
+            $updateData = [
+                'Status' => $newStatus,
+                'rejection_reason' => ($newStatus === 'rejected') ? $reason : null,
+                'date_approved' => $dateApproved,
+            ];
+
+            // Only update pickup status if document is approved
+            if ($newStatus === 'approved') {
+                $updateData['pickup_status'] = $pickupStatus ?? 'pending';
+            } else {
+                $updateData['pickup_status'] = 'pending';
+            }
+
+            $documentRequest->update($updateData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document request updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating document request: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Prepare data for update
-        $updateData = [
-            'Status' => $newStatus,
-            'rejection_reason' => ($newStatus === 'rejected') ? $reason : null,
-            'date_approved' => $dateApproved,
-        ];
-
-        // Only update pickup status if document is approved
-        if ($newStatus === 'approved') {
-            $updateData['pickup_status'] = $pickupStatus ?? 'pending';
-        } else {
-            $updateData['pickup_status'] = 'pending';
-        }
-
-        $documentRequest->update($updateData);
-
-        return redirect()->route('documents.index')->with('success', 'Document request updated successfully!');
     }
 
     // Method to update pickup status (already exists and looks okay)
