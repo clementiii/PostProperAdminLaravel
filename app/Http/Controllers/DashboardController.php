@@ -13,13 +13,26 @@ class DashboardController extends Controller
 
     public function show($id)
     {
-        $request = DocumentRequest::find($id);
+        try {
+            $request = DocumentRequest::find($id);
 
-        if (!$request) {
-            return response()->json(['error' => 'Document request not found'], 404);
+            if (!$request) {
+                return response()->json(['error' => 'Document request not found'], 404);
+            }
+
+            // Format dates if present
+            if ($request->DateRequested) {
+                $request->DateRequested = \Carbon\Carbon::parse($request->DateRequested)->format('F d, Y h:i A');
+            }
+            
+            if ($request->date_approved) {
+                $request->date_approved = \Carbon\Carbon::parse($request->date_approved)->format('F d, Y h:i A');
+            }
+
+            return response()->json($request);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error retrieving document request: ' . $e->getMessage()], 500);
         }
-
-        return response()->json($request);
     }
 }
 

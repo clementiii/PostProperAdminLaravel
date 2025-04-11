@@ -1,11 +1,16 @@
 $(document).ready(function () {
     $(".view-btn").on("click", function () {
         let requestId = $(this).data("id");
+        
+        console.log("Fetching document details for ID:", requestId);
 
         $.ajax({
             url: `/document-request/${requestId}`,
             type: "GET",
+            dataType: "json",
             success: function (data) {
+                console.log("Response data:", data);
+                
                 // Populate modal fields
                 $("#modalTxnId").text(
                     data.Id ? `TXN-${data.Id}` : "TXN-undefined"
@@ -22,7 +27,55 @@ $(document).ready(function () {
                     const totalPrice = 50 * quantity;
                     $("#modalPrice").text(`₱${totalPrice.toFixed(2)}`);
                 }
-                $("#modalStatus").text(data.Status || "N/A");
+                
+                // Set the status with proper capitalization
+                const status = data.Status ? data.Status.charAt(0).toUpperCase() + data.Status.slice(1).toLowerCase() : "N/A";
+                $("#modalStatus").text(status);
+                
+                // Update status class
+                const statusColors = {
+                    pending: "bg-yellow-100 text-yellow-800",
+                    overdue: "bg-red-100 text-red-800",
+                    rejected: "bg-gray-200 text-gray-700",
+                    approved: "bg-green-100 text-green-800",
+                    cancelled: "bg-gray-300 text-gray-600"
+                };
+                
+                // Get lowercase status for comparison
+                const statusLower = (data.Status || "").toLowerCase();
+                
+                // Remove all possible status classes before applying the new one
+                $("#modalStatusContainer")
+                    .removeClass()
+                    .addClass(
+                        `text-sm font-semibold px-3 py-1 rounded-full ${
+                            statusColors[statusLower] || "bg-gray-100 text-gray-800"
+                        }`
+                    );
+                
+                // Add pickup status badge if document is approved
+                if (statusLower === 'approved') {
+                    const pickupStatus = data.pickup_status || 'pending';
+                    const isPickedUp = pickupStatus === 'picked_up';
+                    const pickupText = isPickedUp ? 'Picked Up' : 'Awaiting Pickup';
+                    const pickupClass = isPickedUp ? 'bg-purple-200 text-purple-800' : 'bg-blue-200 text-blue-800';
+                    
+                    // Create or update pickup status badge
+                    if ($('#modalPickupStatus').length) {
+                        $('#modalPickupStatus')
+                            .text(pickupText)
+                            .removeClass()
+                            .addClass(`text-sm font-semibold px-3 py-1 rounded-full ${pickupClass}`);
+                    } else {
+                        $('#modalStatusContainer').after(
+                            `<span id="modalPickupStatus" class="text-sm font-semibold px-3 py-1 rounded-full ${pickupClass} ml-2">${pickupText}</span>`
+                        );
+                    }
+                } else if ($('#modalPickupStatus').length) {
+                    // Remove pickup status badge if document is not approved
+                    $('#modalPickupStatus').remove();
+                }
+                
                 $("#modalDate").text(data.DateRequested || "N/A");
                 $("#modalName").text(data.Name || "N/A");
                 $("#modalGender").text(data.Gender || "N/A");
@@ -31,31 +84,20 @@ $(document).ready(function () {
                 $("#modalTin").text(data.TIN_No || "N/A");
                 $("#modalCtc").text(data.CTC_No || "N/A");
 
-                // Update status badge color dynamically
-                const status = (data.Status || "").toLowerCase();
-                const statusColors = {
-                    pending: "bg-yellow-100 text-yellow-800",
-                    overdue: "bg-red-100 text-red-800",
-                    rejected: "bg-gray-200 text-gray-700",
-                    approved: "bg-green-100 text-green-800",
-                    cancelled: "bg-gray-300 text-gray-600",
-                    complete: "bg-blue-100 text-blue-800",
-                };
-
-                // Remove all possible status classes before applying the new one
-                $("#modalStatusContainer")
-                    .removeClass()
-                    .addClass(
-                        `text-sm font-semibold px-3 py-1 rounded-full ${
-                            statusColors[status] || "bg-gray-100 text-gray-800"
-                        }`
-                    );
-
                 // Show modal
                 $("#modal").removeClass("hidden");
             },
-            error: function () {
-                alert("Error fetching document request details.");
+            error: function (xhr, status, error) {
+                console.error("Error fetching document details:", error);
+                console.error("Status:", status);
+                console.error("Response:", xhr.responseText);
+                
+                try {
+                    const errorData = JSON.parse(xhr.responseText);
+                    alert(errorData.error || "Error fetching document request details.");
+                } catch (e) {
+                    alert("Error fetching document request details. Please try again later.");
+                }
             },
         });
     });

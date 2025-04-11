@@ -161,7 +161,7 @@
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
                                 <button
                                     class="view-btn bg-[#61009F] text-white px-6 py-1.5 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-150"
-                                    data-id="{{ $request->id }}" onclick="showModal({{ $request->id }})">
+                                    data-id="{{ $request->Id }}">
                                     View
                                 </button>
                             </td>
