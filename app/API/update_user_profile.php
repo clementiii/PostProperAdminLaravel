@@ -4,9 +4,164 @@ require_once 'db.php';
 header('Content-Type: application/json');
 
 // Enable error reporting for debugging
-error_log("Starting password update process");
+error_log("Starting profile update process");
 
 $response = array();
+
+// Load environment variables from .env file
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        return false;
+    }
+    
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Skip comments
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        list($name, $value) = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+        
+        // Remove quotes if present
+        if (strpos($value, '"') === 0 || strpos($value, "'") === 0) {
+            $value = substr($value, 1, -1);
+        }
+        
+        // Set environment variable
+        putenv("$name=$value");
+        $_ENV[$name] = $value;
+    }
+    
+    return true;
+}
+
+// Load environment variables from .env file
+$envPath = $_SERVER['DOCUMENT_ROOT'] . '/.env';
+loadEnv($envPath);
+
+// Function to upload file to Cloudinary
+function uploadToCloudinary($file) {
+    // Get Cloudinary credentials from environment variables
+    $cloudName = getenv('CLOUDINARY_CLOUD_NAME');
+    $apiKey = getenv('CLOUDINARY_API_KEY');
+    $apiSecret = getenv('CLOUDINARY_API_SECRET');
+    
+    // Check if Cloudinary credentials are available
+    if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
+        error_log('Cloudinary credentials not found');
+        return null;
+    }
+    
+    // Check if file is valid
+    if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+        return null;
+    }
+    
+    try {
+        // Check if image file is actual image
+        $check = getimagesize($file["tmp_name"]);
+        if ($check === false) {
+            error_log("File is not an image");
+            return null;
+        }
+        
+        // Check file size (10MB max)
+        if ($file["size"] > 10000000) {
+            error_log("File is too large (max 10MB)");
+            return null;
+        }
+        
+        // Get file extension
+        $imageFileType = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
+        
+        // Prepare upload parameters
+        $timestamp = time();
+        $folder = 'user_profile_pictures'; // Folder in Cloudinary
+        $publicId = 'user_profile_' . $timestamp . '_' . uniqid();
+        
+        // Generate signature
+        $params = [
+            'folder' => $folder,
+            'public_id' => $publicId,
+            'timestamp' => $timestamp,
+            'format' => $imageFileType,
+        ];
+        ksort($params); // Sort params alphabetically
+        
+        $signature = '';
+        foreach ($params as $key => $value) {
+            $signature .= $key . '=' . $value . '&';
+        }
+        $signature = rtrim($signature, '&');
+        $signature .= $apiSecret;
+        $signature = sha1($signature);
+        
+        // Prepare multipart form data
+        $postFields = [
+            'file' => new CURLFile($file["tmp_name"]),
+            'api_key' => $apiKey,
+            'timestamp' => $timestamp,
+            'folder' => $folder,
+            'public_id' => $publicId,
+            'format' => $imageFileType,
+            'signature' => $signature,
+        ];
+        
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        // Execute request
+        $response = curl_exec($ch);
+        
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            error_log('Cloudinary cURL error: ' . curl_error($ch));
+            curl_close($ch);
+            return null;
+        }
+        
+        curl_close($ch);
+        $result = json_decode($response, true);
+        
+        // Check if Cloudinary response contains secure_url
+        if (!isset($result['secure_url'])) {
+            error_log('Cloudinary upload failed: ' . json_encode($result));
+            return null;
+        }
+        
+        error_log('Image uploaded to Cloudinary: ' . $result['secure_url']);
+        // Return Cloudinary secure URL for the uploaded image
+        return $result['secure_url'];
+        
+    } catch (Exception $e) {
+        error_log("Cloudinary upload error: " . $e->getMessage());
+        return null;
+    }
+}
+
+// Function to handle local file upload (fallback)
+function uploadToLocalStorage($file) {
+    $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/user_profile_pictures/";
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+    
+    $fileName = time() . '_' . uniqid() . '.jpg';
+    $filePath = $targetDir . $fileName;
+    
+    if (move_uploaded_file($file['tmp_name'], $filePath)) {
+        return 'storage/uploads/user_profile_pictures/' . $fileName;
+    }
+    
+    return null;
+}
 
 try {
     if (!isset($_POST['user_id'])) {
@@ -17,18 +172,36 @@ try {
     $updates = array();
 
     // Handle profile picture upload if present
-    $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/user_profile_pictures/";
-    if (!file_exists($targetDir)) {
-        mkdir($targetDir, 0777, true);
-    }
-
-    if (isset($_FILES['profile_picture'])) {
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['profile_picture'];
-        $fileName = time() . '_' . uniqid() . '.jpg';
-        $filePath = $targetDir . $fileName;
         
-        if (move_uploaded_file($file['tmp_name'], $filePath)) {
-            $updates['user_profile_picture'] = 'storage/uploads/user_profile_pictures/' . $fileName;
+        // Try Cloudinary upload first
+        $cloudinaryUrl = uploadToCloudinary($file);
+        
+        if ($cloudinaryUrl) {
+            // If Cloudinary upload succeeded, use the URL
+            $updates['user_profile_picture'] = $cloudinaryUrl;
+            error_log("Profile picture uploaded to Cloudinary: " . $cloudinaryUrl);
+        } else {
+            // If Cloudinary upload failed, fall back to local storage
+            error_log("Cloudinary upload failed, falling back to local storage");
+            
+            // Create a temporary copy of the file since the original might have been consumed
+            $tmpFile = array(
+                'name' => $file['name'],
+                'type' => $file['type'],
+                'tmp_name' => $file['tmp_name'],
+                'error' => $file['error'],
+                'size' => $file['size']
+            );
+            
+            $localPath = uploadToLocalStorage($tmpFile);
+            if ($localPath) {
+                $updates['user_profile_picture'] = $localPath;
+                error_log("Profile picture saved to local storage: " . $localPath);
+            } else {
+                error_log("Failed to save profile picture to local storage");
+            }
         }
     }
 
