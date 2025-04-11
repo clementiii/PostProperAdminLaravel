@@ -19,7 +19,7 @@
                         <div class="flex justify-center gap-4">
                             @if (Auth::id() === $staff->id)
                                 <a href="{{ route('admin.profile') }}"
-                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transition-colors">
+                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-purple-600 text-white px-4 py-2 hover:bg-purple-700 transition-colors">
                                     <i class="fas fa-edit mr-2"></i>Edit
                                 </a>
                                 <form id="delete-form-{{ $staff->id }}" action="{{ route('admin.delete', $staff->id) }}" method="POST" class="inline">
