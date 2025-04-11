@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Document Verification</title>
     <link rel="icon" href="{{ asset('/assets/Southside.png') }}" type="image/png">
     {{-- Include Tailwind CSS --}}
@@ -328,6 +329,12 @@
             </div>
         </div>
 
+        {{-- Debug container --}}
+        <div id="debug-container" class="hidden p-6 bg-gray-100 border border-gray-300 rounded-lg mt-4">
+            <h3 class="text-xl font-semibold mb-2">Debug Information</h3>
+            <div id="debug-info" class="text-sm font-mono overflow-auto"></div>
+        </div>
+
         <script>
             function openModal(src, title) {
                 document.getElementById('modalImage').src = src;
@@ -360,6 +367,7 @@
                 const formData = new FormData(form);
                 
                 // Log form data for debugging
+                console.log("Form submission data:");
                 for (let pair of formData.entries()) {
                     console.log(pair[0] + ': ' + pair[1]);
                 }
@@ -385,13 +393,27 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log("Response from server:", data);
+                    
+                    if (data.debug) {
+                        console.log("Debug info:", data.debug);
+                        document.getElementById('debug-info').innerHTML = 
+                            `<strong>Debug Info:</strong><br>` +
+                            `Original Status: ${data.debug.original_status}<br>` +
+                            `New Status: ${data.debug.new_status}<br>` +
+                            `Rows Updated: ${data.debug.updated_rows}<br>` +
+                            `<strong>Original Data:</strong><pre>${JSON.stringify(data.debug.original_data, null, 2)}</pre>` +
+                            `<strong>Refreshed Data:</strong><pre>${JSON.stringify(data.debug.refreshed_data, null, 2)}</pre>`;
+                        document.getElementById('debug-container').classList.remove('hidden');
+                    }
+                    
                     if (data.success) {
                         // Show success message
-                        alert('Status updated successfully!');
+                        alert('Status updated successfully! Check console for details.');
                         // Redirect after a short delay
                         setTimeout(() => {
                             window.location.href = "{{ route('documents.index') }}";
-                        }, 1000);
+                        }, 5000); // Longer delay to see the debug info
                     } else {
                         throw new Error(data.message || 'Failed to update status');
                     }

@@ -6,6 +6,7 @@ use App\Models\DocumentRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DocumentRequestController extends Controller
 {
@@ -51,7 +52,11 @@ class DocumentRequestController extends Controller
     {
         try {
             $documentRequest = DocumentRequest::findOrFail($id);
-
+            
+            // Debug info
+            $originalStatus = $documentRequest->Status;
+            $originalData = $documentRequest->toArray();
+            
             $request->validate([
                 'status' => 'required|string|in:pending,approved,rejected,cancelled,overdue',
                 'reason' => 'required_if:status,rejected|nullable|string|max:255',
@@ -81,16 +86,32 @@ class DocumentRequestController extends Controller
                 $updateData['pickup_status'] = 'pending';
             }
 
-            $documentRequest->update($updateData);
-
+            // Direct DB update for debugging
+            $updated = DB::table('document_requests')
+                ->where('Id', $id)
+                ->update($updateData);
+                
+            // Refetch the document to check if update worked
+            $refreshedDoc = DocumentRequest::findOrFail($id);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Document request updated successfully!'
+                'message' => 'Document request updated successfully!',
+                'debug' => [
+                    'id' => $id,
+                    'original_status' => $originalStatus,
+                    'new_status' => $newStatus,
+                    'update_data' => $updateData,
+                    'updated_rows' => $updated,
+                    'original_data' => $originalData,
+                    'refreshed_data' => $refreshedDoc->toArray()
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating document request: ' . $e->getMessage()
+                'message' => 'Error updating document request: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ], 500);
         }
     }
