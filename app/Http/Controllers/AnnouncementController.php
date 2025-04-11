@@ -40,6 +40,7 @@ class AnnouncementController extends Controller
             }
             
             $filePath = $file->getRealPath();
+            $extension = strtolower($file->getClientOriginalExtension());
             
             // Prepare upload parameters
             $timestamp = time();
@@ -51,6 +52,7 @@ class AnnouncementController extends Controller
                 'folder' => $folder,
                 'public_id' => $publicId,
                 'timestamp' => $timestamp,
+                'format' => $extension,  // Explicitly specify the format
             ];
             ksort($params); // Sort params alphabetically
             
@@ -69,6 +71,7 @@ class AnnouncementController extends Controller
                 'timestamp' => $timestamp,
                 'folder' => $folder,
                 'public_id' => $publicId,
+                'format' => $extension,  // Explicitly specify the format
                 'signature' => $signature,
             ];
             

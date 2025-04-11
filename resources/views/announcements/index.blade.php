@@ -39,9 +39,9 @@
                             id="upload-container">
                             <span class="material-icons text-gray-400 text-3xl">file_upload</span>
                             <p class="mt-2">Click to upload images</p>
-                            <p class="text-sm text-gray-500">PNG, JPG up to 10MB (Maximum 5 images)</p>
+                            <p class="text-sm text-gray-500">PNG, JPG, JPEG up to 10MB (Maximum 5 images)</p>
                             <input type="file" name="announcement_images[]" multiple class="hidden file-input"
-                                id="file-upload" accept=".jpg,.jpeg,.png">
+                                id="file-upload" accept="image/jpeg,image/jpg,image/png">
                         </div>
                         <!-- Image preview container -->
                         <div id="image-preview-container" class="mt-4 flex flex-wrap"></div>
