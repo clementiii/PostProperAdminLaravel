@@ -57,7 +57,7 @@
                 <!-- Left Column -->
                 <div class="col-span-4"> <!-- Reduced column span -->
                     <!-- Profile Picture Section -->
-                    <div class="bg-white rounded-lg shadow-sm mb-10 h-80"> <!-- Increased height -->
+                    <div class="bg-white rounded-lg shadow-sm mb-10 h-80">
                         <div class="bg-purple-900 text-white px-4 py-3 rounded-t-lg flex items-center">
                             <span class="material-icons-outlined mr-2">person</span>
                             <span class="font-medium">Profile Picture</span>
@@ -65,7 +65,7 @@
                         <div class="p-6 flex justify-center">
                             <div class="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                                 @if($user->user_profile_picture)
-                                    <img src="{{ asset($user->user_profile_picture) }}" alt="Profile Picture" class="w-full h-full object-cover">
+                                    <img src="{{ $user->getProfilePictureUrl() }}" alt="Profile Picture" class="w-full h-full object-cover">
                                 @else
                                     <div class="text-center text-gray-400">
                                         <span class="material-icons-outlined text-4xl">person</span>
@@ -94,10 +94,7 @@
                             <!-- ID Display Areas -->
                             <div id="frontID" class="p-3 flex items-center justify-center h-56 cursor-zoom-in" onclick="openImageModal('frontID')">
                                 @if($user->user_valid_id)
-                                    @php
-                                        $cleanPath = ltrim(str_replace('storage/', '', $user->user_valid_id), '/');
-                                    @endphp
-                                    <img src="{{ asset('storage/' . $cleanPath) }}" alt="ID Front" class="max-h-full max-w-full object-contain">
+                                    <img src="{{ $user->getValidIdUrl() }}" alt="ID Front" class="max-h-full max-w-full object-contain">
                                 @else
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full flex items-center justify-center">
                                         <div class="text-center text-gray-400">
@@ -110,10 +107,7 @@
 
                             <div id="backID" class="hidden p-3 flex items-center justify-center h-56 cursor-zoom-in" onclick="openImageModal('backID')">
                                 @if($user->user_valid_id_back)
-                                    @php
-                                        $cleanPath = ltrim(str_replace('storage/', '', $user->user_valid_id_back), '/');
-                                    @endphp
-                                    <img src="{{ asset('storage/' . $cleanPath) }}" alt="ID Back" class="max-h-full max-w-full object-contain">
+                                    <img src="{{ $user->getValidIdBackUrl() }}" alt="ID Back" class="max-h-full max-w-full object-contain">
                                 @else
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full flex items-center justify-center">
                                         <div class="text-center text-gray-400">
