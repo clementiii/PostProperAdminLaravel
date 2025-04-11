@@ -90,36 +90,95 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Delete announcement handling
+    // Delete announcement handling with custom modal
     const deleteButtons = document.querySelectorAll('.btn-delete');
+    const deleteModal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('modal-content');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    let currentAnnouncementId = null;
     
+    // Open delete confirmation modal
+    function openDeleteModal(announcementId) {
+        currentAnnouncementId = announcementId;
+        deleteModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Force a reflow before adding the transition classes
+        void modalContent.offsetWidth;
+        
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+    
+    // Close delete confirmation modal
+    function hideDeleteModal() {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+            document.body.style.overflow = ''; // Re-enable scrolling
+            currentAnnouncementId = null;
+        }, 200);
+    }
+    
+    // Delete announcement function
+    function deleteAnnouncement(announcementId) {
+        // Send delete request
+        fetch(`/announcements/${announcementId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                // Reload page to reflect changes
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the announcement.');
+        });
+    }
+    
+    // Attach event listeners to delete buttons
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
             const announcementId = this.getAttribute('data-id');
-            
-            if (confirm('Are you sure you want to delete this announcement?')) {
-                // Send delete request
-                fetch(`/announcements/${announcementId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                        // Reload page to reflect changes
-                        window.location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while deleting the announcement.');
-                });
-            }
+            openDeleteModal(announcementId);
         });
     });
+    
+    // Attach event listener to confirm delete button
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (currentAnnouncementId) {
+                deleteAnnouncement(currentAnnouncementId);
+                hideDeleteModal();
+            }
+        });
+    }
+    
+    // Attach event listener to cancel delete button
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+    }
+    
+    // Close modal when clicking outside
+    if (deleteModal) {
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideDeleteModal();
+            }
+        });
+    }
 });

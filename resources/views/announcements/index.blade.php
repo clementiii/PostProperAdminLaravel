@@ -49,7 +49,7 @@
                         <div id="upload-error" class="text-red-500 mt-2 hidden"></div>
                     </div>
                     <div class="flex justify-end">
-                        <button type="submit"
+                        <button type="button" onclick="openPostModal()"
                             class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition mr-2 btn-save">
                             Post Announcement
                         </button>
@@ -90,12 +90,140 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                    <span class="material-icons text-red-600 text-3xl">delete</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm Deletion</h3>
+                <p class="text-gray-600 mb-8">Are you sure you want to delete this announcement? This action cannot be undone.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" id="cancelDeleteBtn" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmDeleteBtn"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        Yes, Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Confirmation Modal -->
+    <div id="postModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="post-modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-6">
+                    <span class="material-icons text-purple-600 text-3xl">campaign</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm Post</h3>
+                <p class="text-gray-600 mb-8">Are you sure you want to post this announcement?</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="hidePostModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmPostBtn"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
+                        Yes, Post Announcement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- CSRF Token for JavaScript -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Additional CSS for modal -->
+    <style>
+        /* Modal animation styles */
+        #modal-content {
+            display: block;
+            position: relative;
+            z-index: 60;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* Ensure modal is visible */
+        #deleteModal.flex #modal-content {
+            opacity: 1;
+        }
+        
+        /* Force hardware acceleration for smoother animations */
+        .transform {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+    </style>
+
     <!-- JavaScript -->
     <script src="{{ asset('js/announcement.js') }}"></script>
+    
+    <!-- Post Modal Script -->
+    <script>
+        function openPostModal() {
+            // Validate form before showing modal
+            const form = document.getElementById('announcement-form');
+            if (!form.checkValidity()) {
+                // If form is not valid, trigger browser validation UI
+                form.reportValidity();
+                return;
+            }
+            
+            const modal = document.getElementById('postModal');
+            const modalContent = document.getElementById('post-modal-content');
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            
+            // Force a reflow before adding the transition classes
+            void modalContent.offsetWidth;
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        function hidePostModal() {
+            const modal = document.getElementById('postModal');
+            const modalContent = document.getElementById('post-modal-content');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }, 200);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Confirm post button click handler
+            const confirmPostBtn = document.getElementById('confirmPostBtn');
+            if (confirmPostBtn) {
+                confirmPostBtn.addEventListener('click', function() {
+                    document.getElementById('announcement-form').submit();
+                });
+            }
+            
+            // Close modal when clicking outside
+            const postModal = document.getElementById('postModal');
+            if (postModal) {
+                postModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hidePostModal();
+                    }
+                });
+            }
+        });
+    </script>
 @endsection
