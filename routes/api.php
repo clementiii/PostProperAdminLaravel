@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Android Login
+// Android Login 
 Route::post('android/login', function() {
     // Capture the Laravel request and convert to POST vars for legacy compatibility
     request()->merge($_POST = request()->all());
