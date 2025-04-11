@@ -12,12 +12,21 @@ class AnnouncementController extends Controller
     // Storage path for announcement images
     protected $storagePath = 'uploads/announcement_images';
 
+    /**
+     * Display announcements index page
+     */
     public function index()
     {
         $announcements = Announcement::latest()->get();
         return view('announcements.index', compact('announcements'));
     }
 
+    /**
+     * Upload an image to Cloudinary
+     * 
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return string|bool
+     */
     private function uploadToCloudinary($file)
     {
         try {
@@ -43,7 +52,7 @@ class AnnouncementController extends Controller
                 'public_id' => $publicId,
                 'timestamp' => $timestamp,
             ];
-            ksort($params);
+            ksort($params); // Sort params alphabetically
             
             $signature = '';
             foreach ($params as $key => $value) {
@@ -63,19 +72,20 @@ class AnnouncementController extends Controller
                 'signature' => $signature,
             ];
             
-            // Initialize cURL
+            // Initialize cURL and set options
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             
+            // Execute request
             $response = curl_exec($ch);
             
             if (curl_errno($ch)) {
                 Log::error('Cloudinary cURL error: ' . curl_error($ch));
                 curl_close($ch);
-                throw new \Exception('Failed to upload image to cloud storage.');
+                return false;
             }
             
             curl_close($ch);
@@ -83,16 +93,19 @@ class AnnouncementController extends Controller
             
             if (!isset($result['secure_url'])) {
                 Log::error('Cloudinary upload failed: ' . json_encode($result));
-                throw new \Exception('Failed to upload image to cloud storage.');
+                return false;
             }
             
             return $result['secure_url'];
         } catch (\Exception $e) {
             Log::error('Cloudinary upload error: ' . $e->getMessage());
-            throw $e;
+            return false;
         }
     }
 
+    /**
+     * Store a new announcement
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -106,12 +119,18 @@ class AnnouncementController extends Controller
             $imagePaths = [];
 
             if ($request->hasFile('announcement_images')) {
+                // Limit to 5 images
                 $images = array_slice($request->file('announcement_images'), 0, 5);
                 
                 foreach ($images as $image) {
                     if ($image->isValid()) {
                         $cloudinaryUrl = $this->uploadToCloudinary($image);
-                        $imagePaths[] = $cloudinaryUrl;
+                        
+                        if ($cloudinaryUrl) {
+                            $imagePaths[] = $cloudinaryUrl;
+                        } else {
+                            Log::error('Failed to upload image to Cloudinary');
+                        }
                     }
                 }
             }
@@ -119,7 +138,7 @@ class AnnouncementController extends Controller
             Announcement::create([
                 'announcement_title' => $request->announcement_title,
                 'description_text' => $request->description_text,
-                'announcement_images' => $imagePaths ? json_encode($imagePaths) : null,
+                'announcement_images' => !empty($imagePaths) ? json_encode($imagePaths) : null,
                 'created_at' => now(),
                 'posted_at' => now(),
             ]);
@@ -127,10 +146,27 @@ class AnnouncementController extends Controller
             return redirect()->back()->with('success', 'Announcement posted successfully!');
         } catch (\Exception $e) {
             Log::error('Announcement creation error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to create announcement. Please try again.');
+            return redirect()->back()->with('error', 'Failed to create announcement: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Show the form for editing the specified announcement
+     */
+    public function edit($id)
+    {
+        $announcement = Announcement::find($id);
+
+        if (!$announcement) {
+            return redirect()->route('announcements.index')->withErrors('Announcement not found.');
+        }
+
+        return view('announcements.edit-announcement', compact('announcement'));
+    }
+
+    /**
+     * Update the specified announcement
+     */
     public function update(Request $request, $id)
     {
         $announcement = Announcement::find($id);
@@ -157,9 +193,13 @@ class AnnouncementController extends Controller
                 foreach ($images as $image) {
                     if ($image->isValid()) {
                         $cloudinaryUrl = $this->uploadToCloudinary($image);
-                        $imagePaths[] = $cloudinaryUrl;
+                        
+                        if ($cloudinaryUrl) {
+                            $imagePaths[] = $cloudinaryUrl;
+                        }
                     }
                 }
+                
                 $announcement->announcement_images = json_encode($imagePaths);
             }
 
@@ -168,10 +208,13 @@ class AnnouncementController extends Controller
             return redirect()->route('announcements.index')->with('success', 'Announcement updated successfully!');
         } catch (\Exception $e) {
             Log::error('Announcement update error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update announcement. Please try again.');
+            return redirect()->back()->with('error', 'Failed to update announcement: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Remove the specified announcement
+     */
     public function destroy($id)
     {
         $announcement = Announcement::find($id);
@@ -180,30 +223,15 @@ class AnnouncementController extends Controller
             return response()->json(['message' => 'Announcement not found.'], 404);
         }
 
-        // Delete associated images
-        if ($announcement->announcement_images) {
-            $images = json_decode($announcement->announcement_images, true);
-            foreach ($images as $image) {
-                $this->deleteImage($image);
-            }
+        try {
+            $announcement->delete();
+            return response()->json(['message' => 'Announcement deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting announcement: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to delete announcement.'], 500);
         }
-
-        $announcement->delete();
-
-        return response()->json(['message' => 'Announcement deleted successfully.'], 200);
     }
 
-    public function edit($id)
-    {
-        $announcement = Announcement::find($id);
-
-        if (!$announcement) {
-            return redirect()->route('announcements.index')->withErrors('Announcement not found.');
-        }
-
-        return view('announcements.edit-announcement', compact('announcement'));
-    }
-    
     /**
      * Ensure the storage directory exists
      */

@@ -7,6 +7,19 @@
             <div class="h-1 bg-purple-800 w-full"></div>
             <div class="p-6">
                 <h3 class="text-2xl font-semibold text-purple-700 mb-6">Add New Announcement</h3>
+                
+                @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                
+                @if(session('error'))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                
                 <form id="announcement-form" action="{{ route('announcements.store') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
@@ -77,9 +90,11 @@
         </div>
     </div>
 
-
     <!-- Add Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- CSRF Token for JavaScript -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- JavaScript -->
     <script src="{{ asset('js/announcement.js') }}"></script>

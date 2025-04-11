@@ -32,9 +32,16 @@
                         <label class="block text-gray-700 font-medium mb-2">Current Images</label>
                         <div class="flex flex-wrap my-4">
                             @if($announcement->announcement_images)
-                                @foreach(json_decode($announcement->announcement_images, true) as $index => $image)
+                                @php
+                                    $images = is_array($announcement->announcement_images) ? 
+                                        $announcement->announcement_images : 
+                                        json_decode($announcement->announcement_images, true);
+                                    $images = is_array($images) ? $images : [];
+                                @endphp
+                                
+                                @foreach($images as $index => $image)
                                     <div class="relative w-24 h-24 mr-2 mb-2">
-                                        <img src="{{ asset('storage/' . $image) }}" 
+                                        <img src="{{ $image }}" 
                                             alt="Announcement image {{ $index + 1 }}"
                                             class="w-full h-full object-cover rounded-md">
                                     </div>
