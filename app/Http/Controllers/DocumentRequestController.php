@@ -52,8 +52,8 @@ class DocumentRequestController extends Controller
         $documentRequest = DocumentRequest::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|string|in:Pending,Approved,Rejected,Cancelled',
-            'reason' => 'required_if:status,Rejected|nullable|string|max:255',
+            'status' => 'required|string|in:pending,approved,rejected,cancelled,OVERDUE',
+            'reason' => 'required_if:status,rejected|nullable|string|max:255',
             'pickup_status' => 'nullable|string|in:pending,picked_up',
         ]);
 
@@ -62,19 +62,19 @@ class DocumentRequestController extends Controller
         $pickupStatus = $request->input('pickup_status');
 
         $dateApproved = $documentRequest->date_approved;
-        if ($newStatus === 'Approved' && $documentRequest->Status !== 'Approved') {
+        if ($newStatus === 'approved' && strtolower($documentRequest->Status) !== 'approved') {
             $dateApproved = Carbon::now('Asia/Manila');
         }
 
         // Prepare data for update
         $updateData = [
             'Status' => $newStatus,
-            'rejection_reason' => ($newStatus === 'Rejected') ? $reason : null,
+            'rejection_reason' => ($newStatus === 'rejected') ? $reason : null,
             'date_approved' => $dateApproved,
         ];
 
         // Only update pickup status if document is approved
-        if ($newStatus === 'Approved') {
+        if ($newStatus === 'approved') {
             $updateData['pickup_status'] = $pickupStatus ?? 'pending';
         } else {
             $updateData['pickup_status'] = 'pending';

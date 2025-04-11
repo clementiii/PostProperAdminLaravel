@@ -234,10 +234,11 @@
                                     <select id="statusSelect" name="status"
                                         class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
                                         {{ strtolower($documentRequest->Status) == 'cancelled' ? 'disabled' : '' }}>
-                                        <option value="Pending" {{ $documentRequest->Status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="Approved" {{ $documentRequest->Status == 'Approved' ? 'selected' : '' }}>Approved</option>
-                                        <option value="Rejected" {{ $documentRequest->Status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                        <option value="Cancelled" {{ $documentRequest->Status == 'Cancelled' ? 'selected' : '' }} disabled>Cancelled</option>
+                                        <option value="pending" {{ strtolower($documentRequest->Status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved" {{ strtolower($documentRequest->Status) == 'approved' ? 'selected' : '' }}>Approved</option>
+                                        <option value="rejected" {{ strtolower($documentRequest->Status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        <option value="cancelled" {{ strtolower($documentRequest->Status) == 'cancelled' ? 'selected' : '' }} disabled>Cancelled</option>
+                                        <option value="OVERDUE" {{ strtolower($documentRequest->Status) == 'overdue' ? 'selected' : '' }}>Overdue</option>
                                     </select>
                                     @if (strtolower($documentRequest->Status) == 'cancelled' && $documentRequest->cancellation_reason)
                                         <div class="mt-2 text-sm text-gray-600">
