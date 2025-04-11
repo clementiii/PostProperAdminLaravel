@@ -37,9 +37,9 @@ class DocumentRequestTable extends Component
 
     public function render()
     {
-        $query = DB::table('document_requests')
+        $query = DocumentRequest::query()
             ->select([
-                'id',
+                'Id',
                 'Name',
                 'DocumentType',
                 'Quantity',
@@ -53,7 +53,7 @@ class DocumentRequestTable extends Component
                         $searchTerm = substr($searchTerm, 4); // Remove 'TXN-' prefix
                     }
                     
-                    $query->where('id', 'like', '%' . $searchTerm . '%')
+                    $query->where('Id', 'like', '%' . $searchTerm . '%')
                         ->orWhere('Name', 'like', '%' . $this->search . '%')
                         ->orWhere('DocumentType', 'like', '%' . $this->search . '%');
                 });
@@ -67,12 +67,12 @@ class DocumentRequestTable extends Component
 
         // Get statistics
         $registeredResidents = \App\Models\UserAccount::count();
-        $pendingDocuments = DB::table('document_requests')->where('Status', 'pending')->count();
+        $pendingDocuments = DocumentRequest::where('Status', 'pending')->count();
         $incidentReports = \App\Models\IncidentReport::count();
 
         // Debug the IDs
         foreach ($requests as $request) {
-            $request->formatted_id = str_pad($request->id, 2, '0', STR_PAD_LEFT);
+            $request->formatted_id = str_pad($request->Id, 2, '0', STR_PAD_LEFT);
         }
 
         return view('livewire.document-request-table', [
