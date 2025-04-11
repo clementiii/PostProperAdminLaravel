@@ -141,11 +141,11 @@
                                                     class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium">
                                                     View
                                                 </a>
-                                                <form action="{{ route('users.delete', $user->id) }}" method="POST" class="inline">
+                                                <form id="delete-form-{{ $user->id }}" action="{{ route('users.delete', $user->id) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit"
-                                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"
+                                                    <button type="button"
+                                                        onclick="openDeleteModal({{ $user->id }})"
                                                         class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm font-medium">
                                                         Delete
                                                     </button>
@@ -225,4 +225,106 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                    <span class="material-icons text-red-600 text-3xl">delete</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm User Deletion</h3>
+                <p class="text-gray-600 mb-8">Are you sure you want to delete this user? This action cannot be undone.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="hideDeleteModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmDeleteBtn"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        Yes, Delete User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal Script -->
+    <script>
+        let currentDeleteId = null;
+
+        function openDeleteModal(userId) {
+            currentDeleteId = userId;
+            const modal = document.getElementById('deleteModal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            
+            // Force a reflow before adding the transition classes
+            void modalContent.offsetWidth;
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        function hideDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
+                currentDeleteId = null;
+            }, 200);
+        }
+        
+        // Execute after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (currentDeleteId) {
+                        document.getElementById('delete-form-' + currentDeleteId).submit();
+                    }
+                });
+            }
+            
+            // Close modal when clicking outside
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideDeleteModal();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        /* Additional modal styles */
+        #modal-content {
+            display: block;
+            position: relative;
+            z-index: 60;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* Ensure modal is visible */
+        #deleteModal.flex #modal-content {
+            opacity: 1;
+        }
+        
+        /* Force hardware acceleration for smoother animations */
+        .transform {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+    </style>
 </div>
