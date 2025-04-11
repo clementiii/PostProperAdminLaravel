@@ -6,6 +6,31 @@
     use Illuminate\Support\Str;
 @endphp
 
+@section('styles')
+<!-- Google Icons for the modal icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<style>
+    /* Additional modal styles */
+    #resolve-modal-content {
+        display: block;
+        position: relative;
+        z-index: 60;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    /* Ensure modal is visible */
+    #resolveModal.flex #resolve-modal-content {
+        opacity: 1;
+    }
+    
+    /* Force hardware acceleration for smoother animations */
+    .transform {
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="p-6 space-y-6" x-data>
     {{-- Status Alert Messages --}}
@@ -89,10 +114,10 @@
             {{-- Action Buttons --}}
             <div class="pt-4 border-t mt-4">
                 @if (!$incidentReport->isResolved())
-                    <form action="{{ route('incident-reports.resolve', $incidentReport) }}" method="POST" class="inline">
+                    <form id="resolve-form-{{ $incidentReport->id }}" action="{{ route('incident-reports.resolve', $incidentReport) }}" method="POST" class="inline">
                         @csrf
                         @method('PATCH')
-                        <button type="submit"
+                        <button type="button" onclick="openResolveModal()"
                                 class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
                             <i class="fas fa-check-circle mr-2"></i> Mark as Resolved
                         </button>
@@ -102,6 +127,29 @@
                         <i class="fas fa-check-circle mr-2"></i> Already Resolved
                     </div>
                 @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Resolve Confirmation Modal --}}
+    <div id="resolveModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="resolve-modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                    <span class="material-icons text-green-600 text-3xl">task_alt</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm Resolution</h3>
+                <p class="text-gray-600 mb-8">Are you sure you want to mark this report as resolved?</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="hideResolveModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmResolveBtn"
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                        Yes, Mark as Resolved
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -147,6 +195,55 @@
 
 @push('scripts')
 <script>
-    // Additional scripts can be added here if needed
+    // Resolve modal functions
+    function openResolveModal() {
+        const modal = document.getElementById('resolveModal');
+        const modalContent = document.getElementById('resolve-modal-content');
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Force a reflow before adding the transition classes
+        void modalContent.offsetWidth;
+        
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+    
+    function hideResolveModal() {
+        const modal = document.getElementById('resolveModal');
+        const modalContent = document.getElementById('resolve-modal-content');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }, 200);
+    }
+    
+    // Execute after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Resolve confirmation button click handler
+        const confirmResolveBtn = document.getElementById('confirmResolveBtn');
+        if (confirmResolveBtn) {
+            confirmResolveBtn.addEventListener('click', function() {
+                document.getElementById('resolve-form-{{ $incidentReport->id }}').submit();
+            });
+        }
+        
+        // Close modal when clicking outside
+        const resolveModal = document.getElementById('resolveModal');
+        if (resolveModal) {
+            resolveModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideResolveModal();
+                }
+            });
+        }
+    });
 </script>
 @endpush
