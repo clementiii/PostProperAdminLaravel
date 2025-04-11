@@ -331,12 +331,6 @@
             </div>
         </div>
 
-        {{-- Debug container --}}
-        <div id="debug-container" class="hidden p-6 bg-gray-100 border border-gray-300 rounded-lg mt-4">
-            <h3 class="text-xl font-semibold mb-2">Debug Information</h3>
-            <div id="debug-info" class="text-sm font-mono overflow-auto"></div>
-        </div>
-
         <script>
             function openModal(src, title) {
                 document.getElementById('modalImage').src = src;
@@ -368,18 +362,12 @@
                 const form = document.getElementById('statusForm');
                 const formData = new FormData(form);
                 
-                // Log form data for debugging
-                console.log("Form submission data:");
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + pair[1]);
-                }
-
                 // Disable the submit button to prevent double submission
                 const submitButton = document.querySelector('button[type="button"]');
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-                // Submit the form using jQuery AJAX instead of fetch
+                // Submit the form using jQuery AJAX
                 $.ajax({
                     url: form.action,
                     type: 'POST',
@@ -391,41 +379,26 @@
                         'X-HTTP-Method-Override': 'PUT'
                     },
                     success: function(data) {
-                        console.log("Response from server:", data);
-                        
-                        if (data.debug) {
-                            console.log("Debug info:", data.debug);
-                            document.getElementById('debug-info').innerHTML = 
-                                `<strong>Debug Info:</strong><br>` +
-                                `Original Status: ${data.debug.original_status}<br>` +
-                                `New Status: ${data.debug.new_status}<br>` +
-                                `Rows Updated: ${data.debug.updated_rows}<br>` +
-                                `<strong>Original Data:</strong><pre>${JSON.stringify(data.debug.original_data, null, 2)}</pre>` +
-                                `<strong>Refreshed Data:</strong><pre>${JSON.stringify(data.debug.refreshed_data, null, 2)}</pre>`;
-                            document.getElementById('debug-container').classList.remove('hidden');
-                        }
-                        
                         if (data.success) {
                             // Show success message
-                            alert('Status updated successfully! Check console for details.');
-                            // Redirect after a short delay
-                            setTimeout(function() {
-                                window.location.href = "{{ route('documents.index') }}";
-                            }, 5000); // Longer delay to see the debug info
+                            alert('Status updated successfully!');
+                            // Redirect back to document list
+                            window.location.href = "{{ route('documents.index') }}";
                         } else {
-                            throw new Error(data.message || 'Failed to update status');
+                            alert(data.message || 'Failed to update status');
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = 'Save Changes';
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        console.log('Response:', xhr.responseText);
                         
                         try {
                             // Try to parse the error response
                             const errorData = JSON.parse(xhr.responseText);
                             alert('Error updating status: ' + (errorData.message || error));
                         } catch(e) {
-                            alert('Error updating status: ' + error + '. Check console for details.');
+                            alert('Error updating status: ' + error);
                         }
                         
                         submitButton.disabled = false;

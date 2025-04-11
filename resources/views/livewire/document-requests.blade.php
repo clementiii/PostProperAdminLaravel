@@ -99,6 +99,15 @@
                             @else bg-gray-200 text-gray-800 @endif">
                             {{ ucfirst(strtolower($row->Status)) }}
                         </span>
+                        
+                        {{-- Show pickup status for approved documents --}}
+                        @if(strtolower($row->Status) === 'approved')
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold 
+                                @if($row->pickup_status === 'pending') bg-blue-200 text-blue-800
+                                @else bg-purple-200 text-purple-800 @endif">
+                                {{ $row->pickup_status === 'picked_up' ? 'Picked Up' : 'Awaiting Pickup' }}
+                            </span>
+                        @endif
                         <a href="{{ route('documents.show', $row->Id) }}"
                             class="px-4 py-2 rounded-lg text-white bg-[#0F172A] hover:bg-opacity-90">
                             View Details

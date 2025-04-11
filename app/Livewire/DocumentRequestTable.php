@@ -44,7 +44,8 @@ class DocumentRequestTable extends Component
                 'DocumentType',
                 'Quantity',
                 'DateRequested',
-                'Status'
+                'Status',
+                'pickup_status'
             ])
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {

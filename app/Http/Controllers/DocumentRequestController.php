@@ -51,21 +51,7 @@ class DocumentRequestController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Add detailed logging
-            Log::info('Update request received', [
-                'id' => $id,
-                'inputs' => $request->all()
-            ]);
-            
             $documentRequest = DocumentRequest::findOrFail($id);
-            
-            // Debug info
-            $originalStatus = $documentRequest->Status;
-            $originalData = $documentRequest->toArray();
-            
-            Log::info('Original document data', [
-                'data' => $originalData
-            ]);
             
             $request->validate([
                 'status' => 'required|string|in:pending,approved,rejected,cancelled,overdue',
@@ -102,70 +88,23 @@ class DocumentRequestController extends Controller
             } else {
                 $updateData['pickup_status'] = 'pending';
             }
-            
-            Log::info('Update data prepared', [
-                'data' => $updateData
-            ]);
 
-            // Try both direct DB update and model update
-            try {
-                // Direct DB update for debugging
-                $updated = DB::table('document_requests')
-                    ->where('Id', $id)
-                    ->update($updateData);
-                
-                Log::info('Direct DB update result', [
-                    'updated_rows' => $updated
-                ]);
-                
-                if ($updated === 0) {
-                    // If direct update failed, try with model
-                    $documentRequest->fill($updateData);
-                    $modelUpdated = $documentRequest->save();
-                    
-                    Log::info('Model update result', [
-                        'success' => $modelUpdated
-                    ]);
-                }
-            } catch (\Exception $dbException) {
-                Log::error('Error during update operation', [
-                    'exception' => $dbException->getMessage(),
-                    'trace' => $dbException->getTraceAsString()
-                ]);
-                
-                throw $dbException;
-            }
-                
-            // Refetch the document to check if update worked
-            $refreshedDoc = DocumentRequest::findOrFail($id);
-            
-            Log::info('Document refetched after update', [
-                'data' => $refreshedDoc->toArray()
-            ]);
-            
+            // Update the document
+            $documentRequest->update($updateData);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Document request updated successfully!',
-                'debug' => [
-                    'id' => $id,
-                    'original_status' => $originalStatus,
-                    'new_status' => $newStatus,
-                    'update_data' => $updateData,
-                    'updated_rows' => $updated ?? 0,
-                    'original_data' => $originalData,
-                    'refreshed_data' => $refreshedDoc->toArray()
-                ]
+                'message' => 'Document request updated successfully!'
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in update method', [
+            Log::error('Error updating document request', [
                 'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'id' => $id
             ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating document request: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'message' => 'Error updating document request: ' . $e->getMessage()
             ], 500);
         }
     }
