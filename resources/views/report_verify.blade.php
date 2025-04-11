@@ -191,12 +191,10 @@
     {{-- End Image Modal --}}
 
 </div> {{-- End Main Content x-data --}}
-@endsection
 
-@push('scripts')
 <script>
-    // Resolve modal functions
-    function openResolveModal() {
+    // Make functions globally available
+    window.openResolveModal = function() {
         const modal = document.getElementById('resolveModal');
         const modalContent = document.getElementById('resolve-modal-content');
         
@@ -210,9 +208,9 @@
             modalContent.classList.remove('scale-95', 'opacity-0');
             modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
-    }
+    };
     
-    function hideResolveModal() {
+    window.hideResolveModal = function() {
         const modal = document.getElementById('resolveModal');
         const modalContent = document.getElementById('resolve-modal-content');
         
@@ -223,7 +221,7 @@
             modal.classList.add('hidden');
             document.body.style.overflow = ''; // Re-enable scrolling
         }, 200);
-    }
+    };
     
     // Execute after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -246,4 +244,4 @@
         }
     });
 </script>
-@endpush
+@endsection
