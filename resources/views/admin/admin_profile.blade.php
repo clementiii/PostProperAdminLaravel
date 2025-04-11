@@ -56,7 +56,7 @@
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-purple-700">Name</label>
                     <input type="text" name="name" value="{{ Auth::user()->name }}" 
-                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300 bg-gray-100" readonly>
                     @error('name')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -75,8 +75,14 @@
                 <!-- Current Password - Modified to match design -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-purple-700">Current Password</label>
-                    <input type="password" name="current_password" 
-                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                    <div class="relative">
+                        <input type="password" name="current_password" id="current_password"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300" required>
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none" 
+                                onclick="togglePasswordVisibility('current_password')">
+                            <i class="fas fa-eye" id="current_password_icon"></i>
+                        </button>
+                    </div>
                     @error('current_password')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -85,8 +91,14 @@
                 <!-- New Password - Modified to match design -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-purple-700">New Password</label>
-                    <input type="password" name="new_password" 
-                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                    <div class="relative">
+                        <input type="password" name="new_password" id="new_password"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none" 
+                                onclick="togglePasswordVisibility('new_password')">
+                            <i class="fas fa-eye" id="new_password_icon"></i>
+                        </button>
+                    </div>
                     @error('new_password')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -95,8 +107,14 @@
                 <!-- Confirm Password - Modified to match design -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-purple-700">Confirm New Password</label>
-                    <input type="password" name="new_password_confirmation" 
-                        class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                    <div class="relative">
+                        <input type="password" name="new_password_confirmation" id="new_password_confirmation"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-purple-300">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none" 
+                                onclick="togglePasswordVisibility('new_password_confirmation')">
+                            <i class="fas fa-eye" id="new_password_confirmation_icon"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Save Changes Button - Updated to match design -->
@@ -182,6 +200,22 @@
         document.getElementById('profile-picture-input').value = '';
         document.getElementById('preview-container').classList.add('hidden');
         document.getElementById('upload-area').classList.remove('hidden');
+    }
+    
+    // Password visibility toggle function
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + '_icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
     }
     
     // Add drag and drop functionality
