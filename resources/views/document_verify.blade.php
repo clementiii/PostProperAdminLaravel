@@ -12,6 +12,8 @@
     {{-- Include Bootstrap CSS and JS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Include jQuery --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     {{-- Include Font Awesome --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     {{-- Add any specific CSS for this page if needed --}}
@@ -377,52 +379,58 @@
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-                // Submit the form
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
+                // Submit the form using jQuery AJAX instead of fetch
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                         'X-HTTP-Method-Override': 'PUT'
+                    },
+                    success: function(data) {
+                        console.log("Response from server:", data);
+                        
+                        if (data.debug) {
+                            console.log("Debug info:", data.debug);
+                            document.getElementById('debug-info').innerHTML = 
+                                `<strong>Debug Info:</strong><br>` +
+                                `Original Status: ${data.debug.original_status}<br>` +
+                                `New Status: ${data.debug.new_status}<br>` +
+                                `Rows Updated: ${data.debug.updated_rows}<br>` +
+                                `<strong>Original Data:</strong><pre>${JSON.stringify(data.debug.original_data, null, 2)}</pre>` +
+                                `<strong>Refreshed Data:</strong><pre>${JSON.stringify(data.debug.refreshed_data, null, 2)}</pre>`;
+                            document.getElementById('debug-container').classList.remove('hidden');
+                        }
+                        
+                        if (data.success) {
+                            // Show success message
+                            alert('Status updated successfully! Check console for details.');
+                            // Redirect after a short delay
+                            setTimeout(function() {
+                                window.location.href = "{{ route('documents.index') }}";
+                            }, 5000); // Longer delay to see the debug info
+                        } else {
+                            throw new Error(data.message || 'Failed to update status');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        console.log('Response:', xhr.responseText);
+                        
+                        try {
+                            // Try to parse the error response
+                            const errorData = JSON.parse(xhr.responseText);
+                            alert('Error updating status: ' + (errorData.message || error));
+                        } catch(e) {
+                            alert('Error updating status: ' + error + '. Check console for details.');
+                        }
+                        
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Save Changes';
                     }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Response from server:", data);
-                    
-                    if (data.debug) {
-                        console.log("Debug info:", data.debug);
-                        document.getElementById('debug-info').innerHTML = 
-                            `<strong>Debug Info:</strong><br>` +
-                            `Original Status: ${data.debug.original_status}<br>` +
-                            `New Status: ${data.debug.new_status}<br>` +
-                            `Rows Updated: ${data.debug.updated_rows}<br>` +
-                            `<strong>Original Data:</strong><pre>${JSON.stringify(data.debug.original_data, null, 2)}</pre>` +
-                            `<strong>Refreshed Data:</strong><pre>${JSON.stringify(data.debug.refreshed_data, null, 2)}</pre>`;
-                        document.getElementById('debug-container').classList.remove('hidden');
-                    }
-                    
-                    if (data.success) {
-                        // Show success message
-                        alert('Status updated successfully! Check console for details.');
-                        // Redirect after a short delay
-                        setTimeout(() => {
-                            window.location.href = "{{ route('documents.index') }}";
-                        }, 5000); // Longer delay to see the debug info
-                    } else {
-                        throw new Error(data.message || 'Failed to update status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating status: ' + error.message);
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = 'Save Changes';
                 });
             }
 
