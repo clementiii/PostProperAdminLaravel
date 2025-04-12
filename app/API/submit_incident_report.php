@@ -166,6 +166,10 @@ function uploadVideoToCloudinary($base64Video) {
     $apiKey = getenv('CLOUDINARY_API_KEY');
     $apiSecret = getenv('CLOUDINARY_API_SECRET');
     
+    error_log("CLOUDINARY_CLOUD_NAME: " . $cloudName);
+    error_log("CLOUDINARY_API_KEY (length): " . strlen($apiKey));
+    error_log("CLOUDINARY_API_SECRET (length): " . strlen($apiSecret));
+    
     if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
         error_log('Cloudinary credentials not found');
         return null;
@@ -349,30 +353,44 @@ try {
                 throw new Exception('Invalid media data format: ' . json_last_error_msg());
             }
 
+            // Process images
             if (isset($mediaData['images']) && is_array($mediaData['images'])) {
                 error_log("Processing " . count($mediaData['images']) . " images");
-                foreach ($mediaData['images'] as $base64Image) {
-                    $imageUrl = uploadImageToCloudinary($base64Image);
-                    
-                    if ($imageUrl === null) {
-                        throw new Exception('Failed to upload image to Cloudinary');
+                foreach ($mediaData['images'] as $imageData) {
+                    // Check if it's already a URL (starts with http)
+                    if (strpos($imageData, 'http') === 0) {
+                        error_log("Image is already a URL: " . $imageData);
+                        $uploadedImages[] = $imageData;
+                    } else {
+                        $imageUrl = uploadImageToCloudinary($imageData);
+                        
+                        if ($imageUrl === null) {
+                            throw new Exception('Failed to upload image to Cloudinary');
+                        }
+                        
+                        $uploadedImages[] = $imageUrl;
                     }
-                    
-                    $uploadedImages[] = $imageUrl;
                 }
             }
 
+            // Process video
             if (isset($mediaData['video']) && !empty($mediaData['video'])) {
                 error_log("Processing video");
-                $base64Video = $mediaData['video'];
+                $videoData = $mediaData['video'];
                 
-                $videoUrl = uploadVideoToCloudinary($base64Video);
-                
-                if ($videoUrl === null) {
-                    throw new Exception('Failed to upload video to Cloudinary');
+                // Check if it's already a URL (starts with http)
+                if (strpos($videoData, 'http') === 0) {
+                    error_log("Video is already a URL: " . $videoData);
+                    $uploadedVideo = $videoData;
+                } else {
+                    $videoUrl = uploadVideoToCloudinary($videoData);
+                    
+                    if ($videoUrl === null) {
+                        throw new Exception('Failed to upload video to Cloudinary');
+                    }
+                    
+                    $uploadedVideo = $videoUrl;
                 }
-                
-                $uploadedVideo = $videoUrl;
             }
         } catch (Exception $e) {
             error_log("Media processing error: " . $e->getMessage());
