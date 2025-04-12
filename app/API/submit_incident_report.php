@@ -194,6 +194,14 @@ function uploadVideoToCloudinary($base64Video) {
             return null;
         }
         
+        // Check video size (100MB limit for free plan)
+        $videoSize = strlen($videoData);
+        $maxSize = 100 * 1024 * 1024; // 100MB in bytes
+        if ($videoSize > $maxSize) {
+            error_log("Video size exceeds Cloudinary free plan limit (100MB)");
+            throw new Exception('Video size exceeds the maximum allowed size of 100MB');
+        }
+        
         // Create a temporary file with .mp4 extension
         $tempFilePath = tempnam(sys_get_temp_dir(), 'vid_') . '.mp4';
         file_put_contents($tempFilePath, $videoData);
@@ -285,13 +293,23 @@ function uploadVideoToCloudinary($base64Video) {
         if ($httpCode != 200 || !isset($result['secure_url'])) {
             $errorMsg = isset($result['error']['message']) ? $result['error']['message'] : 'Unknown error';
             error_log("Cloudinary upload failed: " . $errorMsg);
-            return null;
+            
+            // Check for specific Cloudinary free plan errors
+            if (strpos($errorMsg, 'storage quota') !== false) {
+                throw new Exception('Cloudinary storage quota exceeded. Please upgrade your plan or delete old videos.');
+            } elseif (strpos($errorMsg, 'bandwidth') !== false) {
+                throw new Exception('Cloudinary bandwidth limit exceeded. Please upgrade your plan or try again later.');
+            } elseif (strpos($errorMsg, 'duration') !== false) {
+                throw new Exception('Video duration exceeds the 10-minute limit of the free plan.');
+            } else {
+                throw new Exception('Failed to upload video to Cloudinary: ' . $errorMsg);
+            }
         }
         
         return $result['secure_url'];
     } catch (Exception $e) {
         error_log("Cloudinary video upload error: " . $e->getMessage());
-        return null;
+        throw $e; // Re-throw the exception to be caught by the main try-catch
     }
 }
 
