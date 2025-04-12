@@ -13,6 +13,9 @@ ini_set('upload_max_filesize', '100M');
 ini_set('max_input_time', 600);
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
 // Function to load environment variables from .env file
 function loadEnv($path) {
@@ -218,7 +221,8 @@ function uploadVideoToCloudinary($base64Video) {
         $paramsToSign = array(
             'timestamp' => $timestamp,
             'folder' => $folder,
-            'public_id' => $publicId
+            'public_id' => $publicId,
+            'resource_type' => 'video'
         );
         
         ksort($paramsToSign);
@@ -322,7 +326,7 @@ function saveImageLocally($base64Image) {
     }
 }
 
-// Fallback function to save video locally
+// Function to save video locally
 function saveVideoLocally($base64Video) {
     try {
         // Remove the data URI header if present
@@ -408,17 +412,20 @@ function saveVideoLocally($base64Video) {
 $response = array();
 
 try {
-    // Log incoming data
-    error_log("Received POST data: " . print_r($_POST, true));
+    // Get raw POST data
+    $rawData = file_get_contents('php://input');
+    error_log("Raw POST data: " . $rawData);
+    
+    // Parse POST data
+    parse_str($rawData, $postData);
+    error_log("Parsed POST data: " . print_r($postData, true));
 
-    // Check if all required fields are present
-    if (!isset($_POST['user_id']) || !isset($_POST['title']) || !isset($_POST['description'])) {
+    if (!isset($postData['user_id']) || !isset($postData['title']) || !isset($postData['description'])) {
         throw new Exception('Missing required fields');
     }
 
-    // Get user details for the name
     $stmt = $conn->prepare("SELECT firstName, lastName FROM user_accounts WHERE id = ?");
-    $stmt->execute([$_POST['user_id']]);
+    $stmt->execute([$postData['user_id']]);
     $user = $stmt->fetch();
 
     if (!$user) {
@@ -426,31 +433,25 @@ try {
     }
 
     $name = $user['firstName'] . ' ' . $user['lastName'];
-    $title = $_POST['title'];
-    $description = $_POST['description'];
+    $title = $postData['title'];
+    $description = $postData['description'];
     $date_submitted = date('Y-m-d H:i:s');
     $status = 'pending';
-    $uploadedImages = array();
+    $uploadedImages = array(); // Initialize as empty array
     $uploadedVideo = null;
 
-    // Handle media uploads if present
-    if (!empty($_POST['media_data'])) {
+    if (!empty($postData['media_data'])) {
         try {
-            // Decode the JSON object containing images and video
-            $mediaData = json_decode($_POST['media_data'], true);
+            $mediaData = json_decode($postData['media_data'], true);
             
-            // Check if decode was successful
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception('Invalid media data format: ' . json_last_error_msg());
             }
 
-            // Process images if present
             if (isset($mediaData['images']) && is_array($mediaData['images'])) {
                 foreach ($mediaData['images'] as $base64Image) {
-                    // First try uploading to Cloudinary
                     $imageUrl = uploadImageToCloudinary($base64Image);
                     
-                    // If Cloudinary upload failed, fall back to local storage
                     if ($imageUrl === null) {
                         error_log("Cloudinary image upload failed, falling back to local storage");
                         $imageUrl = saveImageLocally($base64Image);
@@ -460,19 +461,15 @@ try {
                         }
                     }
                     
-                    // Add the URL to our array
                     $uploadedImages[] = $imageUrl;
                 }
             }
 
-            // Process video if present
             if (isset($mediaData['video']) && !empty($mediaData['video'])) {
                 $base64Video = $mediaData['video'];
                 
-                // First try uploading to Cloudinary
                 $videoUrl = uploadVideoToCloudinary($base64Video);
                 
-                // If Cloudinary upload failed, fall back to local storage
                 if ($videoUrl === null) {
                     error_log("Cloudinary video upload failed, falling back to local storage");
                     $videoUrl = saveVideoLocally($base64Video);
@@ -490,33 +487,26 @@ try {
         }
     }
 
-    // Convert image array to JSON
+    // Always ensure incident_picture is at least an empty array
     $incident_picture_json = json_encode($uploadedImages);
     
-    // Check if the incident_reports table has the incident_video column
-    $stmt = $conn->prepare("SHOW COLUMNS FROM incident_reports LIKE 'incident_video'");
-    $stmt->execute();
-    $columnExists = $stmt->fetch();
+    // Insert into database with all required fields
+    $stmt = $conn->prepare("INSERT INTO incident_reports (
+        name, title, description, incident_picture, incident_video, 
+        date_submitted, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
     
-    if (!$columnExists) {
-        // Add the column if it doesn't exist
-        $stmt = $conn->prepare("ALTER TABLE incident_reports ADD COLUMN incident_video VARCHAR(255) NULL AFTER incident_picture");
-        $stmt->execute();
-        error_log("Added incident_video column to incident_reports table");
-    }
-
-    // Insert into database (including incident_video field)
-    $stmt = $conn->prepare("INSERT INTO incident_reports (name, title, description, incident_picture, incident_video, date_submitted, status) 
-                           VALUES (?, ?, ?, ?, ?, ?, ?)");
-    
-    if (!$stmt->execute([$name, $title, $description, $incident_picture_json, $uploadedVideo, $date_submitted, $status])) {
+    if (!$stmt->execute([
+        $name, $title, $description, $incident_picture_json, $uploadedVideo,
+        $date_submitted, $status
+    ])) {
         throw new Exception('Database insertion failed: ' . implode(", ", $stmt->errorInfo()));
     }
 
     $response['status'] = 'success';
     $response['message'] = 'Incident report submitted successfully';
-    $response['images'] = $uploadedImages; // Return the image URLs in the response
-    $response['video'] = $uploadedVideo; // Return the video URL in the response
+    $response['images'] = $uploadedImages;
+    $response['video'] = $uploadedVideo;
 
 } catch (Exception $e) {
     error_log("Error in submit_incident_report.php: " . $e->getMessage());
