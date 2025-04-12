@@ -308,11 +308,29 @@ function saveVideoLocally($base64Video) {
         $base64Video = str_replace('data:video/mp4;base64,', '', $base64Video);
         $base64Video = str_replace(' ', '+', $base64Video);
         
+        // Log the length of the base64 string for debugging
+        $base64Length = strlen($base64Video);
+        error_log("Video base64 string length: " . $base64Length);
+        
         // Create directory if it doesn't exist
         $targetDir = $_SERVER['DOCUMENT_ROOT'] . "/storage/uploads/incident_videos/";
         $relativePath = "/storage/uploads/incident_videos/"; // Relative path for database storage
+        
         if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true);
+            if (!mkdir($targetDir, 0777, true)) {
+                error_log("Failed to create directory: " . $targetDir);
+                throw new Exception('Failed to create directory for video storage');
+            } else {
+                // Set permissions explicitly
+                chmod($targetDir, 0777);
+                error_log("Created directory with permissions: " . $targetDir);
+            }
+        }
+        
+        // Check if directory is writable
+        if (!is_writable($targetDir)) {
+            error_log("Directory is not writable: " . $targetDir);
+            throw new Exception('Video upload directory is not writable');
         }
         
         // Generate unique filename
@@ -326,16 +344,39 @@ function saveVideoLocally($base64Video) {
         // Use relative path for database storage
         $databasePath = $relativePath . $filename;
         
-        // Decode and save video
-        $videoData = base64_decode($base64Video);
-        if ($videoData === false) {
-            throw new Exception('Failed to decode base64 video');
-        }
-
-        if (file_put_contents($filepath, $videoData) === false) {
-            throw new Exception('Failed to save video file');
+        // Decode and save video - limit to 100MB
+        $maxSize = 100 * 1024 * 1024; // 100MB in bytes
+        
+        // Check base64 length first (base64 is ~33% larger than binary)
+        if ($base64Length > ($maxSize * 1.33)) {
+            error_log("Video too large: " . $base64Length . " bytes in base64");
+            throw new Exception('Video size exceeds limit (100MB)');
         }
         
+        // Decode base64
+        $videoData = base64_decode($base64Video);
+        if ($videoData === false) {
+            error_log("Failed to decode base64 video data");
+            throw new Exception('Failed to decode base64 video');
+        }
+        
+        // Get actual size of decoded data
+        $videoSize = strlen($videoData);
+        error_log("Decoded video size: " . $videoSize . " bytes");
+        
+        if ($videoSize > $maxSize) {
+            error_log("Decoded video too large: " . $videoSize . " bytes");
+            throw new Exception('Video size exceeds limit (100MB)');
+        }
+        
+        // Try to save the file with error handling
+        $bytesWritten = file_put_contents($filepath, $videoData);
+        if ($bytesWritten === false) {
+            error_log("Failed to write video file: " . error_get_last()['message']);
+            throw new Exception('Failed to save video file: ' . error_get_last()['message']);
+        }
+        
+        error_log("Successfully saved video file: " . $filepath . " (" . $bytesWritten . " bytes)");
         return $databasePath;
     } catch (Exception $e) {
         error_log("Local video storage error: " . $e->getMessage());
