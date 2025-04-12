@@ -55,7 +55,8 @@ $envPath = $_SERVER['DOCUMENT_ROOT'] . '/.env';
 $envLoaded = loadEnv($envPath);
 
 if (!$envLoaded) {
-    error_log("Failed to load environment variables. Using fallback local storage for media.");
+    // Try fallback to Heroku environment variables
+    error_log("Failed to load environment variables from .env file. Using environment variables directly.");
 }
 
 // Function to upload image to Cloudinary
@@ -67,13 +68,15 @@ function uploadImageToCloudinary($base64Image) {
     
     // Check if Cloudinary credentials are available
     if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
-        error_log('Cloudinary credentials not found');
+        error_log('Cloudinary credentials not found. CLOUD_NAME: ' . $cloudName);
         return null;
     }
     
     try {
         // Remove the data URI header if present
-        $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
+        if (strpos($base64Image, 'data:image/jpeg;base64,') === 0) {
+            $base64Image = substr($base64Image, 23);
+        }
         $base64Image = str_replace(' ', '+', $base64Image);
         
         // Decode base64 to binary
@@ -158,7 +161,6 @@ function uploadImageToCloudinary($base64Image) {
 }
 
 // Function to upload video to Cloudinary
-// Enhanced function to upload video to Cloudinary with better error handling
 function uploadVideoToCloudinary($base64Video) {
     $cloudName = getenv('CLOUDINARY_CLOUD_NAME');
     $apiKey = getenv('CLOUDINARY_API_KEY');
@@ -316,24 +318,41 @@ function uploadVideoToCloudinary($base64Video) {
 $response = array();
 
 try {
-    // Get raw POST data
+    // Log all POST data for debugging
+    error_log("POST data received: " . print_r($_POST, true));
+
+    // Try both methods of getting data
     $rawData = file_get_contents('php://input');
     error_log("Raw POST data: " . $rawData);
-    
-    // Parse POST data
-    parse_str($rawData, $postData);
-    error_log("Parsed POST data: " . print_r($postData, true));
 
-    if (!isset($postData['user_id']) || !isset($postData['title']) || !isset($postData['description'])) {
-        throw new Exception('Missing required fields');
+    // Check if we got form data
+    if (!empty($_POST)) {
+        $postData = $_POST;
+        error_log("Using _POST data");
+    } else {
+        // Try to parse as JSON first
+        $jsonData = json_decode($rawData, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $postData = $jsonData;
+            error_log("Using JSON decoded data");
+        } else {
+            // Fall back to parse_str for URL encoded data
+            parse_str($rawData, $postData);
+            error_log("Using parse_str data: " . print_r($postData, true));
+        }
     }
 
+    if (!isset($postData['user_id']) || !isset($postData['title']) || !isset($postData['description'])) {
+        throw new Exception('Missing required fields: user_id, title, or description');
+    }
+
+    error_log("Looking up user: " . $postData['user_id']);
     $stmt = $conn->prepare("SELECT firstName, lastName FROM user_accounts WHERE id = ?");
     $stmt->execute([$postData['user_id']]);
     $user = $stmt->fetch();
 
     if (!$user) {
-        throw new Exception('User not found');
+        throw new Exception('User not found with ID: ' . $postData['user_id']);
     }
 
     $name = $user['firstName'] . ' ' . $user['lastName'];
@@ -344,6 +363,8 @@ try {
     $uploadedImages = array();
     $uploadedVideo = null;
 
+    error_log("Processing media for user: " . $name);
+
     if (!empty($postData['media_data'])) {
         try {
             $mediaData = json_decode($postData['media_data'], true);
@@ -353,6 +374,7 @@ try {
             }
 
             if (isset($mediaData['images']) && is_array($mediaData['images'])) {
+                error_log("Processing " . count($mediaData['images']) . " images");
                 foreach ($mediaData['images'] as $base64Image) {
                     $imageUrl = uploadImageToCloudinary($base64Image);
                     
@@ -365,6 +387,7 @@ try {
             }
 
             if (isset($mediaData['video']) && !empty($mediaData['video'])) {
+                error_log("Processing video");
                 $base64Video = $mediaData['video'];
                 
                 $videoUrl = uploadVideoToCloudinary($base64Video);
@@ -384,6 +407,7 @@ try {
     // Always ensure incident_picture is at least an empty array
     $incident_picture_json = json_encode($uploadedImages);
     
+    error_log("Inserting report into database");
     // Insert into database with all required fields
     $stmt = $conn->prepare("INSERT INTO incident_reports (
         name, title, description, incident_picture, incident_video, 
@@ -394,9 +418,11 @@ try {
         $name, $title, $description, $incident_picture_json, $uploadedVideo,
         $date_submitted, $status
     ])) {
-        throw new Exception('Database insertion failed: ' . implode(", ", $stmt->errorInfo()));
+        $error = $stmt->errorInfo();
+        throw new Exception('Database insertion failed: ' . implode(", ", $error));
     }
 
+    error_log("Report inserted successfully");
     $response['status'] = 'success';
     $response['message'] = 'Incident report submitted successfully';
     $response['images'] = $uploadedImages;
