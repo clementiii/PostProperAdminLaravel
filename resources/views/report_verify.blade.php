@@ -240,12 +240,42 @@
     {{-- End Image Modal --}}
 
     {{-- Video Modal --}}
-    <div x-data="{ open: false, videoSrc: '', videoTitle: '' }" x-cloak
-         @open-video-modal.window="videoSrc = $event.detail.src; videoTitle = $event.detail.title; open = true"
-         @keydown.escape.window="open = false"
-         x-show="open"
-         class="fixed inset-0 z-50 overflow-y-auto"
-         aria-labelledby="video-modal-title" role="dialog" aria-modal="true">
+    <div x-data="{ 
+            open: false, 
+            videoSrc: '', 
+            videoTitle: '',
+            init() {
+                this.$watch('open', value => {
+                    if (!value) {
+                        // When modal closes, get the video and pause it
+                        setTimeout(() => {
+                            const videoEl = this.$el.querySelector('video');
+                            if (videoEl) {
+                                videoEl.pause();
+                                videoEl.currentTime = 0;
+                            }
+                        }, 50);
+                    } else {
+                        // When modal opens, play the video
+                        setTimeout(() => {
+                            const videoEl = this.$el.querySelector('video');
+                            if (videoEl) {
+                                videoEl.load();
+                                videoEl.play().catch(error => {
+                                    console.warn('Video autoplay prevented:', error);
+                                });
+                            }
+                        }, 300);
+                    }
+                });
+            }
+        }" 
+        x-cloak
+        @open-video-modal.window="videoSrc = $event.detail.src; videoTitle = $event.detail.title; open = true"
+        @keydown.escape.window="open = false"
+        x-show="open"
+        class="fixed inset-0 z-50 overflow-y-auto"
+        aria-labelledby="video-modal-title" role="dialog" aria-modal="true">
         {{-- Backdrop --}}
         <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"></div>
         {{-- Modal Content --}}
@@ -262,7 +292,7 @@
                 </div>
                 {{-- Body --}}
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 text-center"> 
-                    <video controls class="max-w-full max-h-[75vh] mx-auto" x-bind:src="videoSrc">
+                    <video controls class="max-w-full max-h-[75vh] mx-auto modal-video" x-bind:src="videoSrc">
                         Your browser does not support the video tag.
                     </video>
                 </div>
@@ -329,36 +359,6 @@
                 }
             });
         }
-        
-        // Alpine.js hooks for video modal handling
-        document.addEventListener('alpine:initialized', () => {
-            window.addEventListener('open-video-modal', (e) => {
-                setTimeout(() => {
-                    const videoModal = document.querySelector('[x-data*="videoSrc"]');
-                    if (videoModal) {
-                        const videoElement = videoModal.querySelector('video');
-                        if (videoElement) {
-                            videoElement.load();
-                            videoElement.play().catch(error => {
-                                console.warn('Video autoplay prevented:', error);
-                            });
-                        }
-                    }
-                }, 100);
-            });
-            
-            window.addEventListener('click', (e) => {
-                if (e.target.closest('[x-data*="videoSrc"] button')) {
-                    const videoModal = e.target.closest('[x-data*="videoSrc"]');
-                    if (videoModal) {
-                        const videoElement = videoModal.querySelector('video');
-                        if (videoElement) {
-                            videoElement.pause();
-                        }
-                    }
-                }
-            });
-        });
     });
 </script>
 @endsection
