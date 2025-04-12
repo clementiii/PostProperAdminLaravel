@@ -13,7 +13,7 @@ class IncidentReport extends Model
     protected $table = 'incident_reports';
 
     protected $fillable = [
-        'id', 'name', 'title', 'description', 'date_submitted', 'status', 'incident_picture', 'resolved_at'
+        'id', 'name', 'title', 'description', 'date_submitted', 'status', 'incident_picture', 'incident_video', 'resolved_at'
     ];
 
     protected $dates = [
@@ -89,6 +89,26 @@ class IncidentReport extends Model
             : $cleanPath;
             
         return $cleanPath;
+    }
+
+    /**
+     * Get the formatted video URL
+     * 
+     * @return string|null
+     */
+    public function getFormattedVideoAttribute()
+    {
+        if (empty($this->incident_video)) {
+            return null;
+        }
+        
+        // If it's a Cloudinary URL, it should already have https at the beginning
+        if (Str::startsWith($this->incident_video, 'http')) {
+            return $this->incident_video;
+        }
+        
+        // If it's stored locally, add the storage path
+        return asset('storage/' . $this->incident_video);
     }
 
     /**

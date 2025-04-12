@@ -28,6 +28,32 @@
         will-change: transform, opacity;
         backface-visibility: hidden;
     }
+    
+    /* Video styles */
+    .video-container {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .video-container .play-button {
+        transition: all 0.3s ease;
+    }
+    
+    .video-container:hover .play-button {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Ensure videos are responsive */
+    video {
+        max-width: 100%;
+    }
+    
+    /* Modal video */
+    video.modal-video {
+        max-height: 70vh;
+        margin: 0 auto;
+    }
 </style>
 @endsection
 
@@ -111,6 +137,29 @@
                 </div>
             </div>
 
+            {{-- Video --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video:</label>
+                <div class="p-2 bg-gray-50 border rounded-md">
+                    @if ($incidentReport->formatted_video)
+                        <div class="video-container relative aspect-video w-full max-w-3xl mx-auto cursor-pointer" 
+                             @click="$dispatch('open-video-modal', { src: '{{ $incidentReport->formatted_video }}', title: 'Incident Video' })">
+                            <video class="w-full h-full rounded-md border shadow-sm hover:opacity-80 transition-opacity">
+                                <source src="{{ $incidentReport->formatted_video }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="bg-purple-800 bg-opacity-75 rounded-full p-4 play-button">
+                                    <i class="fas fa-play text-white text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-gray-500 italic">No video uploaded for this report.</p>
+                    @endif
+                </div>
+            </div>
+
             {{-- Action Buttons --}}
             <div class="pt-4 border-t mt-4">
                 @if (!$incidentReport->isResolved())
@@ -190,6 +239,44 @@
     </div>
     {{-- End Image Modal --}}
 
+    {{-- Video Modal --}}
+    <div x-data="{ open: false, videoSrc: '', videoTitle: '' }" x-cloak
+         @open-video-modal.window="videoSrc = $event.detail.src; videoTitle = $event.detail.title; open = true"
+         @keydown.escape.window="open = false"
+         x-show="open"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         aria-labelledby="video-modal-title" role="dialog" aria-modal="true">
+        {{-- Backdrop --}}
+        <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"></div>
+        {{-- Modal Content --}}
+        <div class="flex items-center justify-center min-h-screen p-4 text-center">
+            <div x-show="open" @click.away="open = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-4xl w-full">
+                {{-- Header --}}
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-between items-center border-b">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="video-modal-title" x-text="videoTitle">Video Preview</h3>
+                    <button @click="open = false" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"> 
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                {{-- Body --}}
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 text-center"> 
+                    <video controls class="max-w-full max-h-[75vh] mx-auto" x-bind:src="videoSrc">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                {{-- Footer --}}
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t"> 
+                    <button @click="open = false" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"> 
+                        Close 
+                    </button> 
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- End Video Modal --}}
+
 </div> {{-- End Main Content x-data --}}
 
 <script>
@@ -242,6 +329,36 @@
                 }
             });
         }
+        
+        // Alpine.js hooks for video modal handling
+        document.addEventListener('alpine:initialized', () => {
+            window.addEventListener('open-video-modal', (e) => {
+                setTimeout(() => {
+                    const videoModal = document.querySelector('[x-data*="videoSrc"]');
+                    if (videoModal) {
+                        const videoElement = videoModal.querySelector('video');
+                        if (videoElement) {
+                            videoElement.load();
+                            videoElement.play().catch(error => {
+                                console.warn('Video autoplay prevented:', error);
+                            });
+                        }
+                    }
+                }, 100);
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target.closest('[x-data*="videoSrc"] button')) {
+                    const videoModal = e.target.closest('[x-data*="videoSrc"]');
+                    if (videoModal) {
+                        const videoElement = videoModal.querySelector('video');
+                        if (videoElement) {
+                            videoElement.pause();
+                        }
+                    }
+                }
+            });
+        });
     });
 </script>
 @endsection
