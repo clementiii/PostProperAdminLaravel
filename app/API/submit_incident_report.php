@@ -227,12 +227,12 @@ function uploadVideoToCloudinary($base64Video) {
         $folder = 'incident_videos';
         $publicId = 'incident_video_' . $timestamp . '_' . bin2hex(random_bytes(4));
         
-        // Build signature parameters
+        // Build signature parameters - REMOVE resource_type from here
         $paramsToSign = array(
             'timestamp' => $timestamp,
             'folder' => $folder,
-            'public_id' => $publicId,
-            'resource_type' => 'video'
+            'public_id' => $publicId
+            // Removed 'resource_type' => 'video' from here
         );
         
         // Sort parameters alphabetically
@@ -254,7 +254,7 @@ function uploadVideoToCloudinary($base64Video) {
         error_log("String to sign: " . $signatureStr);
         error_log("Generated signature: " . $signature);
         
-        // Prepare upload parameters
+        // Prepare upload parameters - include resource_type here
         $postFields = array(
             'file' => new CURLFile($tempFilePath, 'video/mp4', 'video.mp4'),
             'timestamp' => $timestamp,
@@ -262,7 +262,7 @@ function uploadVideoToCloudinary($base64Video) {
             'public_id' => $publicId,
             'api_key' => $apiKey,
             'signature' => $signature,
-            'resource_type' => 'video'
+            'resource_type' => 'video'  // Keep it here in the request
         );
         
         // Initialize cURL
