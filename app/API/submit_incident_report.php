@@ -162,171 +162,105 @@ function uploadVideoToCloudinary($base64Video) {
     $apiKey = getenv('CLOUDINARY_API_KEY');
     $apiSecret = getenv('CLOUDINARY_API_SECRET');
     
+    // Debug environment variables
+    error_log("CLOUDINARY_CLOUD_NAME: " . $cloudName);
+    error_log("CLOUDINARY_API_KEY (length): " . strlen($apiKey));
+    error_log("CLOUDINARY_API_SECRET (length): " . strlen($apiSecret));
+    
     // Check if Cloudinary credentials are available
     if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
-        error_log('Cloudinary credentials not found: Cloud Name: ' . ($cloudName ? 'Yes' : 'No') . 
-                  ', API Key: ' . ($apiKey ? 'Yes' : 'No') . 
-                  ', API Secret: ' . ($apiSecret ? 'Yes' : 'No'));
+        error_log('Cloudinary credentials not found');
         return null;
     }
     
     try {
-        // Log initial attempt
-        error_log('Attempting to upload video to Cloudinary...');
-        
         // Remove the data URI header if present
         if (strpos($base64Video, 'data:video/mp4;base64,') === 0) {
             $base64Video = substr($base64Video, 23); // Remove the prefix
         }
         $base64Video = str_replace(' ', '+', $base64Video);
         
-        // Check the base64 data length
-        $base64Length = strlen($base64Video);
-        error_log("Base64 video length: " . $base64Length . " characters");
-        
-        // Cloudinary has a 100MB upload limit for free accounts
-        $maxBase64Length = 100 * 1024 * 1024 * 1.37; // 100MB in base64 (with overhead)
-        if ($base64Length > $maxBase64Length) {
-            error_log("Video base64 data exceeds Cloudinary limit");
-            // Don't throw an exception, just return null to try the fallback method
-            return null;
-        }
-        
         // Decode base64 to binary
         $videoData = base64_decode($base64Video);
         if ($videoData === false) {
-            error_log("Failed to decode base64 video data");
             throw new Exception('Failed to decode base64 video');
         }
         
-        // Log video size
-        $videoSize = strlen($videoData);
-        error_log("Decoded video size: " . $videoSize . " bytes");
-        
-        // Create a temporary file with proper extension
+        // Create a temporary file
         $tempFile = tempnam(sys_get_temp_dir(), 'cloudinary_video_');
-        $tempFilePath = $tempFile . '.mp4'; // Add proper extension
-        rename($tempFile, $tempFilePath); // Rename to include extension
+        $tempFilePath = $tempFile . '.mp4';
+        rename($tempFile, $tempFilePath);
+        file_put_contents($tempFilePath, $videoData);
         
-        // Write the video data to the temp file
-        $bytesWritten = file_put_contents($tempFilePath, $videoData);
-        if ($bytesWritten === false) {
-            error_log("Failed to write video to temp file: " . error_get_last()['message']);
-            throw new Exception('Failed to create temporary video file');
-        }
-        error_log("Successfully wrote " . $bytesWritten . " bytes to temp file: " . $tempFilePath);
-        
-        // Prepare upload parameters
+        // Prepare upload parameters - SIMPLIFIED FOR ROBUSTNESS
         $timestamp = time();
-        $folder = 'incident_videos'; // Separate folder for videos
+        $folder = 'incident_videos';
         $publicId = 'incident_video_' . $timestamp . '_' . bin2hex(random_bytes(4));
         
-        // Generate signature with more basic parameters first
-        $params = [
-            'folder' => $folder,
-            'public_id' => $publicId,
+        // Generate signature - THIS IS THE KEY FIX
+        // Build the string to sign exactly as Cloudinary expects
+        $paramsToSign = array(
             'timestamp' => $timestamp,
-            'resource_type' => 'video'
-        ];
+            'folder' => $folder,
+            'public_id' => $publicId
+        );
         
-        // Optionally add transformation parameters if needed
-        if (filesize($tempFilePath) > 10 * 1024 * 1024) { // For videos larger than 10MB
-            $params['eager'] = 'q_auto:low,w_640'; // Reduce quality and width
+        ksort($paramsToSign); // Sort parameters alphabetically
+        
+        $signatureStr = '';
+        foreach ($paramsToSign as $key => $value) {
+            $signatureStr .= $key . '=' . $value . '&';
         }
+        $signatureStr = rtrim($signatureStr, '&'); // Remove trailing &
+        $signatureStr .= $apiSecret; // Append the API secret
         
-        ksort($params); // Sort params alphabetically
+        $signature = sha1($signatureStr);
         
-        $signature = '';
-        foreach ($params as $key => $value) {
-            $signature .= $key . '=' . $value . '&';
-        }
-        $signature = rtrim($signature, '&');
-        $signature .= $apiSecret;
-        $signature = sha1($signature);
+        error_log("String to sign: " . $signatureStr);
+        error_log("Generated signature: " . $signature);
         
         // Prepare multipart form data
-        $postFields = [
+        $postFields = array(
             'file' => new CURLFile($tempFilePath, 'video/mp4', 'video.mp4'),
-            'api_key' => $apiKey,
             'timestamp' => $timestamp,
             'folder' => $folder,
             'public_id' => $publicId,
+            'api_key' => $apiKey,
             'signature' => $signature,
             'resource_type' => 'video'
-        ];
+        );
         
-        // Add optional parameters
-        if (isset($params['eager'])) {
-            $postFields['eager'] = $params['eager'];
-        }
-        
-        // Initialize cURL with detailed error handling
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/video/upload");
+        // Initialize cURL
+        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/video/upload");
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5-minute timeout
-        curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output
-        
-        // Create a file to store verbose information
-        $verbose = fopen('php://temp', 'w+');
-        curl_setopt($ch, CURLOPT_STDERR, $verbose);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minute timeout
         
         // Execute request
-        error_log("Sending video upload request to Cloudinary...");
         $response = curl_exec($ch);
         
-        // Check for cURL errors
-        if (curl_errno($ch)) {
-            $curlError = curl_error($ch);
-            error_log('Cloudinary video cURL error: ' . $curlError);
-            
-            // Get verbose information
-            rewind($verbose);
-            $verboseLog = stream_get_contents($verbose);
-            error_log("Curl verbose information: " . $verboseLog);
-            
-            curl_close($ch);
-            unlink($tempFilePath); // Delete the temporary file
-            
-            throw new Exception('Failed to upload video to Cloudinary: ' . $curlError);
+        // Check for errors
+        if(curl_errno($ch)) {
+            throw new Exception('Curl error: ' . curl_error($ch));
         }
         
-        // Get HTTP status code
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        error_log("Cloudinary response HTTP code: " . $httpCode);
-        
         curl_close($ch);
-        unlink($tempFilePath); // Delete the temporary file
+        unlink($tempFilePath); // Clean up
         
-        // Parse JSON response
+        // Check response
         $result = json_decode($response, true);
-        
-        // Log full response for debugging
         error_log("Cloudinary response: " . $response);
         
-        // Check if Cloudinary response contains secure_url
-        if (!isset($result['secure_url'])) {
-            // Log the error details from Cloudinary
+        if ($httpCode != 200 || !isset($result['secure_url'])) {
             $errorMsg = isset($result['error']['message']) ? $result['error']['message'] : 'Unknown error';
-            error_log('Cloudinary video upload failed: ' . $errorMsg);
-            
-            // Try to provide more specific error messages
-            if (isset($result['error']['message'])) {
-                throw new Exception('Cloudinary error: ' . $result['error']['message']);
-            } else {
-                throw new Exception('Cloudinary upload failed without error details');
-            }
+            throw new Exception('Cloudinary upload failed: ' . $errorMsg);
         }
         
-        // Return Cloudinary secure URL for the uploaded video
-        error_log('Successfully uploaded video to Cloudinary: ' . $result['secure_url']);
         return $result['secure_url'];
-        
     } catch (Exception $e) {
         error_log("Cloudinary video upload error: " . $e->getMessage());
-        error_log("Stack trace: " . $e->getTraceAsString());
         return null;
     }
 }
