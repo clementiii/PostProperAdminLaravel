@@ -156,6 +156,10 @@ Route::post('android/incident-reports', function () {
 // Get User Incident Reports
 Route::get('android/user-incident-reports', function () {
     require app_path('API/get_user_incident_reports.php');
+
+});// post user incident reports video
+Route::post('android/incident-reports-video', function () {
+    require app_path('API/upload_video.php');
 });
 
 // update user activity
