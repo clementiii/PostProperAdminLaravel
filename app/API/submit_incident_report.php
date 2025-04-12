@@ -157,7 +157,6 @@ function uploadImageToCloudinary($base64Image) {
 // Function to upload video to Cloudinary
 // Enhanced function to upload video to Cloudinary with better error handling
 function uploadVideoToCloudinary($base64Video) {
-    // Get Cloudinary credentials from environment variables
     $cloudName = getenv('CLOUDINARY_CLOUD_NAME');
     $apiKey = getenv('CLOUDINARY_API_KEY');
     $apiSecret = getenv('CLOUDINARY_API_SECRET');
@@ -167,59 +166,76 @@ function uploadVideoToCloudinary($base64Video) {
     error_log("CLOUDINARY_API_KEY (length): " . strlen($apiKey));
     error_log("CLOUDINARY_API_SECRET (length): " . strlen($apiSecret));
     
-    // Check if Cloudinary credentials are available
     if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
         error_log('Cloudinary credentials not found');
         return null;
     }
     
     try {
-        // Remove the data URI header if present
+        // Clean up the base64 data
         if (strpos($base64Video, 'data:video/mp4;base64,') === 0) {
-            $base64Video = substr($base64Video, 23); // Remove the prefix
+            $base64Video = substr($base64Video, 23);
         }
         $base64Video = str_replace(' ', '+', $base64Video);
+        $base64Video = preg_replace('/\s+/', '', $base64Video); // Remove any whitespace
         
-        // Decode base64 to binary
-        $videoData = base64_decode($base64Video);
-        if ($videoData === false) {
-            throw new Exception('Failed to decode base64 video');
+        // Check if the data is valid base64
+        if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $base64Video)) {
+            error_log("Invalid base64 data");
+            return null;
         }
         
-        // Create a temporary file
-        $tempFile = tempnam(sys_get_temp_dir(), 'cloudinary_video_');
-        $tempFilePath = $tempFile . '.mp4';
-        rename($tempFile, $tempFilePath);
+        // Decode base64 to binary
+        $videoData = base64_decode($base64Video, true);
+        if ($videoData === false) {
+            error_log("Failed to decode base64 video");
+            return null;
+        }
+        
+        // Create a temporary file with .mp4 extension
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'vid_') . '.mp4';
         file_put_contents($tempFilePath, $videoData);
         
-        // Prepare upload parameters - SIMPLIFIED FOR ROBUSTNESS
+        // Check if it's a valid video file by examining first bytes
+        $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($fileInfo, $tempFilePath);
+        finfo_close($fileInfo);
+        
+        error_log("File MIME type: " . $mimeType);
+        
+        if (strpos($mimeType, 'video/') !== 0 && strpos($mimeType, 'application/octet-stream') !== 0) {
+            error_log("Not a valid video file: " . $mimeType);
+            unlink($tempFilePath);
+            return null;
+        }
+        
+        // API call to Cloudinary
         $timestamp = time();
         $folder = 'incident_videos';
         $publicId = 'incident_video_' . $timestamp . '_' . bin2hex(random_bytes(4));
         
-        // Generate signature - THIS IS THE KEY FIX
-        // Build the string to sign exactly as Cloudinary expects
+        // Build signature
         $paramsToSign = array(
             'timestamp' => $timestamp,
             'folder' => $folder,
             'public_id' => $publicId
         );
         
-        ksort($paramsToSign); // Sort parameters alphabetically
+        ksort($paramsToSign);
         
         $signatureStr = '';
         foreach ($paramsToSign as $key => $value) {
             $signatureStr .= $key . '=' . $value . '&';
         }
-        $signatureStr = rtrim($signatureStr, '&'); // Remove trailing &
-        $signatureStr .= $apiSecret; // Append the API secret
+        $signatureStr = rtrim($signatureStr, '&');
+        $signatureStr .= $apiSecret;
         
         $signature = sha1($signatureStr);
         
         error_log("String to sign: " . $signatureStr);
         error_log("Generated signature: " . $signature);
         
-        // Prepare multipart form data
+        // Explicitly set the content type and filename
         $postFields = array(
             'file' => new CURLFile($tempFilePath, 'video/mp4', 'video.mp4'),
             'timestamp' => $timestamp,
@@ -230,32 +246,31 @@ function uploadVideoToCloudinary($base64Video) {
             'resource_type' => 'video'
         );
         
-        // Initialize cURL
         $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/video/upload");
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minute timeout
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
         
-        // Execute request
         $response = curl_exec($ch);
-        
-        // Check for errors
-        if(curl_errno($ch)) {
-            throw new Exception('Curl error: ' . curl_error($ch));
-        }
-        
+        $curlError = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
         curl_close($ch);
         unlink($tempFilePath); // Clean up
         
-        // Check response
-        $result = json_decode($response, true);
+        if ($curlError) {
+            error_log("Curl error: " . $curlError);
+            return null;
+        }
+        
         error_log("Cloudinary response: " . $response);
+        $result = json_decode($response, true);
         
         if ($httpCode != 200 || !isset($result['secure_url'])) {
             $errorMsg = isset($result['error']['message']) ? $result['error']['message'] : 'Unknown error';
-            throw new Exception('Cloudinary upload failed: ' . $errorMsg);
+            error_log("Cloudinary upload failed: " . $errorMsg);
+            return null;
         }
         
         return $result['secure_url'];
