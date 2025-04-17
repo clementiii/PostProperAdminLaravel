@@ -73,8 +73,9 @@ curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/$cloudName/video/
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_VERBOSE, true);
 
-// Prepare multipart form data with transformations
+// Prepare multipart form data
 $postFields = [
     'file' => new CURLFile($file, $fileType, $fileName),
     'timestamp' => $timestamp,
@@ -82,23 +83,7 @@ $postFields = [
     'public_id' => $publicId,
     'api_key' => $apiKey,
     'signature' => $signature,
-    'resource_type' => 'video',
-    // Cloudinary transformations for compression and size reduction
-    'transformation' => [
-        // Resize large videos to max width of 1920px while maintaining aspect ratio
-        'width' => 1920,
-        'height' => 1080,
-        'crop' => 'limit',
-        
-        // Compress video using adaptive bitrate
-        'quality' => 'auto',
-        
-        // Limit video duration to 5 minutes (300 seconds)
-        'duration' => 300,
-        
-        // Convert to H.264 codec for better compatibility
-        'video_codec' => 'h264'
-    ]
+    'resource_type' => 'video'
 ];
 
 curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
