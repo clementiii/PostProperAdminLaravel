@@ -81,7 +81,7 @@ Route::middleware([
         Route::get('/{id}', [DocumentRequestController::class, 'show'])->name('show');
         Route::post('/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])->name('updatePickupStatus');
         Route::put('/{id}', [DocumentRequestController::class, 'update'])->name('update');
-        // Print Barangay Clearance Route (fixed path and name)
+        // Print Barangay Clearance Route - fixed to match the expected name in Blade
         Route::get('/{id}/print-barangay-clearance', [\App\Http\Controllers\DocumentPrintController::class, 'printBarangayClearance'])->name('documents.print.barangay_clearance');
     });
 
