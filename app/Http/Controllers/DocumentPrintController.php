@@ -19,10 +19,20 @@ class DocumentPrintController extends Controller
     public function printBarangayClearance($id)
     {
         $request = DocumentRequest::findOrFail($id);
-        $templatePath = resource_path('docs/barangay_clearance_template.docx');
+
+        // Map document types to template filenames
+        $typeToTemplate = [
+            'Barangay Clearance' => 'barangay_clearance_template.docx',
+            'Certificate of First Time Job Seeker' => 'certificate_of_first_time_job_seeker_template.docx',
+            'Barangay Certification' => 'barangay_certificate_template.docx',
+            'Certificate of Indigency' => 'certificate_of_indigency_template.docx',
+        ];
+        $docType = $request->DocumentType;
+        $templateFile = $typeToTemplate[$docType] ?? 'barangay_clearance_template.docx';
+        $templatePath = resource_path('docs/' . $templateFile);
 
         // Preprocess: Copy template and replace {PLACEHOLDER} with ${PLACEHOLDER}
-        $tempTemplatePath = storage_path('app/barangay_clearance_template_temp_' . uniqid() . '.docx');
+        $tempTemplatePath = storage_path('app/' . pathinfo($templateFile, PATHINFO_FILENAME) . '_temp_' . uniqid() . '.docx');
         copy($templatePath, $tempTemplatePath);
 
         // Use ZipArchive to replace placeholders in the document.xml part of the docx
@@ -74,7 +84,7 @@ class DocumentPrintController extends Controller
         $signature = base64_encode($private->sign($dataToSign));
         $template->setValue('DIGITAL_SIGNATURE', $signature);
 
-        $filename = 'Barangay_Clearance_' . Str::slug($request->Name) . '_' . $request->Id . '.docx';
+        $filename = pathinfo($templateFile, PATHINFO_FILENAME) . '_' . Str::slug($request->Name) . '_' . $request->Id . '.docx';
         $tempPath = storage_path('app/' . $filename);
         $template->saveAs($tempPath);
         // Clean up temp template
