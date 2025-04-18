@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
+use Exception;
 
 class DocumentPrintController extends Controller
 {
@@ -87,24 +88,43 @@ class DocumentPrintController extends Controller
         $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
         $signature = base64_encode($private->sign($dataToSign));
         
-        // Generate QR code from signature
-        // Create the QR code instance
-        $qrCode = new QrCode($signature);
-        
-        // Use the PngWriter to create a PNG image
-        $writer = new PngWriter();
-        $qrResult = $writer->write($qrCode);
-        
-        // Save QR code image
-        $qrImagePath = storage_path('app/qrcode_' . uniqid() . '.png');
-        file_put_contents($qrImagePath, $qrResult->getString());
-        
-        // Add QR code image to document
-        $template->setImageValue('DIGITAL_SIGNATURE', [
-            'path' => $qrImagePath,
-            'width' => 100,
-            'height' => 100,
-        ]);
+        // Check if GD extension is available
+        if (extension_loaded('gd') && function_exists('imagecreate')) {
+            try {
+                // Generate QR code from signature
+                $qrCode = new QrCode($signature);
+                
+                // Use the PngWriter to create a PNG image
+                $writer = new PngWriter();
+                $qrResult = $writer->write($qrCode);
+                
+                // Save QR code image
+                $qrImagePath = storage_path('app/qrcode_' . uniqid() . '.png');
+                file_put_contents($qrImagePath, $qrResult->getString());
+                
+                // Add QR code image to document
+                $template->setImageValue('DIGITAL_SIGNATURE', [
+                    'path' => $qrImagePath,
+                    'width' => 100,
+                    'height' => 100,
+                ]);
+                
+                // Remember to clean up the temp file later
+                $tempQrPath = $qrImagePath;
+            } catch (Exception $e) {
+                // Log the error
+                Log::error('Failed to generate QR code: ' . $e->getMessage());
+                
+                // Fall back to text signature
+                $template->setValue('DIGITAL_SIGNATURE', 'Digital Signature: ' . substr($signature, 0, 40) . '...');
+                $tempQrPath = null;
+            }
+        } else {
+            // GD extension not available, fall back to text signature
+            Log::warning('GD library not available for QR code generation. Using text signature instead.');
+            $template->setValue('DIGITAL_SIGNATURE', 'Digital Signature: ' . substr($signature, 0, 40) . '...');
+            $tempQrPath = null;
+        }
 
         $filename = pathinfo($templateFile, PATHINFO_FILENAME) . '_' . Str::slug($request->Name) . '_' . $request->Id . '.docx';
         $tempPath = storage_path('app/' . $filename);
@@ -112,7 +132,9 @@ class DocumentPrintController extends Controller
         
         // Clean up temp files
         @unlink($tempTemplatePath);
-        @unlink($qrImagePath);
+        if ($tempQrPath) {
+            @unlink($tempQrPath);
+        }
         
         return response()->download($tempPath)->deleteFileAfterSend(true);
     }
