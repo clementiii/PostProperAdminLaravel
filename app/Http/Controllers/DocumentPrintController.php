@@ -105,8 +105,8 @@ class DocumentPrintController extends Controller
                 // Add QR code image to document
                 $template->setImageValue('DIGITAL_SIGNATURE', [
                     'path' => $qrImagePath,
-                    'width' => 100,
-                    'height' => 100,
+                    'width' => 200, // Increased from 100
+                    'height' => 200, // Increased from 100
                 ]);
                 
                 // Remember to clean up the temp file later
