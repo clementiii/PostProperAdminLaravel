@@ -18,10 +18,10 @@ class DocumentPrintController extends Controller
      */
     public function printBarangayClearance($id)
     {
-        // 1. Fetch the document request
+        // Fetch the document request
         $request = DocumentRequest::findOrFail($id);
 
-        // 2. Load the template
+        // Load the template
         $templatePath = resource_path('docs/barangay_clearance_template.docx');
         $template = new TemplateProcessor($templatePath);
 
@@ -33,7 +33,6 @@ class DocumentPrintController extends Controller
         // Format birthdate to a more readable format if available
         $formattedBirthday = $request->birthday ?? '';
         if (!empty($request->birthday) && strpos($request->birthday, '-') !== false) {
-            // Converting MM-DD-YY to Month Day, Year format
             try {
                 $formattedBirthday = Carbon::createFromFormat('m-d-y', $request->birthday)->format('F d, Y');
             } catch (\Exception $e) {
@@ -41,9 +40,21 @@ class DocumentPrintController extends Controller
             }
         }
 
-        // Try different placeholder formats to ensure compatibility with the template
+        // Try multiple placeholder formats to ensure compatibility with the template
         
-        // Format 1: ${NAME}
+        // Try various formats for the problematic fields
+        $tinNo = $request->TIN_No ?? '';
+        $ctcNo = $request->CTC_No ?? '';
+        $purpose = $request->Purpose ?? '';
+        
+        // Detailed logging to diagnose the issue
+        Log::info('Document data for problematic fields:', [
+            'TIN_No' => $tinNo,
+            'CTC_No' => $ctcNo,
+            'Purpose' => $purpose,
+        ]);
+
+        // Format 1: ${PLACEHOLDER}
         $template->setValue('NAME', $request->Name ?? '');
         $template->setValue('AGE', $request->Age ?? '');
         $template->setValue('ADDRESS', $request->Address ?? '');
@@ -51,20 +62,20 @@ class DocumentPrintController extends Controller
         $template->setValue('DATE_OF_BIRTH', $formattedBirthday);
         $template->setValue('ALIAS', $request->Alias ?? '');
         $template->setValue('CIVIL_STATUS', $request->CivilStatus ?? '');
-        $template->setValue('TIN_NO', $request->TIN_No ?? '');
-        $template->setValue('CTC_NO', $request->CTC_No ?? '');
+        $template->setValue('TIN_NO', $tinNo);
+        $template->setValue('CTC_NO', $ctcNo);
         $template->setValue('OCCUPATION', $request->Occupation ?? '');
         $template->setValue('PLACE_OF_BIRTH', $request->PlaceOfBirth ?? '');
         $template->setValue('SEX', $request->Gender ?? '');
-        $template->setValue('PURPOSE', $request->Purpose ?? '');
+        $template->setValue('PURPOSE', $purpose);
         
-        // Document fields not from database
         $template->setValue('ISSUED_ON', Carbon::now()->format('F d, Y'));
         $template->setValue('ISSUE_AT', 'Barangay Post Proper Southside');
         $template->setValue('CURRENT_DATE', Carbon::now()->format('F d, Y'));
 
-        // Format 2: {NAME} - Try alternate format
+        // Try alternative placeholder formats for problematic fields
         try {
+            // Format 2: {PLACEHOLDER}
             $template->setValue('{NAME}', $request->Name ?? '');
             $template->setValue('{AGE}', $request->Age ?? '');
             $template->setValue('{ADDRESS}', $request->Address ?? '');
@@ -72,48 +83,61 @@ class DocumentPrintController extends Controller
             $template->setValue('{DATE_OF_BIRTH}', $formattedBirthday);
             $template->setValue('{ALIAS}', $request->Alias ?? '');
             $template->setValue('{CIVIL_STATUS}', $request->CivilStatus ?? '');
-            $template->setValue('{TIN_NO}', $request->TIN_No ?? '');
-            $template->setValue('{CTC_NO}', $request->CTC_No ?? '');
+            $template->setValue('{TIN_NO}', $tinNo);
+            $template->setValue('{CTC_NO}', $ctcNo);
             $template->setValue('{OCCUPATION}', $request->Occupation ?? '');
             $template->setValue('{PLACE_OF_BIRTH}', $request->PlaceOfBirth ?? '');
             $template->setValue('{SEX}', $request->Gender ?? '');
-            $template->setValue('{PURPOSE}', $request->Purpose ?? '');
+            $template->setValue('{PURPOSE}', $purpose);
             
             $template->setValue('{ISSUED_ON}', Carbon::now()->format('F d, Y'));
             $template->setValue('{ISSUE_AT}', 'Barangay Post Proper Southside');
             $template->setValue('{CURRENT_DATE}', Carbon::now()->format('F d, Y'));
         } catch (\Exception $e) {
-            // Ignore errors for this format if not found
+            Log::warning('Failed to set placeholders using {PLACEHOLDER} format: ' . $e->getMessage());
+        }
+
+        try {
+            // Format 3: ${placeholder} - case-sensitive match issues are common
+            $template->setValue('${TIN_NO}', $tinNo);
+            $template->setValue('${CTC_NO}', $ctcNo);
+            $template->setValue('${PURPOSE}', $purpose);
+        } catch (\Exception $e) {
+            Log::warning('Failed to set placeholders using ${PLACEHOLDER} format: ' . $e->getMessage());
+        }
+
+        try {
+            // Format 4: «PLACEHOLDER» (used in some Word templates)
+            $template->setValue('«TIN_NO»', $tinNo);
+            $template->setValue('«CTC_NO»', $ctcNo);
+            $template->setValue('«PURPOSE»', $purpose);
+        } catch (\Exception $e) {
+            Log::warning('Failed to set placeholders using «PLACEHOLDER» format: ' . $e->getMessage());
+        }
+
+        try {
+            // Format 5: Try lowercase versions
+            $template->setValue('tin_no', $tinNo);
+            $template->setValue('ctc_no', $ctcNo);
+            $template->setValue('purpose', $purpose);
+        } catch (\Exception $e) {
+            Log::warning('Failed to set placeholders using lowercase format: ' . $e->getMessage());
         }
         
-        // 4. Generate a digital signature
+        // Generate digital signature
         $private = RSA::createKey(2048);
-        $public = $private->getPublicKey();
         $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
         $signature = base64_encode($private->sign($dataToSign));
         
-        // Try both formats for signature
+        // Set signature with multiple formats
         $template->setValue('DIGITAL_SIGNATURE', $signature);
-        try {
-            $template->setValue('{DIGITAL_SIGNATURE}', $signature);
-        } catch (\Exception $e) {
-            // Ignore errors if not found
-        }
-        
-        // For debugging - log the values being set
-        Log::info('Template values for Barangay Clearance:', [
-            'Name' => $request->Name,
-            'Address' => $request->Address,
-            'Template Path' => $templatePath,
-            'CTC_No' => $request->CTC_No
-        ]);
+        try { $template->setValue('{DIGITAL_SIGNATURE}', $signature); } catch (\Exception $e) {}
 
-        // 6. Save the generated document to a temp location
+        // Save the generated document
         $filename = 'Barangay_Clearance_' . Str::slug($request->Name) . '_' . $request->Id . '.docx';
         $tempPath = storage_path('app/' . $filename);
         $template->saveAs($tempPath);
 
-        // 7. Return the file as a download
         return response()->download($tempPath)->deleteFileAfterSend(true);
     }
 }
