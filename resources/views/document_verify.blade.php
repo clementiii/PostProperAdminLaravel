@@ -138,7 +138,13 @@
                 <h2 class="text-2xl font-semibold text-purple-800 text-center flex-grow">Document Verification
                     (TXN-{{ $documentRequest->Id }})</h2>
                 {{-- Placeholder for potential actions on the right --}}
-                <div class="w-[80px]"></div>
+                <div class="w-[80px] flex justify-end">
+                    <a href="{{ route('documents.print.barangay_clearance', $documentRequest->Id) }}"
+                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-150 ease-in-out text-sm"
+                       target="_blank">
+                        <i class="fas fa-print mr-2"></i> Print Barangay Clearance
+                    </a>
+                </div>
             </div>
 
             {{-- Display Validation Errors --}}

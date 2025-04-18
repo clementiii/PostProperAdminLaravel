@@ -81,6 +81,8 @@ Route::middleware([
         Route::get('/{id}', [DocumentRequestController::class, 'show'])->name('show');
         Route::post('/updatePickupStatus', [DocumentRequestController::class, 'updatePickupStatus'])->name('updatePickupStatus');
         Route::put('/{id}', [DocumentRequestController::class, 'update'])->name('update');
+        // Print Barangay Clearance Route
+        Route::get('/documents/{id}/print-barangay-clearance', [\App\Http\Controllers\DocumentPrintController::class, 'printBarangayClearance'])->name('documents.print.barangay_clearance');
     });
 
     Route::prefix('document-requests')->group(function () {
