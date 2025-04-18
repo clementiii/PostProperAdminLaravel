@@ -29,9 +29,9 @@ class DocumentPrintController extends Controller
         $zip = new \ZipArchive();
         if ($zip->open($tempTemplatePath) === TRUE) {
             $xml = $zip->getFromName('word/document.xml');
-            // Replace {PLACEHOLDER} with ${PLACEHOLDER} (with spaces)
+            // Replace {PLACEHOLDER} with ${PLACEHOLDER} (with underscores)
             $fields = [
-                'NAME','AGE','ADDRESS','LENGTH OF STAY','DATE OF BIRTH','ALIAS','CIVIL STATUS','TIN NO','CTC_NO','OCCUPATION','PLACE OF BIRTH','SEX','PURPOSE','CURRENT_DATE','ISSUED_ON','ISSUE_AT','DIGITAL_SIGNATURE'
+                'NAME','AGE','ADDRESS','LENGTH_OF_STAY','DATE_OF_BIRTH','ALIAS','CIVIL_STATUS','TIN_NO','CTC_NO','OCCUPATION','PLACE_OF_BIRTH','SEX','PURPOSE','CURRENT_DATE','ISSUED_ON','ISSUE_AT','DIGITAL_SIGNATURE'
             ];
             foreach ($fields as $field) {
                 $xml = str_replace('{' . $field . '}', '${' . $field . '}', $xml);
@@ -52,18 +52,18 @@ class DocumentPrintController extends Controller
             }
         }
 
-        // Fill values (use spaces in keys)
+        // Fill values (use underscores in keys)
         $template->setValue('NAME', $request->Name ?? '');
         $template->setValue('AGE', $request->Age ?? '');
         $template->setValue('ADDRESS', $request->Address ?? '');
-        $template->setValue('LENGTH OF STAY', $request->LengthOfStay ?? '');
-        $template->setValue('DATE OF BIRTH', $formattedBirthday);
+        $template->setValue('LENGTH_OF_STAY', $request->LengthOfStay ?? '');
+        $template->setValue('DATE_OF_BIRTH', $formattedBirthday);
         $template->setValue('ALIAS', $request->Alias ?? '');
-        $template->setValue('CIVIL STATUS', $request->CivilStatus ?? '');
-        $template->setValue('TIN NO', $request->TIN_No ?? '');
+        $template->setValue('CIVIL_STATUS', $request->CivilStatus ?? '');
+        $template->setValue('TIN_NO', $request->TIN_No ?? '');
         $template->setValue('CTC_NO', $request->CTC_No ?? '');
         $template->setValue('OCCUPATION', $request->Occupation ?? '');
-        $template->setValue('PLACE OF BIRTH', $request->PlaceOfBirth ?? '');
+        $template->setValue('PLACE_OF_BIRTH', $request->PlaceOfBirth ?? '');
         $template->setValue('SEX', $request->Gender ?? '');
         $template->setValue('PURPOSE', $request->Purpose ?? '');
         $template->setValue('CURRENT_DATE', Carbon::now()->format('F d, Y'));
