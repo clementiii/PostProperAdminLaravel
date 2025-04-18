@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class DocumentPrintController extends Controller
 {
@@ -79,16 +81,39 @@ class DocumentPrintController extends Controller
         $template->setValue('CURRENT_DATE', Carbon::now()->format('F d, Y'));
         $template->setValue('ISSUED_ON', Carbon::now()->format('F d, Y'));
         $template->setValue('ISSUE_AT', 'Barangay Post Proper Southside');
+        
+        // Generate RSA signature
         $private = RSA::createKey(2048);
         $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
         $signature = base64_encode($private->sign($dataToSign));
-        $template->setValue('DIGITAL_SIGNATURE', $signature);
+        
+        // Generate QR code from signature
+        // Create the QR code instance
+        $qrCode = new QrCode($signature);
+        
+        // Use the PngWriter to create a PNG image
+        $writer = new PngWriter();
+        $qrResult = $writer->write($qrCode);
+        
+        // Save QR code image
+        $qrImagePath = storage_path('app/qrcode_' . uniqid() . '.png');
+        file_put_contents($qrImagePath, $qrResult->getString());
+        
+        // Add QR code image to document
+        $template->setImageValue('DIGITAL_SIGNATURE', [
+            'path' => $qrImagePath,
+            'width' => 100,
+            'height' => 100,
+        ]);
 
         $filename = pathinfo($templateFile, PATHINFO_FILENAME) . '_' . Str::slug($request->Name) . '_' . $request->Id . '.docx';
         $tempPath = storage_path('app/' . $filename);
         $template->saveAs($tempPath);
-        // Clean up temp template
+        
+        // Clean up temp files
         @unlink($tempTemplatePath);
+        @unlink($qrImagePath);
+        
         return response()->download($tempPath)->deleteFileAfterSend(true);
     }
 }
