@@ -52,7 +52,8 @@ class DocumentVerificationController extends Controller
                     'birthday' => $document->birthday,
                     'purpose' => $document->Purpose,
                     'issued_date' => $document->created_at,
-                    'verified' => true
+                    'verified' => true,
+                    'signature' => $signature
                 ]
             ]);
         } else {
