@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Exception;
@@ -88,6 +89,16 @@ class DocumentPrintController extends Controller
         $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
         $signature = base64_encode($private->sign($dataToSign));
         
+        // Store the signature in the database for future verification
+        $signatureHash = hash('sha256', $signature);
+        DB::table('document_signatures')->insert([
+            'document_request_id' => $request->Id,
+            'signature_data' => $signature,
+            'signature_hash' => $signatureHash,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
         // Check if GD extension is available
         if (extension_loaded('gd') && function_exists('imagecreate')) {
             try {
@@ -105,8 +116,8 @@ class DocumentPrintController extends Controller
                 // Add QR code image to document
                 $template->setImageValue('DIGITAL_SIGNATURE', [
                     'path' => $qrImagePath,
-                    'width' => 200, // Increased from 100
-                    'height' => 200, // Increased from 100
+                    'width' => 180,
+                    'height' => 180,
                 ]);
                 
                 // Remember to clean up the temp file later

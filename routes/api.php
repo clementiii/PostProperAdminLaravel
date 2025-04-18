@@ -171,3 +171,6 @@ Route::post('android/update_user_activity', function () {
 Route::get('android/get_announcements', function () {
     require app_path('API/get_announcements.php');
 });
+
+// Document Verification API
+Route::post('android/verify-document', 'App\Http\Controllers\API\DocumentVerificationController@verify');
