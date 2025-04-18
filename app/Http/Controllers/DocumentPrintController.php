@@ -23,7 +23,7 @@ class DocumentPrintController extends Controller
         // Map document types to template filenames
         $typeToTemplate = [
             'Barangay Clearance' => 'barangay_clearance_template.docx',
-            'Certificate of First Time Job Seeker' => 'certificate_of_first_time_job_seeker_template.docx',
+            'First Time Job Certificate' => 'certificate_of_first_time_job_seeker_template.docx',
             'Barangay Certification' => 'barangay_certificate_template.docx',
             'Certificate of Indigency' => 'certificate_of_indigency_template.docx',
         ];
