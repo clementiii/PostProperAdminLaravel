@@ -40,60 +40,40 @@ class DocumentPrintController extends Controller
             }
         }
         
-        // Log detailed information about the template and values for debugging
-        Log::info('Template path: ' . $templatePath);
-        Log::info('Document request data:', [
-            'id' => $id,
+        // Log information about what we're doing
+        Log::info('Processing barangay clearance for document request #' . $id, [
             'Name' => $request->Name,
-            'TIN_No' => $request->TIN_No,
+            'TIN_No' => $request->TIN_No, 
             'CTC_No' => $request->CTC_No,
-            'Purpose' => $request->Purpose,
+            'Purpose' => $request->Purpose
         ]);
-        
-        // IMPORTANT: Based on the template format, use ONLY the {PLACEHOLDER} format
-        // Focus specifically on the problematic fields
+
         try {
-            // Set all values with {PLACEHOLDER} format
-            $template->setValue('{NAME}', $request->Name ?? '');
-            $template->setValue('{AGE}', $request->Age ?? '');
-            $template->setValue('{ADDRESS}', $request->Address ?? '');
-            $template->setValue('{LENGTH_OF_STAY}', $request->LengthOfStay ?? '');
-            $template->setValue('{DATE_OF_BIRTH}', $formattedBirthday);
-            $template->setValue('{ALIAS}', $request->Alias ?? '');
-            $template->setValue('{CIVIL_STATUS}', $request->CivilStatus ?? '');
-            // Special handling for problematic fields
-            $template->setValue('{TIN_NO}', $request->TIN_No ?? '');  // Make sure this exactly matches the template
-            $template->setValue('{CTC_NO}', $request->CTC_No ?? '');  // Make sure this exactly matches the template
-            $template->setValue('{OCCUPATION}', $request->Occupation ?? '');
-            $template->setValue('{PLACE_OF_BIRTH}', $request->PlaceOfBirth ?? '');
-            $template->setValue('{SEX}', $request->Gender ?? '');
-            $template->setValue('{PURPOSE}', $request->Purpose ?? ''); // Make sure this exactly matches the template
+            // Personal details
+            $template->setValue('NAME', $request->Name ?? '');
+            $template->setValue('AGE', $request->Age ?? '');
+            $template->setValue('ADDRESS', $request->Address ?? '');
+            $template->setValue('LENGTH_OF_STAY', $request->LengthOfStay ?? '');
+            $template->setValue('DATE_OF_BIRTH', $formattedBirthday);
+            $template->setValue('ALIAS', $request->Alias ?? '');
+            $template->setValue('CIVIL_STATUS', $request->CivilStatus ?? '');
+            $template->setValue('TIN_NO', $request->TIN_No ?? '');
+            $template->setValue('CTC_NO', $request->CTC_No ?? '');
+            $template->setValue('OCCUPATION', $request->Occupation ?? '');
+            $template->setValue('PLACE_OF_BIRTH', $request->PlaceOfBirth ?? '');
+            $template->setValue('SEX', $request->Gender ?? '');
+            $template->setValue('PURPOSE', $request->Purpose ?? '');
             
             // Non-database fields
-            $template->setValue('{ISSUED_ON}', Carbon::now()->format('F d, Y'));
-            $template->setValue('{ISSUE_AT}', 'Barangay Post Proper Southside');
-            $template->setValue('{CURRENT_DATE}', Carbon::now()->format('F d, Y'));
+            $template->setValue('CURRENT_DATE', Carbon::now()->format('F d, Y'));
+            $template->setValue('ISSUED_ON', Carbon::now()->format('F d, Y'));
+            $template->setValue('ISSUE_AT', 'Barangay Post Proper Southside');
             
             // Generate digital signature
             $private = RSA::createKey(2048);
             $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
             $signature = base64_encode($private->sign($dataToSign));
-            $template->setValue('{DIGITAL_SIGNATURE}', $signature);
-            
-            // Also try with exact case matching on the problematic fields
-            // Sometimes Word templates use inconsistent casing
-            if ($request->TIN_No) {
-                $template->setValue('{tin_no}', $request->TIN_No);
-                $template->setValue('{Tin_No}', $request->TIN_No);
-            }
-            if ($request->CTC_No) {
-                $template->setValue('{ctc_no}', $request->CTC_No);
-                $template->setValue('{Ctc_No}', $request->CTC_No);
-            }
-            if ($request->Purpose) {
-                $template->setValue('{purpose}', $request->Purpose);
-                $template->setValue('{Purpose}', $request->Purpose);
-            }
+            $template->setValue('DIGITAL_SIGNATURE', $signature);
             
         } catch (\Exception $e) {
             Log::error('Error setting template values: ' . $e->getMessage());
