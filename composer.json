@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-gd": "*",
         "cloudinary-labs/cloudinary-laravel": "*",
         "endroid/qr-code": "^6.0",
         "laravel/framework": "^11.31",
