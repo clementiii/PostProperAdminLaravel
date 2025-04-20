@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ChatController;
 
 // Android Login 
 Route::post('android/login', function() {
@@ -174,3 +175,8 @@ Route::get('android/get_announcements', function () {
 
 // Document Verification API
 Route::post('android/verify-document', 'App\Http\Controllers\API\DocumentVerificationController@verify');
+
+Route::get('/chat/messages', [ChatController::class, 'getMessages'])->name('api.chat.messages.index');
+Route::post('/chat/messages', [ChatController::class, 'sendMessage'])->name('api.chat.messages.store');
+// This is the route causing the 404
+Route::get('/chat/messages/new', [ChatController::class, 'checkNewMessages'])->name('api.chat.messages.checkNew');

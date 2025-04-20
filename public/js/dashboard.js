@@ -1,7 +1,8 @@
+// jQuery part for modal - Remains unchanged
 $(document).ready(function () {
     $(".view-btn").on("click", function () {
         let requestId = $(this).data("id");
-        
+
         console.log("Fetching document details for ID:", requestId);
 
         $.ajax({
@@ -10,7 +11,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (data) {
                 console.log("Response data:", data);
-                
+
                 // Populate modal fields
                 $("#modalTxnId").text(
                     data.Id ? `TXN-${data.Id}` : "TXN-undefined"
@@ -27,85 +28,95 @@ $(document).ready(function () {
                     const totalPrice = 50 * quantity;
                     $("#modalPrice").text(`₱${totalPrice.toFixed(2)}`);
                 }
-                
+
                 // Set the status with proper capitalization
-                const status = data.Status ? data.Status.charAt(0).toUpperCase() + data.Status.slice(1).toLowerCase() : "N/A";
+                const status = data.Status
+                    ? data.Status.charAt(0).toUpperCase() +
+                      data.Status.slice(1).toLowerCase()
+                    : "N/A";
                 $("#modalStatus").text(status);
-                
+
                 // Update status class
                 const statusColors = {
                     pending: "bg-yellow-100 text-yellow-800",
                     overdue: "bg-red-100 text-red-800",
                     rejected: "bg-gray-200 text-gray-700",
                     approved: "bg-green-100 text-green-800",
-                    cancelled: "bg-gray-300 text-gray-600"
+                    cancelled: "bg-gray-300 text-gray-600",
                 };
-                
+
                 // Get lowercase status for comparison
                 const statusLower = (data.Status || "").toLowerCase();
-                
+
                 // Remove all possible status classes before applying the new one
                 $("#modalStatusContainer")
                     .removeClass()
                     .addClass(
                         `text-sm font-semibold px-3 py-1 rounded-full ${
-                            statusColors[statusLower] || "bg-gray-100 text-gray-800"
+                            statusColors[statusLower] ||
+                            "bg-gray-100 text-gray-800"
                         }`
                     );
-                
+
                 // Add pickup status badge if document is approved
-                if (statusLower === 'approved') {
-                    const pickupStatus = data.pickup_status || 'pending';
-                    const isPickedUp = pickupStatus === 'picked_up';
-                    const pickupText = isPickedUp ? 'Picked Up' : 'Awaiting Pickup';
-                    const pickupClass = isPickedUp ? 'bg-purple-200 text-purple-800' : 'bg-blue-200 text-blue-800';
-                    
+                if (statusLower === "approved") {
+                    const pickupStatus = data.pickup_status || "pending";
+                    const isPickedUp = pickupStatus === "picked_up";
+                    const pickupText = isPickedUp
+                        ? "Picked Up"
+                        : "Awaiting Pickup";
+                    const pickupClass = isPickedUp
+                        ? "bg-purple-200 text-purple-800"
+                        : "bg-blue-200 text-blue-800";
+
                     // Create or update pickup status badge
-                    if ($('#modalPickupStatus').length) {
-                        $('#modalPickupStatus')
+                    if ($("#modalPickupStatus").length) {
+                        $("#modalPickupStatus")
                             .text(pickupText)
                             .removeClass()
-                            .addClass(`text-sm font-semibold px-3 py-1 rounded-full ${pickupClass}`);
+                            .addClass(
+                                `text-sm font-semibold px-3 py-1 rounded-full ${pickupClass}`
+                            );
                     } else {
-                        $('#modalStatusContainer').after(
+                        $("#modalStatusContainer").after(
                             `<span id="modalPickupStatus" class="text-sm font-semibold px-3 py-1 rounded-full ${pickupClass} ml-2">${pickupText}</span>`
                         );
                     }
-                } else if ($('#modalPickupStatus').length) {
+                } else if ($("#modalPickupStatus").length) {
                     // Remove pickup status badge if document is not approved
-                    $('#modalPickupStatus').remove();
+                    $("#modalPickupStatus").remove();
                 }
-                
+
                 // Format dates properly
                 const formatDate = (dateString) => {
                     if (!dateString) return "N/A";
-                    
+
                     try {
                         // Parse the date (works with both ISO format and already formatted dates)
                         const date = new Date(dateString);
-                        
+
                         // Check if date is valid
                         if (isNaN(date.getTime())) return dateString;
-                        
+
                         // Format the date: Month Day, Year Hour:Minute AM/PM
-                        const options = { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                        const options = {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                         };
-                        
-                        return date.toLocaleDateString('en-US', options);
+
+                        return date.toLocaleDateString("en-US", options);
                     } catch (e) {
                         console.error("Error formatting date:", e);
                         return dateString;
                     }
                 };
-                
+
                 // Set formatted date
                 $("#modalDate").text(formatDate(data.DateRequested));
-                
+
                 $("#modalName").text(data.Name || "N/A");
                 $("#modalGender").text(data.Gender || "N/A");
                 $("#modalCivilStatus").text(data.CivilStatus || "N/A");
@@ -120,12 +131,17 @@ $(document).ready(function () {
                 console.error("Error fetching document details:", error);
                 console.error("Status:", status);
                 console.error("Response:", xhr.responseText);
-                
+
                 try {
                     const errorData = JSON.parse(xhr.responseText);
-                    alert(errorData.error || "Error fetching document request details.");
+                    alert(
+                        errorData.error ||
+                            "Error fetching document request details."
+                    );
                 } catch (e) {
-                    alert("Error fetching document request details. Please try again later.");
+                    alert(
+                        "Error fetching document request details. Please try again later."
+                    );
                 }
             },
         });
@@ -139,7 +155,7 @@ $(document).ready(function () {
     // Close modal when clicking outside of it
     $(document).on("click", function (event) {
         const modal = $("#modal");
-        const modalContent = $(".modal-content"); 
+        const modalContent = $(".modal-content");
         if (
             modal.is(":visible") &&
             !$(event.target).closest(modalContent).length &&
@@ -157,21 +173,68 @@ $(document).ready(function () {
     window.closeModal = closeModal;
 });
 
+// Vanilla JS part for fetching dashboard data - MODIFIED
 document.addEventListener("DOMContentLoaded", function () {
     function fetchDashboardData() {
         fetch("/dashboard/fetch-data")
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("residentsCount").textContent =
-                    data.registeredResidents;
-                document.getElementById("pendingDocsCount").textContent =
-                    data.pendingDocuments;
-                document.getElementById("incidentCount").textContent =
-                    data.incidentReports;
+            .then((response) => {
+                // Check for server errors first
+                if (!response.ok) {
+                    // If server error, don't try to parse as JSON, just throw
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // Only attempt to parse as JSON if response is OK
+                return response.json();
             })
-            .catch((error) => console.error("Error fetching data:", error));
+            .then((data) => {
+                // ** FIX: Check if elements exist before setting textContent **
+                const residentsCountEl =
+                    document.getElementById("residentsCount");
+                if (residentsCountEl) {
+                    residentsCountEl.textContent = data.registeredResidents;
+                } else {
+                    // Optional: Log if element not found on current page
+                    // console.log("Element #residentsCount not found on this page.");
+                }
+
+                const pendingDocsCountEl =
+                    document.getElementById("pendingDocsCount");
+                if (pendingDocsCountEl) {
+                    pendingDocsCountEl.textContent = data.pendingDocuments;
+                } else {
+                    // console.log("Element #pendingDocsCount not found on this page.");
+                }
+
+                const incidentCountEl =
+                    document.getElementById("incidentCount");
+                if (incidentCountEl) {
+                    incidentCountEl.textContent = data.incidentReports;
+                } else {
+                    // console.log("Element #incidentCount not found on this page.");
+                }
+            })
+            .catch((error) => {
+                // Log the actual error, including potential JSON parsing errors or HTTP errors
+                console.error(
+                    "Error fetching or processing dashboard data:",
+                    error
+                );
+                // Avoid alerting the user on every poll failure, just log it.
+                // alert(`Error updating dashboard: ${error.message}`);
+            });
     }
 
-    // Fetch data every 10 seconds
-    setInterval(fetchDashboardData, 10000);
+    // ** FIX: Check if a specific dashboard element exists before starting interval **
+    if (document.getElementById("residentsCount")) {
+        // Check if we are on the dashboard page
+        fetchDashboardData(); // Initial fetch
+        // Fetch data every 10 seconds
+        setInterval(fetchDashboardData, 10000); // Kept original 10 seconds interval
+        console.log("Dashboard polling started.");
+    } else {
+        // Log that polling is skipped on other pages
+        console.log(
+            "Not on the main dashboard page, skipping dashboard data polling."
+        );
+    }
 });

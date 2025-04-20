@@ -25,6 +25,24 @@ class UserAccount extends Model
     ];
     
     /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute()
+    {
+        return "{$this->firstName} {$this->lastName}";
+    }
+    
+    /**
+     * Get the messages associated with the user.
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+    
+    /**
      * Get the user's profile picture.
      *
      * @return string

@@ -116,11 +116,14 @@ Route::middleware([
         return "Desk Support Page (Coming Soon)";
     })->name('desk_support.index');
 
-    // Help Desk Routes
-    Route::prefix('help-desk')->group(function () {
-        Route::get('/', [HelpDeskController::class, 'index'])->name('help_desk.index');
-        Route::post('/send-message', [HelpDeskController::class, 'sendMessage'])->name('help_desk.send_message');
-        Route::get('/get-messages', [HelpDeskController::class, 'getMessages'])->name('help_desk.get_messages');
-    });
+ // Help Desk Routes
+ Route::prefix('help-desk')->name('help_desk.')->group(function () { // Added name prefix for consistency
+    Route::get('/', [HelpDeskController::class, 'index'])->name('index');
+    Route::post('/send-message', [HelpDeskController::class, 'sendMessage'])->name('send_message');
+    Route::get('/get-messages', [HelpDeskController::class, 'getMessages'])->name('get_messages'); // Potentially unused
+    Route::get('/user-messages', [HelpDeskController::class, 'getUserMessages'])->name('user_messages');
 
+    // ** ADD THIS ROUTE FOR POLLING **
+    Route::get('/check-new-messages', [HelpDeskController::class, 'checkNewMessages'])->name('check_new_messages');
+});
 });

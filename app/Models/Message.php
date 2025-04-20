@@ -20,15 +20,22 @@ class Message extends Model
         'is_admin' => 'boolean'
     ];
 
+    // No timestamps as we're using the timestamp column
     public $timestamps = false;
 
+    /**
+     * Get the user who sent this message
+     */
     public function sender()
     {
         return $this->belongsTo(UserAccount::class, 'sender_id');
     }
 
+    /**
+     * Get the admin associated with this message
+     */
     public function admin()
     {
-        return $this->belongsTo(Admin::class, 'admin_id');
+        return $this->belongsTo(AdminAccount::class, 'admin_id');
     }
-} 
+}
