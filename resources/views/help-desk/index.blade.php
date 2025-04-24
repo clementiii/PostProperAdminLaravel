@@ -14,7 +14,7 @@
             <div class="w-1/4 border-r border-gray-200 h-full flex flex-col">
                 <div class="p-4 border-b"> <input type="text" id="user-search-input" placeholder="Search users..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"> </div>
                 <div class="flex-1 overflow-y-auto" id="users-container">
-                    @forelse($usersWithMessages as $user)
+                    @forelse($allUsers as $user)
                         <div id="user-item-{{ $user->id }}" class="user-chat-item p-3 border-b hover:bg-purple-100 cursor-pointer transition duration-150 ease-in-out" data-user-id="{{ $user->id }}" data-user-name="{{ e($user->firstName . ' ' . $user->lastName) }}">
                             <div class="flex items-center">
                                 <img src="{{ $user->getProfilePictureUrl() ?: 'https://ui-avatars.com/api/?name='.urlencode($user->firstName.'+'.$user->lastName).'&background=random' }}" alt="{{ $user->firstName }}" class="w-10 h-10 rounded-full mr-3 object-cover flex-shrink-0">

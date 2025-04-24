@@ -12,11 +12,15 @@ use Carbon\Carbon;
 
 class HelpDeskController extends Controller
 {
-    // --- index() method remains the same (with previous optimizations) ---
+    /**
+     * Display the help desk index page with ALL users.
+     * Users are ordered alphabetically. Latest message details are included if available.
+     */
     public function index()
     {
-        // Refined query to fetch users, their latest message details, and order by latest message time
-        $usersWithMessages = UserAccount::select('user_accounts.*')
+        // ** FIX: Fetch ALL users, not just those with messages **
+        $allUsers = UserAccount::select('user_accounts.*')
+            // Subquery to get latest timestamp (will be NULL if no messages)
             ->selectSub(function ($query) {
                 $query->select('timestamp')
                     ->from('messages')
@@ -24,6 +28,7 @@ class HelpDeskController extends Controller
                     ->orWhere(function($subQuery) { $subQuery->whereColumn('messages.sender_id', 'user_accounts.id')->where('messages.is_admin', 1); })
                     ->orderBy('timestamp', 'desc')->limit(1);
             }, 'last_message_time_ts')
+             // Subquery to get latest message text (will be NULL if no messages)
             ->selectSub(function ($query) {
                 $query->select('message')
                     ->from('messages')
@@ -31,6 +36,7 @@ class HelpDeskController extends Controller
                     ->orWhere(function($subQuery) { $subQuery->whereColumn('messages.sender_id', 'user_accounts.id')->where('messages.is_admin', 1); })
                     ->orderBy('timestamp', 'desc')->limit(1);
             }, 'latest_message_text')
+             // Subquery to check if latest message was from admin (will be NULL if no messages)
              ->selectSub(function ($query) {
                 $query->select('is_admin')
                     ->from('messages')
@@ -38,16 +44,19 @@ class HelpDeskController extends Controller
                     ->orWhere(function($subQuery) { $subQuery->whereColumn('messages.sender_id', 'user_accounts.id')->where('messages.is_admin', 1); })
                     ->orderBy('timestamp', 'desc')->limit(1);
             }, 'latest_message_is_admin')
-            ->whereExists(function ($query) {
-                 $query->select(DB::raw(1)) ->from('messages')
-                       ->where(function($subQuery) { $subQuery->whereColumn('messages.sender_id', 'user_accounts.id'); });
-            })
-            ->orderByDesc('last_message_time_ts')
+            // ** FIX: Removed the whereExists clause that filtered users **
+            // ->whereExists(...) // <-- REMOVED
+
+            // ** FIX: Changed ordering to alphabetical **
+            ->orderBy('firstName', 'asc')
+            ->orderBy('lastName', 'asc')
             ->get();
 
-        $selectedUser = null;
-        $messages = collect();
-        return view('help-desk.index', compact('usersWithMessages', 'selectedUser', 'messages'));
+        $selectedUser = null; // No user selected initially
+        $messages = collect(); // No messages loaded initially
+
+        // ** FIX: Pass the new variable name to the view **
+        return view('help-desk.index', compact('allUsers', 'selectedUser', 'messages'));
     }
 
     // --- getUserMessages() method remains the same ---
@@ -56,7 +65,17 @@ class HelpDeskController extends Controller
         $request->validate([ 'user_id' => 'required|integer|exists:user_accounts,id', ]);
         $userId = $request->user_id;
         $user = UserAccount::findOrFail($userId);
-        $messages = Message::where('sender_id', $userId) ->orderBy('timestamp', 'asc')->get();
+        // Ensure messages related to the user are fetched correctly
+        $messages = Message::where('sender_id', $userId)
+                        // ->where(function($query) use ($userId) { // Original logic might be slightly off if admin messages don't use user's ID as sender_id
+                        //     $query->where('sender_id', $userId)
+                        //           ->where('is_admin', 0); // User sent
+                        // })->orWhere(function($query) use ($userId) {
+                        //     $query->where('sender_id', $userId) // Check if this is correct for admin messages context
+                        //           ->where('is_admin', 1); // Admin sent
+                        // })
+                        ->orderBy('timestamp', 'asc')
+                        ->get();
         return response()->json([ 'user' => $user, 'messages' => $messages ]);
     }
 
@@ -72,53 +91,58 @@ class HelpDeskController extends Controller
          $message->admin_id = Auth::id();
          $message->message = $request->message;
          $message->is_admin = true;
-         $message->timestamp = Carbon::now();
+         $message->timestamp = Carbon::now(); // Explicitly set timestamp
          $message->save();
+         // Optionally load admin relationship if needed in response
+         // $message->load('admin');
          return response()->json([ 'status' => 'success', 'message' => $message ]);
      }
 
     // --- getMessages() method remains the same (potentially unused) ---
     public function getMessages(Request $request)
     {
-        // ... (keep existing code for getMessages) ...
          $request->validate([ 'user_id' => 'sometimes|integer|exists:user_accounts,id', ]);
          $userId = $request->user_id;
          if (!$userId) {
-              $usersWithMessages = UserAccount::whereHas('messages') ->with(['messages' => function ($query) { $query->orderBy('timestamp', 'desc')->limit(1); }]) ->orderBy('last_active', 'desc') ->get();
-             return response()->json([ 'users' => $usersWithMessages ]);
+              // When fetching all users, maybe return all users instead of just those with messages?
+              // Or perhaps this endpoint isn't needed if index() shows all users.
+              $allUsers = UserAccount::orderBy('firstName')->orderBy('lastName')->get(); // Example: Fetch all
+              // $usersWithMessages = UserAccount::whereHas('messages') ->with(['messages' => function ($query) { $query->orderBy('timestamp', 'desc')->limit(1); }]) ->orderBy('last_active', 'desc') ->get();
+             return response()->json([ 'users' => $allUsers ]); // Return all users if no specific ID
          }
          $user = UserAccount::find($userId);
           if (!$user) { return response()->json(['error' => 'User not found'], 404); }
-         $messages = Message::where('sender_id', $userId) ->orderBy('timestamp', 'asc') ->get();
+         // Fetch messages like getUserMessages
+         $messages = Message::where('sender_id', $userId)->orderBy('timestamp', 'asc')->get();
          return response()->json($messages);
     }
 
 
-    // ** ADD THIS METHOD FOR POLLING **
+    // --- checkNewMessages() method remains the same ---
     public function checkNewMessages(Request $request)
     {
         $request->validate([
             'user_id' => 'required|integer|exists:user_accounts,id',
-            'last_message_timestamp' => 'required|numeric', // Expecting milliseconds from JS
+            'last_message_timestamp' => 'required|numeric',
         ]);
-
         $userId = $request->user_id;
         $lastTimestampMillis = $request->last_message_timestamp;
-
-        // Convert milliseconds timestamp to a Carbon instance for comparison
-        // Divide by 1000 to get seconds, then createFromTimestamp
         $lastCheckedTime = Carbon::createFromTimestampMs($lastTimestampMillis);
 
-        // Query for new messages for this user context (sent by user or admin)
-        // where the timestamp is strictly greater than the last checked time
         $newMessages = Message::where('sender_id', $userId)
                             ->where('timestamp', '>', $lastCheckedTime)
+                            // Eager load relationships if needed by formatMessageForApi (which isn't used here)
+                            // ->with(['sender', 'admin'])
                             ->orderBy('timestamp', 'asc')
                             ->get();
 
+        // ** Important: Need to format these messages if the web JS expects it **
+        // Assuming the web JS polling (if any) handles raw message data or doesn't use this specific endpoint.
+        // If the web JS *does* use this and needs formatted data, apply formatting similar to the Api/ChatController.
+        
         return response()->json([
             'hasNewMessages' => $newMessages->isNotEmpty(),
-            'newMessages' => $newMessages
+            'newMessages' => $newMessages // Returning raw messages for now
         ]);
     }
 
