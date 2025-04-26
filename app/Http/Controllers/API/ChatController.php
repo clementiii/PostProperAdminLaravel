@@ -7,36 +7,39 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\UserAccount;
 use App\Models\AdminAccount;
-use Illuminate\Support\Facades\Auth; // Needed for authentication
-use Illuminate\Support\Facades\DB;   // If using DB facade for specific queries
-use Illuminate\Support\Facades\Log;  // For logging errors
-use Illuminate\Support\Facades\Validator; // For input validation
-use Carbon\Carbon;                  // For timestamp handling
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ChatController extends Controller
 {
+    public function __construct()
+    {
+        // Set the default timezone for all Carbon instances in this controller
+        date_default_timezone_set('Asia/Manila');
+        Carbon::setLocale('en');
+    }
+
     /**
      * Fetch chat messages for the authenticated user.
-     * Replicates logic from old get_messages.php
      */
     public function getMessages(Request $request)
     {
-        // --- Authentication ---
-        // IMPORTANT: Use proper API authentication (e.g., Sanctum)
-        // $userId = Auth::id(); // Use this once auth is set up
-        $userId = $request->query('user_id'); // TEMPORARY
+        $userId = $request->query('user_id');
 
         if (!$userId) {
-             return response()->json(['error' => 'User ID not specified'], 400);
+            return response()->json(['error' => 'User ID not specified'], 400);
         }
 
         try {
             $messages = Message::where('sender_id', $userId)
-                            ->with(['sender', 'admin']) // Eager load
+                            ->with(['sender', 'admin'])
                             ->orderBy('timestamp', 'asc')
                             ->get();
 
-            // Use the helper method to format messages
+            // Format messages for API response
             $formattedMessages = $messages->map(function ($message) use ($userId) {
                 return $this->formatMessageForApi($message, $userId);
             });
@@ -51,16 +54,13 @@ class ChatController extends Controller
 
     /**
      * Store a new chat message sent by the authenticated user.
-     * Replicates logic from old send_user_message.php
      */
     public function sendMessage(Request $request)
     {
-        // --- Authentication ---
-        // IMPORTANT: Use proper API authentication (e.g., Sanctum)
-        // $userId = Auth::id(); // Use this once auth is set up
-         $userId = $request->input('sender_id'); // TEMPORARY & INSECURE
-         if (!$userId || !UserAccount::find($userId)) { return response()->json(['status' => 'error', 'message' => 'Valid Sender ID is required.'], 400); }
-        // --- End Temporary Auth ---
+        $userId = $request->input('sender_id');
+        if (!$userId || !UserAccount::find($userId)) { 
+            return response()->json(['status' => 'error', 'message' => 'Valid Sender ID is required.'], 400); 
+        }
 
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|max:1000',
@@ -72,11 +72,15 @@ class ChatController extends Controller
 
         try {
             $message = new Message();
-            $message->sender_id = $userId; // Should use Auth::id()
+            $message->sender_id = $userId;
             $message->message = $request->input('message');
             $message->is_admin = 0;
             $message->admin_id = null;
-            $message->save(); // DB default timestamp will be used
+            
+            // Explicitly set timestamp to Philippines time
+            $message->timestamp = Carbon::now('Asia/Manila');
+            
+            $message->save();
 
             return response()->json(['status' => 'success']);
 
@@ -88,23 +92,16 @@ class ChatController extends Controller
 
     /**
      * Check for new messages since a given timestamp for the authenticated user.
-     * Replicates logic from old check_new_messages.php
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function checkNewMessages(Request $request)
     {
-        // --- Authentication ---
-        // IMPORTANT: Use proper API authentication (e.g., Sanctum)
-        // $userId = Auth::id(); // Use this once auth is set up
-        $userId = $request->query('user_id'); // TEMPORARY
-        if (!$userId) { return response()->json(['error' => 'User ID not specified'], 400); }
-        // --- End Temporary Auth ---
+        $userId = $request->query('user_id');
+        if (!$userId) { 
+            return response()->json(['error' => 'User ID not specified'], 400); 
+        }
 
-        // Validate the timestamp parameter
         $validator = Validator::make($request->all(), [
-            'last_message_timestamp' => 'required|numeric', // Expecting milliseconds
+            'last_message_timestamp' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -114,24 +111,21 @@ class ChatController extends Controller
         $lastTimestampMillis = $request->query('last_message_timestamp');
 
         try {
-            // Convert milliseconds timestamp to a Carbon instance for comparison
-            $lastCheckedTime = Carbon::createFromTimestampMs($lastTimestampMillis);
+            // Convert milliseconds timestamp to a Carbon instance in Philippines timezone
+            $lastCheckedTime = Carbon::createFromTimestampMs($lastTimestampMillis, 'Asia/Manila');
 
-            // Query for new messages for this user context
-            // where the timestamp is strictly greater than the last checked time
-            // Potential issue: If DB timestamp precision is only seconds, this might refetch messages from the same second.
+            // Query for new messages
             $newMessages = Message::where('sender_id', $userId)
                                 ->where('timestamp', '>', $lastCheckedTime)
-                                ->with(['sender', 'admin']) // Eager load
+                                ->with(['sender', 'admin'])
                                 ->orderBy('timestamp', 'asc')
                                 ->get();
 
-            // Format the new messages using the helper method
+            // Format the new messages
             $formattedMessages = $newMessages->map(function ($message) use ($userId) {
                 return $this->formatMessageForApi($message, $userId);
             });
 
-            // Return response matching MessageCheckResponse.java
             return response()->json([
                 'hasNewMessages' => $formattedMessages->isNotEmpty(),
                 'newMessages' => $formattedMessages
@@ -143,41 +137,36 @@ class ChatController extends Controller
         }
     }
 
-
     /**
      * Helper method to format a Message object for API response.
-     *
-     * @param Message $message The Eloquent message object.
-     * @param int $contextUserId The ID of the user whose chat context this is.
-     * @return array Formatted message data.
      */
     private function formatMessageForApi(Message $message, $contextUserId): array
     {
         $senderName = 'Unknown';
         if ($message->is_admin) {
-            // If message is from admin, use admin name or 'Admin'
-            // Assumes 'admin' relationship is loaded via with()
             $senderName = $message->admin->name ?? 'Admin';
         } else {
-            // If message is from user, use user's name
-            // Assumes 'sender' relationship is loaded via with()
-             if ($message->sender_id == $contextUserId && $message->sender) {
-                 $senderName = $message->sender->firstName . ' ' . $message->sender->lastName;
-             }
+            if ($message->sender_id == $contextUserId && $message->sender) {
+                $senderName = $message->sender->firstName . ' ' . $message->sender->lastName;
+            }
         }
 
-        // Convert timestamp to milliseconds for Android (long)
-        $timestampMillis = $message->timestamp ? Carbon::parse($message->timestamp)->valueOf() : 0;
+        // Ensure the timestamp is in Philippines timezone
+        $timestamp = $message->timestamp 
+            ? Carbon::parse($message->timestamp)->setTimezone('Asia/Manila') 
+            : Carbon::now('Asia/Manila');
+        
+        // Convert to milliseconds for Android
+        $timestampMillis = $timestamp->valueOf();
 
         return [
             'id' => $message->id,
-            'sender_id' => $message->sender_id, // Keep original sender_id for context
+            'sender_id' => $message->sender_id,
             'admin_id' => $message->admin_id,
             'message' => $message->message,
             'is_admin' => (bool)$message->is_admin,
-            'timestamp' => $timestampMillis, // Milliseconds timestamp
+            'timestamp' => $timestampMillis,
             'sender_name' => $senderName
         ];
     }
-
 }
