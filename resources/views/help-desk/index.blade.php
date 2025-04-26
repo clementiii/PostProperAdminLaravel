@@ -17,7 +17,7 @@
                     @forelse($allUsers as $user)
                         <div id="user-item-{{ $user->id }}" class="user-chat-item p-3 border-b hover:bg-purple-100 cursor-pointer transition duration-150 ease-in-out" data-user-id="{{ $user->id }}" data-user-name="{{ e($user->firstName . ' ' . $user->lastName) }}">
                             <div class="flex items-center">
-                                <img src="{{ $user->getProfilePictureUrl() ?: 'https://ui-avatars.com/api/?name='.urlencode($user->firstName.'+'.$user->lastName).'&background=random' }}" alt="{{ $user->firstName }}" class="w-10 h-10 rounded-full mr-3 object-cover flex-shrink-0">
+                                <img src="{{ $user->getProfilePictureUrl() ?: 'https://ui-avatars.com/api/?name='.urlencode($user->firstName.'+'.$user->lastName).'&background=random' }}" alt="{{ $user->firstName }}" class="w-10 h-10 rounded-full mr-3 object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ urlencode($user->firstName.'+'.$user->lastName) }}&background=random';">
                                 <div class="flex-grow min-w-0">
                                     <div class="flex justify-between items-center"> <h4 class="font-medium text-sm truncate">{{ $user->firstName }} {{ $user->lastName }}</h4> @if($user->last_message_time_ts) <small class="text-xs text-gray-500 flex-shrink-0 ml-2"> {{ \Carbon\Carbon::parse($user->last_message_time_ts)->format('g:i A') }} </small> @endif </div>
                                     <p class="text-sm text-gray-600 truncate" title="{{ $user->latest_message_text ?? '' }}"> {{ Str::limit($user->latest_message_text ?? 'No messages', 35) }} </p>
@@ -123,7 +123,7 @@
                      // ** FIX: Changed items-end to items-start **
                      newMessagesHtml += `
                          <div class="flex items-start mb-3">
-                             <img src="${currentUserAvatarUrl}" alt="User" class="flex-shrink-0 w-8 h-8 rounded-full mr-2 object-cover">
+                             <img src="${currentUserAvatarUrl}" alt="User" class="flex-shrink-0 w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=User&background=random';">
                              <div class="max-w-[75%]"> ${messageBubbleHtml} </div>
                          </div>
                      `;
