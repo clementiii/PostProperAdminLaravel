@@ -49,20 +49,21 @@ class UserAccount extends Model
      */
     public function getProfilePictureUrl()
     {
-        if (empty($this->user_profile_picture)) {
-            return null;
+        // If empty or set to 'default.jpg', use external avatar service
+        if (empty($this->user_profile_picture) || $this->user_profile_picture === 'default.jpg') {
+            // Use initials for avatar if possible
+            $name = trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
+            $name = $name !== '' ? $name : 'User';
+            return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random';
         }
-        
         // If it's already a full URL (Cloudinary or other external source)
         if (filter_var($this->user_profile_picture, FILTER_VALIDATE_URL)) {
             return $this->user_profile_picture;
         }
-        
         // If it starts with 'storage/' or '/storage/'
         if (strpos($this->user_profile_picture, 'storage/') === 0 || strpos($this->user_profile_picture, '/storage/') === 0) {
             return asset($this->user_profile_picture);
         }
-        
         // Fallback to the full asset path
         return asset('storage/' . ltrim($this->user_profile_picture, '/'));
     }
