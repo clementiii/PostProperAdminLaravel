@@ -77,7 +77,21 @@
         messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>Loading messages...</p></div>';
         fetch(`/help-desk/user-messages?user_id=${userId}`)
             .then(response => { if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); } return response.json(); })
-            .then(data => { if (data.messages && data.user) { currentUserAvatarUrl = data.user.user_profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.replace(' ', '+'))}&background=random`; chatUserAvatarEl.src = currentUserAvatarUrl; displayMessages(data.messages, false); startPolling(userId); } else { messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>Could not load messages.</p></div>'; console.error('Invalid data structure received:', data); } })
+            .then(data => { 
+                if (data.messages && data.user) {
+                    currentUserAvatarUrl = data.user.user_profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.replace(' ', '+'))}&background=random`;
+                    chatUserAvatarEl.src = currentUserAvatarUrl;
+                    // Always set onerror handler dynamically to ensure fallback works
+                    chatUserAvatarEl.onerror = function() {
+                        this.onerror = null;
+                        this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.replace(' ', '+'))}&background=random`;
+                    };
+                    displayMessages(data.messages, false);
+                    startPolling(userId);
+                } else {
+                    messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>Could not load messages.</p></div>'; console.error('Invalid data structure received:', data); 
+                } 
+            })
             .catch(error => { console.error('Error loading messages:', error); messagesContainer.innerHTML = `<div class="text-center py-4 text-red-500"><p>Error loading messages: ${error.message}</p></div>`; });
     }
 
