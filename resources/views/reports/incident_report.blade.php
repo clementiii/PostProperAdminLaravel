@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incident Reports</title>
+    <title>Incident Monitoring</title>
     <link rel="icon" href="{{ asset('/assets/Southside.png') }}" type="image/png">
     <!-- Import Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -19,7 +19,7 @@
 <body>
     @extends('layouts.app')
 
-    @section('title', 'Incident Reports')
+    @section('title', 'Incident Monitoring')
 
     @section('content')
         <div class="mb-6 px-6 flex flex-col items-space-between w-full">
