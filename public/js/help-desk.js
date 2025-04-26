@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                 // Check if user has profile picture
                                 if (message.sender.user_profile_picture) {
-                                    avatar = `<img src="${message.sender.user_profile_picture}" class="user-avatar w-8 h-8 rounded-full object-cover" alt="${senderName}">`;
+                                    avatar = `<img src="${message.sender.user_profile_picture}" class="user-avatar w-8 h-8 rounded-full object-cover" alt="${senderName}" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(senderName)}&background=random';">`;
                                 } else {
                                     // Create initials avatar
                                     let initials = "";
