@@ -14,7 +14,7 @@ class DocumentRequestTable extends Component
 
     public $search = '';
     public $filterField = '';
-    public $sortField = 'id';
+    public $sortField = 'Id';
     public $sortDirection = 'desc';
     public $perPage = 10;
 
@@ -83,4 +83,4 @@ class DocumentRequestTable extends Component
             'incidentReports' => $incidentReports
         ]);
     }
-} 
+}

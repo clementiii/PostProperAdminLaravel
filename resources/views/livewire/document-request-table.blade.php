@@ -150,7 +150,7 @@
                         <tr class="hover:bg-gray-200 transition-colors duration-150 ease-in-out">
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
                                 <span
-                                    class="font-medium text-gray-900">TXN-{{ str_pad((string) $request->id, 2, '0', STR_PAD_LEFT) }}</span>
+                                    class="font-medium text-gray-900">TXN-{{ str_pad((string) $request->Id, 2, '0', STR_PAD_LEFT) }}</span>
                             </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->Name }}</td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DocumentType }}
