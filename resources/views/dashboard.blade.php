@@ -35,7 +35,7 @@
 
 
     @section('content')
-        <div class="p-6 space-y-6 flex flex-col items-space-between w-full">
+        <div class="p-6 space-y-6 flex flex-col items-space-between w-full dashboard-specific-content">
             @livewire('document-request-table')
         </div>
 

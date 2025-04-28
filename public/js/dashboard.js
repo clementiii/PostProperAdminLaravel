@@ -187,30 +187,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then((data) => {
-                // ** FIX: Check if elements exist before setting textContent **
-                const residentsCountEl =
-                    document.getElementById("residentsCount");
+                // Only update elements if we're on the main dashboard page
+                // Check for an element that should only exist on the dashboard page
+                const isDashboardPage = document.querySelector('.dashboard-specific-content') !== null;
+                
+                if (!isDashboardPage) {
+                    console.log("Not on the main dashboard page, skipping stats updates.");
+                    return;
+                }
+                
+                // Update dashboard elements
+                const residentsCountEl = document.getElementById("residentsCount");
                 if (residentsCountEl) {
                     residentsCountEl.textContent = data.registeredResidents;
-                } else {
-                    // Optional: Log if element not found on current page
-                    // console.log("Element #residentsCount not found on this page.");
                 }
 
-                const pendingDocsCountEl =
-                    document.getElementById("pendingDocsCount");
+                const pendingDocsCountEl = document.getElementById("pendingDocsCount");
                 if (pendingDocsCountEl) {
                     pendingDocsCountEl.textContent = data.pendingDocuments;
-                } else {
-                    // console.log("Element #pendingDocsCount not found on this page.");
                 }
 
-                const incidentCountEl =
-                    document.getElementById("incidentCount");
+                const incidentCountEl = document.getElementById("incidentCount");
                 if (incidentCountEl) {
                     incidentCountEl.textContent = data.incidentReports;
-                } else {
-                    // console.log("Element #incidentCount not found on this page.");
                 }
             })
             .catch((error) => {
@@ -219,20 +218,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Error fetching or processing dashboard data:",
                     error
                 );
-                // Avoid alerting the user on every poll failure, just log it.
-                // alert(`Error updating dashboard: ${error.message}`);
             });
     }
 
-    // ** FIX: Check if a specific dashboard element exists before starting interval **
-    if (document.getElementById("residentsCount")) {
-        // Check if we are on the dashboard page
+    // Only start polling if we're on the dashboard page
+    // Look for a more specific element that should only exist on the dashboard page
+    const isDashboardPage = document.querySelector('.dashboard-specific-content') !== null;
+    
+    if (isDashboardPage) {
         fetchDashboardData(); // Initial fetch
         // Fetch data every 10 seconds
-        setInterval(fetchDashboardData, 10000); // Kept original 10 seconds interval
+        setInterval(fetchDashboardData, 10000);
         console.log("Dashboard polling started.");
     } else {
-        // Log that polling is skipped on other pages
         console.log(
             "Not on the main dashboard page, skipping dashboard data polling."
         );

@@ -5,7 +5,7 @@
             class="h-[150px] w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-blue-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Registered Residents</h3>
-                <p id="residentsCount" class="text-4xl font-bold">{{ $registeredResidentsCount }}</p>
+                <p id="user_residents_count" class="text-4xl font-bold">{{ $registeredResidentsCount }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
                 <i class="material-icons-outlined !text-[64px]">group</i>
@@ -15,7 +15,7 @@
             class="h-[150px] w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-6 rounded-lg shadow-lg hover:shadow-emerald-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Active Users</h3>
-                <p id="pendingDocsCount" class="text-4xl font-bold">{{ $activeUsersCount }}</p>
+                <p id="user_active_count" class="text-4xl font-bold">{{ $activeUsersCount }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
                 <i class="material-symbols-outlined !text-[64px]">person_check</i>
@@ -25,7 +25,7 @@
             class="h-[150px] w-full bg-gradient-to-r from-slate-500 to-slate-600 text-white p-6 rounded-lg shadow-lg hover:shadow-slate-200 transition-all duration-300 flex items-center transform hover:scale-105">
             <div class="mr-4">
                 <h3 class="text-xl pb-3">Inactive Users</h3>
-                <p id="incidentCount" class="text-4xl font-bold">{{ $inactiveUsersCount }}</p>
+                <p id="user_inactive_count" class="text-4xl font-bold">{{ $inactiveUsersCount }}</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-full p-4 ml-auto flex items-center justify-center">
                 <i class="material-icons-outlined !text-[64px]">person_off</i>

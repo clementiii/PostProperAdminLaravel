@@ -56,10 +56,14 @@ class UserTable extends Component
         // Get paginated results
         $users = $query->paginate($this->perPage);
 
-        // Get total counts for statistics
-        $allUsers = UserAccount::all();
-        $registeredResidentsCount = $allUsers->count();
-        $activeUsersCount = $allUsers->where('last_active', '>=', $inactiveThreshold)->count();
+        // Get total counts for statistics - Only count verified users
+        $verifiedUsers = UserAccount::where('status', 'verified')->get();
+        $registeredResidentsCount = $verifiedUsers->count();
+        
+        // For active users, only count verified users who were active in the last 30 days
+        $activeUsersCount = $verifiedUsers->where('last_active', '>=', $inactiveThreshold)->count();
+        
+        // Inactive users are verified users who haven't been active in the last 30 days
         $inactiveUsersCount = $registeredResidentsCount - $activeUsersCount;
 
         return view('livewire.user-table', [
@@ -69,4 +73,4 @@ class UserTable extends Component
             'inactiveUsersCount' => $inactiveUsersCount
         ]);
     }
-} 
+}
