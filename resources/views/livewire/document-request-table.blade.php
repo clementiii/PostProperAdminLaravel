@@ -57,42 +57,6 @@
                     <span
                         class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
                 </div>
-
-                <!-- Filter Dropdown -->
-                <div class="relative w-full sm:w-auto" x-data="{ open: false }">
-                    <button @click="open = !open"
-                        class="flex items-center justify-center bg-gray-100 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200 w-full sm:w-auto">
-                        <span>Filter by</span>
-                        <span class="material-icons-outlined ml-2">arrow_drop_down</span>
-                    </button>
-                    <!-- Dropdown Menu -->
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-full sm:w-40 z-50"
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform scale-95"
-                        x-transition:enter-end="opacity-100 transform scale-100"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform scale-100"
-                        x-transition:leave-end="opacity-0 transform scale-95">
-                        <ul class="text-gray-700">
-                            <li><button wire:click="$set('filterField', 'id')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Transaction
-                                    ID</button></li>
-                            <li><button wire:click="$set('filterField', 'Name')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Name</button>
-                            </li>
-                            <li><button wire:click="$set('filterField', 'DocumentType')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Document
-                                    Type</button></li>
-                            <li><button wire:click="$set('filterField', 'Quantity')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Quantity</button>
-                            </li>
-                            <li><button wire:click="$set('filterField', 'DateRequested')"
-                                    class="px-4 py-2 hover:bg-purple-50 hover:text-purple-700 w-full text-left">Date
-                                    Requested</button></li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
 
