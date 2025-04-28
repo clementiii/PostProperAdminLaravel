@@ -43,25 +43,42 @@
                 </div>
             @endif
 
+            <!-- Display Validation Errors -->
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Login Form -->
             <form method="POST" action="{{ route('login') }}" class="space-y-6">
                 @csrf
                 <div>
                     <label for="username" class="block text-lg font-normal text-gray-700">Username</label>
                     <input type="text" name="username" id="username" value="{{ old('username') }}" required
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                        class="mt-1 block w-full px-3 py-2 border {{ $errors->has('username') ? 'border-red-500' : 'border-gray-300' }} rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    @error('username')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label for="password" class="block text-lg font-normal text-gray-700">Password</label>
                     <div class="relative">
                         <input type="password" name="password" id="password" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                            class="mt-1 block w-full px-3 py-2 border {{ $errors->has('password') ? 'border-red-500' : 'border-gray-300' }} rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                         <button type="button" onclick="togglePassword()"
                             class="absolute inset-y-0 right-0 flex items-center pr-3">
                             <i id="eye-icon" class="fa-solid fa-eye text-gray-400"></i>
                         </button>
                     </div>
+                    @error('password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <button type="submit"

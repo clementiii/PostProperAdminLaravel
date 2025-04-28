@@ -1,6 +1,7 @@
 <?php
 namespace App\Providers;
 
+use App\Actions\Fortify\CustomAuthentication;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
@@ -24,6 +25,12 @@ class FortifyServiceProvider extends ServiceProvider
         // Ensure Fortify uses the correct login view
         Fortify::loginView(function () {
             return view('auth.login');
+        });
+        
+        // Use custom authentication logic
+        Fortify::authenticateUsing(function (Request $request) {
+            $authenticator = new CustomAuthentication();
+            return $authenticator->authenticate($request);
         });
     }
 }
