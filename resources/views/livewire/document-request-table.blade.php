@@ -43,9 +43,9 @@
         <!-- Header Section -->
         <div class="p-6 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-semibold font-poppins text-purple-800">Recent Document Requests
+                <h2 class="text-2xl sm:text-3xl font-semibold font-poppins text-purple-800">Recent Pending Document Requests
                 </h2>
-                <p class="text-gray-500 mt-1">Manage and view all recent document requests from residents</p>
+                <p class="text-gray-500 mt-1">Manage and view all recent pending document requests from residents</p>
             </div>
 
             <!-- Search and Filter Section -->

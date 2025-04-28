@@ -47,6 +47,7 @@ class DocumentRequestTable extends Component
                 'Status',
                 'pickup_status'
             ])
+            ->where('Status', 'pending')
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
                     $searchTerm = $this->search;
