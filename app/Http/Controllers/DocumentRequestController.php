@@ -137,6 +137,7 @@ class DocumentRequestController extends Controller
             case 'Barangay Clearance':
             case 'Barangay Certification':
             case 'Certificate of Indigency':
+            case 'First Time Job Certificate':
                 // Ensure quantity is treated as a number
                 $quantity = intval($quantity);
                 if ($quantity <= 0) $quantity = 1; // Default to 1 if quantity is invalid
