@@ -3,25 +3,18 @@
 
 // Helper function to properly format profile picture URL
 function formatProfilePictureUrl($path) {
-    if (empty($path)) {
-        return "";
+    if (empty($path) || $path === 'default.jpg') {
+        return '';
     }
     
-    // If it's already a full URL (Cloudinary or other external source)
-    if (filter_var($path, FILTER_VALIDATE_URL)) {
+    // Check if the path is already a full URL (Cloudinary URL)
+    if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
         return $path;
     }
     
-    // If it starts with storage/ or /storage/
-    if (strpos($path, 'storage/') === 0) {
-        return "https://" . $_SERVER['HTTP_HOST'] . "/" . $path;
-    }
-    
-    // If it has a leading slash, remove it for consistency
-    $path = ltrim($path, '/');
-    
-    // Return a complete URL
-    return "https://" . $_SERVER['HTTP_HOST'] . "/" . $path;
+    // Otherwise, assume it's a relative path and construct a full URL
+    $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+    return $base_url . '/' . $path;
 }
 
 // Check if the 'id' parameter is set
@@ -41,22 +34,37 @@ if (isset($_GET['id'])) {
         // Fetch user details
         $row = $result->fetch_assoc();
         
-        // Combine address fields
-        $address = trim($row['adrHouseNo'] . ' ' . $row['adrZone'] . ' ' . $row['adrStreet']);
+        // Combine address fields for backward compatibility
+        $address = '';
+        if (!empty($row['adrHouseNo'])) {
+            $address .= $row['adrHouseNo'] . ' ';
+        }
+        if (!empty($row['adrStreet'])) {
+            $address .= $row['adrStreet'] . ' ';
+        }
+        if (!empty($row['adrZone'])) {
+            $address .= 'Zone ' . $row['adrZone'];
+        }
+        $address = trim($address);
         
-        // Create response array with correct field names
+        // Create response array with both combined and separate address fields
         $response = array(
             'status' => 'success',
             'user' => array(
+                'id' => $id,
                 'firstName' => $row['firstName'],
                 'lastName' => $row['lastName'],
                 'username' => $row['username'],
-                'address' => $address,
+                'address' => $address,  // Keep combined address for backward compatibility
                 'age' => intval($row['age']),
                 'gender' => $row['gender'],
                 'dateOfBirth' => $row['birthday'],
                 'password' => $row['password'],
-                'profilePicture' => formatProfilePictureUrl($row['user_profile_picture'])
+                'profilePicture' => formatProfilePictureUrl($row['user_profile_picture']),
+                // Add individual address fields for the app to use directly
+                'houseNo' => $row['adrHouseNo'],
+                'zone' => $row['adrZone'],
+                'street' => $row['adrStreet']
             )
         );
         
