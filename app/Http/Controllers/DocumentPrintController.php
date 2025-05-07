@@ -86,7 +86,22 @@ class DocumentPrintController extends Controller
         
         // Generate RSA signature
         $private = RSA::createKey(2048);
-        $dataToSign = $request->Name . '|' . $request->Address . '|' . $request->birthday;
+        $public = $private->getPublicKey();
+        $publicKeyData = $public->toString('PKCS8');
+        
+        // Improved data to sign including more document details and expiry date
+        $expiryDate = Carbon::now()->addYear()->format('Y-m-d H:i:s'); // Documents valid for 1 year
+        $dataToSign = json_encode([
+            'id' => $request->Id,
+            'name' => $request->Name,
+            'address' => $request->Address, 
+            'birthday' => $request->birthday,
+            'document_type' => $request->DocumentType,
+            'issued_on' => Carbon::now()->format('Y-m-d H:i:s'),
+            'expires_on' => $expiryDate,
+            'document_id' => $id
+        ]);
+        
         $signature = base64_encode($private->sign($dataToSign));
         
         // Store the signature in the database for future verification
@@ -95,6 +110,9 @@ class DocumentPrintController extends Controller
             'document_request_id' => $request->Id,
             'signature_data' => $signature,
             'signature_hash' => $signatureHash,
+            'public_key' => $publicKeyData, // Store the public key
+            'signed_data' => $dataToSign, // Store what was signed
+            'expiry_date' => $expiryDate, // Store expiry date
             'created_at' => now(),
             'updated_at' => now()
         ]);
