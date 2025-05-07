@@ -86,7 +86,12 @@
                         this.onerror = null;
                         this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.replace(' ', '+'))}&background=random`;
                     };
-                    displayMessages(data.messages, false);
+                    // Display messages or "No messages yet" if there are none
+                    if (data.messages.length === 0) {
+                        messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>No messages yet.</p></div>';
+                    } else {
+                        displayMessages(data.messages, false);
+                    }
                     startPolling(userId);
                 } else {
                     messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>Could not load messages.</p></div>'; console.error('Invalid data structure received:', data); 
