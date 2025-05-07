@@ -89,7 +89,7 @@
                                 {{ $user->formatted_archived_at }}
                             </td>
                             <td class="p-2 flex justify-center items-center space-x-2">
-                                <a href="{{ route('users.verify', $user->id) }}"
+                                <a href="{{ route('archives.users.view', $user->id) }}"
                                    class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium">
                                     View
                                 </a>

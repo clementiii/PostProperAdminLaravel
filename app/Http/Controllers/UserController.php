@@ -138,4 +138,24 @@ class UserController extends Controller
             return redirect()->route('archives.users')->with('error', 'Failed to delete user: ' . $e->getMessage());
         }
     }
+
+    /**
+     * View an archived user's details
+     */
+    public function viewArchivedUser($id)
+    {
+        try {
+            $user = UserAccount::findOrFail($id);
+            
+            // Add checks for empty strings
+            $user->user_profile_picture = !empty($user->user_profile_picture) ? $user->user_profile_picture : null;
+            $user->user_valid_id = !empty($user->user_valid_id) ? $user->user_valid_id : null;
+            $user->user_valid_id_back = !empty($user->user_valid_id_back) ? $user->user_valid_id_back : null;
+            
+            return view('archives.user-view', compact('user'));
+        } catch (\Exception $e) {
+            return redirect()->route('archives.users')
+                ->with('error', 'Archived user not found or error occurred.');
+        }
+    }
 }

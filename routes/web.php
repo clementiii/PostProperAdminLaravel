@@ -71,6 +71,7 @@ Route::middleware([
     // Archives
     Route::prefix('archives')->name('archives.')->group(function () {
         Route::get('/users', [UserController::class, 'archivedUsers'])->name('users');
+        Route::get('/users/{id}', [UserController::class, 'viewArchivedUser'])->name('users.view');
         Route::post('/users/{id}/unarchive', [UserController::class, 'unarchiveUser'])->name('users.unarchive');
         Route::delete('/users/{id}/delete', [UserController::class, 'deleteArchivedUser'])->name('users.delete');
     });
