@@ -65,6 +65,14 @@ Route::middleware([
         Route::post('/users/{id}/approve', 'App\Http\Controllers\UserController@approveUser')->name('users.approve');
         Route::post('/users/{id}/reject', 'App\Http\Controllers\UserController@rejectUser')->name('users.reject');
         Route::delete('/users/{id}', [UserController::class, 'destroyUser'])->name('users.delete');
+        Route::post('/users/{id}/archive', [UserController::class, 'archiveUser'])->name('users.archive');
+    });
+    
+    // Archives
+    Route::prefix('archives')->name('archives.')->group(function () {
+        Route::get('/users', [UserController::class, 'archivedUsers'])->name('users');
+        Route::post('/users/{id}/unarchive', [UserController::class, 'unarchiveUser'])->name('users.unarchive');
+        Route::delete('/users/{id}/delete', [UserController::class, 'deleteArchivedUser'])->name('users.delete');
     });
     
     // Announcements

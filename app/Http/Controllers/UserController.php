@@ -80,4 +80,62 @@ class UserController extends Controller
         // Return to the verification page with a success message instead of immediately redirecting
         return back()->with('success', 'User has been rejected');
     }
+    
+    /**
+     * Archive a user account
+     */
+    public function archiveUser($id)
+    {
+        try {
+            $user = UserAccount::findOrFail($id);
+            $user->update([
+                'archived' => 1,
+                'archived_at' => now(),
+                'status' => 'rejected'  // Changed from 'archived' to 'rejected' which is a valid enum value
+            ]);
+            return redirect()->route('users.view')->with('success', 'User has been archived');
+        } catch (\Exception $e) {
+            return redirect()->route('users.view')->with('error', 'Failed to archive user: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Unarchive a user account
+     */
+    public function unarchiveUser($id)
+    {
+        try {
+            $user = UserAccount::findOrFail($id);
+            $user->update([
+                'archived' => 0,
+                'archived_at' => null,
+                'status' => 'verified'  // Restore status to 'verified'
+            ]);
+            return redirect()->route('archives.users')->with('success', 'User has been unarchived');
+        } catch (\Exception $e) {
+            return redirect()->route('archives.users')->with('error', 'Failed to unarchive user: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Display archived users
+     */
+    public function archivedUsers()
+    {
+        return view('archives.users');
+    }
+
+    /**
+     * Permanently delete an archived user
+     */
+    public function deleteArchivedUser($id)
+    {
+        try {
+            $user = UserAccount::findOrFail($id);
+            $user->delete();
+            return redirect()->route('archives.users')->with('success', 'User has been permanently deleted');
+        } catch (\Exception $e) {
+            return redirect()->route('archives.users')->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
+    }
 }

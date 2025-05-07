@@ -141,13 +141,13 @@
                                                     class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium">
                                                     View
                                                 </a>
-                                                <form id="delete-form-{{ $user->id }}" action="{{ route('users.delete', $user->id) }}" method="POST" class="inline">
+                                                <form id="archive-form-{{ $user->id }}" action="{{ route('users.archive', ['id' => $user->id]) }}" method="POST" class="inline">
                                                     @csrf
-                                                    @method('DELETE')
                                                     <button type="button"
-                                                        onclick="openDeleteModal({{ $user->id }})"
-                                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm font-medium">
-                                                        Delete
+                                                        onclick="openArchiveModal({{ $user->id }})"
+                                                        class="bg-amber-500 hover:bg-amber-600 text-white py-1 px-3 rounded text-sm font-medium flex items-center">
+                                                        <span class="material-icons-outlined text-sm mr-1">archive</span>
+                                                        Archive
                                                     </button>
                                                 </form>
                                             </td>
@@ -226,6 +226,29 @@
         </div>
     </div>
 
+    <!-- Archive Confirmation Modal -->
+    <div id="archiveModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="archive-modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-6">
+                    <span class="material-icons-outlined text-amber-600 text-3xl">archive</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Confirm User Archive</h3>
+                <p class="text-gray-600 mb-8">Are you sure you want to archive this user? They will be moved to the archived users section.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="hideArchiveModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmArchiveBtn"
+                        class="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition">
+                        Yes, Archive User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl w-96 p-6 transform transition-all scale-95 opacity-0" id="modal-content">
@@ -252,6 +275,38 @@
     <!-- Delete Modal Script -->
     <script>
         let currentDeleteId = null;
+        let currentArchiveId = null;
+
+        function openArchiveModal(userId) {
+            currentArchiveId = userId;
+            const modal = document.getElementById('archiveModal');
+            const modalContent = document.getElementById('archive-modal-content');
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            
+            // Force a reflow before adding the transition classes
+            void modalContent.offsetWidth;
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        function hideArchiveModal() {
+            const modal = document.getElementById('archiveModal');
+            const modalContent = document.getElementById('archive-modal-content');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
+                currentArchiveId = null;
+            }, 200);
+        }
 
         function openDeleteModal(userId) {
             currentDeleteId = userId;
@@ -286,6 +341,15 @@
         
         // Execute after the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
+            const confirmArchiveBtn = document.getElementById('confirmArchiveBtn');
+            if (confirmArchiveBtn) {
+                confirmArchiveBtn.addEventListener('click', function() {
+                    if (currentArchiveId) {
+                        document.getElementById('archive-form-' + currentArchiveId).submit();
+                    }
+                });
+            }
+            
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             if (confirmDeleteBtn) {
                 confirmDeleteBtn.addEventListener('click', function() {
@@ -295,7 +359,16 @@
                 });
             }
             
-            // Close modal when clicking outside
+            // Close modals when clicking outside
+            const archiveModal = document.getElementById('archiveModal');
+            if (archiveModal) {
+                archiveModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideArchiveModal();
+                    }
+                });
+            }
+            
             const deleteModal = document.getElementById('deleteModal');
             if (deleteModal) {
                 deleteModal.addEventListener('click', function(e) {

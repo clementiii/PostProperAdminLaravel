@@ -5,15 +5,16 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\UserAccount;
 use Livewire\WithPagination;
+use Illuminate\Support\Carbon;
 
-class UserTable extends Component
+class ArchivedUserTable extends Component
 {
     use WithPagination;
 
     public $search = '';
     public $filterField = '';
-    public $sortField = 'lastName';
-    public $sortDirection = 'asc';
+    public $sortField = 'archived_at';
+    public $sortDirection = 'desc';
     public $perPage = 10;
 
     protected $paginationTheme = 'tailwind';
@@ -35,14 +36,8 @@ class UserTable extends Component
 
     public function render()
     {
-        // Set inactive threshold
-        $inactiveThreshold = now()->subDays(30);
-
         $query = UserAccount::query()
-            ->where(function ($query) {
-                // Only show non-archived users
-                $query->where('archived', 0)->orWhereNull('archived');
-            })
+            ->where('archived', 1) // Only show archived users
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
                     $query->where('firstName', 'like', '%' . $this->search . '%')
@@ -59,26 +54,26 @@ class UserTable extends Component
 
         // Get paginated results
         $users = $query->paginate($this->perPage);
-
-        // Get total counts for statistics - Only count verified and non-archived users
-        $verifiedUsers = UserAccount::where('status', 'verified')
-            ->where(function ($query) {
-                $query->where('archived', 0)->orWhereNull('archived');
-            })
-            ->get();
-        $registeredResidentsCount = $verifiedUsers->count();
         
-        // For active users, only count verified users who were active in the last 30 days
-        $activeUsersCount = $verifiedUsers->where('last_active', '>=', $inactiveThreshold)->count();
+        // Format date for each user
+        foreach ($users as $user) {
+            try {
+                if ($user->archived_at) {
+                    $user->formatted_archived_at = Carbon::parse($user->archived_at)->format('M d, Y h:i A');
+                } else {
+                    $user->formatted_archived_at = 'N/A';
+                }
+            } catch (\Exception $e) {
+                $user->formatted_archived_at = 'N/A';
+            }
+        }
         
-        // Inactive users are verified users who haven't been active in the last 30 days
-        $inactiveUsersCount = $registeredResidentsCount - $activeUsersCount;
+        // Count total archived users
+        $archivedCount = UserAccount::where('archived', 1)->count();
 
-        return view('livewire.user-table', [
+        return view('livewire.archived-user-table', [
             'users' => $users,
-            'registeredResidentsCount' => $registeredResidentsCount,
-            'activeUsersCount' => $activeUsersCount,
-            'inactiveUsersCount' => $inactiveUsersCount
+            'archivedCount' => $archivedCount
         ]);
     }
 }

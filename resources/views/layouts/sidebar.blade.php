@@ -58,6 +58,13 @@
                     <span>Help Desk</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('archives.users') }}"
+                    class="flex items-center space-x-3 px-4 py-2 rounded-md font-normal text-2xl hover:bg-purple-700 transition">
+                    <span class="material-icons">archive</span>
+                    <span>Archives</span>
+                </a>
+            </li>
         </ul>
     </div>
 

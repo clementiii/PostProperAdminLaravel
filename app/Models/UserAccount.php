@@ -14,15 +14,37 @@ class UserAccount extends Model
         'id', 'firstName', 'lastName', 'username', 'age', 'gender', 
         'adrHouseNo', 'adrZone', 'adrStreet', 'birthday', 'password', 
         'user_profile_picture', 'user_valid_id', 'user_valid_id_back',
-        'status', 'last_active', 'verified_at', 'rejected_at'
+        'status', 'last_active', 'verified_at', 'rejected_at', 'archived', 'archived_at'
     ];
 
     protected $dates = [
         'verified_at',
         'rejected_at',
         'created_at',
-        'last_active'
+        'last_active',
+        'archived_at'
     ];
+
+    protected $casts = [
+        'status' => 'string',
+        'archived' => 'boolean',
+    ];
+    
+    // Define valid status values
+    const STATUS_PENDING = 'pending';
+    const STATUS_VERIFIED = 'verified';
+    const STATUS_REJECTED = 'rejected';
+    const STATUS_ARCHIVED = 'archived';
+    
+    /**
+     * Check if the user is archived
+     * 
+     * @return bool
+     */
+    public function isArchived()
+    {
+        return $this->archived == 1 || $this->status === self::STATUS_ARCHIVED;
+    }
     
     /**
      * Get the user's full name.
