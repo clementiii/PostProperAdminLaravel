@@ -14,11 +14,11 @@ class HelpDeskController extends Controller
 {
     /**
      * Display the help desk index page with ALL users.
-     * Users are ordered alphabetically. Latest message details are included if available.
+     * Users are ordered by latest message timestamp, then alphabetically.
      */
     public function index()
     {
-        // Fetch ALL users except archived ones, ordered alphabetically
+        // Fetch ALL users except archived ones, ordered by latest message time
         $allUsers = UserAccount::select('user_accounts.*')
             // Subquery to get latest timestamp (will be NULL if no messages)
             ->selectSub(function ($query) {
@@ -48,7 +48,9 @@ class HelpDeskController extends Controller
             ->where(function($query) {
                 $query->where('archived', 0)->orWhereNull('archived');
             })
-            // Order alphabetically
+            // Order by latest message time (DESC), placing NULL values at the end
+            // Using IFNULL for MariaDB compatibility instead of NULLS LAST
+            ->orderByRaw('IFNULL(last_message_time_ts, "1000-01-01 00:00:00") DESC')
             ->orderBy('firstName', 'asc')
             ->orderBy('lastName', 'asc')
             ->get();

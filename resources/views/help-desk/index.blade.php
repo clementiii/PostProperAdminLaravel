@@ -19,7 +19,31 @@
                             <div class="flex items-center">
                                 <img src="{{ $user->getProfilePictureUrl() ?: 'https://ui-avatars.com/api/?name='.urlencode($user->firstName.'+'.$user->lastName).'&background=random' }}" alt="{{ $user->firstName }}" class="w-10 h-10 rounded-full mr-3 object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ urlencode($user->firstName.'+'.$user->lastName) }}&background=random';">
                                 <div class="flex-grow min-w-0">
-                                    <div class="flex justify-between items-center"> <h4 class="font-medium text-sm truncate">{{ $user->firstName }} {{ $user->lastName }}</h4> @if($user->last_message_time_ts) <small class="text-xs text-gray-500 flex-shrink-0 ml-2"> {{ \Carbon\Carbon::parse($user->last_message_time_ts)->format('g:i A') }} </small> @endif </div>
+                                    <div class="flex justify-between items-center"> 
+                                        <h4 class="font-medium text-sm truncate">{{ $user->firstName }} {{ $user->lastName }}</h4> 
+                                        @if($user->last_message_time_ts) 
+                                            <small class="text-xs text-gray-500 flex-shrink-0 ml-2"> 
+                                                @php
+                                                    $messageTime = \Carbon\Carbon::parse($user->last_message_time_ts);
+                                                    $now = \Carbon\Carbon::now();
+                                                    
+                                                    if ($messageTime->isToday()) {
+                                                        // Today: just show time
+                                                        echo $messageTime->format('g:i A');
+                                                    } elseif ($messageTime->isYesterday()) {
+                                                        // Yesterday
+                                                        echo 'Yesterday ' . $messageTime->format('g:i A');
+                                                    } elseif ($messageTime->year == $now->year) {
+                                                        // Same year but not yesterday
+                                                        echo $messageTime->format('M j, g:i A');
+                                                    } else {
+                                                        // Different year
+                                                        echo $messageTime->format('M j, Y');
+                                                    }
+                                                @endphp
+                                            </small> 
+                                        @endif 
+                                    </div>
                                     <p class="text-sm text-gray-600 truncate" title="{{ $user->latest_message_text ?? '' }}"> {{ Str::limit($user->latest_message_text ?? 'No messages', 35) }} </p>
                                 </div>
                             </div>
@@ -100,7 +124,7 @@
             .catch(error => { console.error('Error loading messages:', error); messagesContainer.innerHTML = `<div class="text-center py-4 text-red-500"><p>Error loading messages: ${error.message}</p></div>`; });
     }
 
-    // --- displayMessages Function (Alignment Change) ---
+    // --- displayMessages Function - Updated to show dates for older messages ---
     function displayMessages(messages, append = false) {
         messagesContainer = messagesContainer || document.getElementById('messages-container');
         if (!messagesContainer) { console.error("Messages container not found"); return; }
@@ -111,43 +135,115 @@
         }
         if (!messages || messages.length === 0) { if (!append && messagesContainer.innerHTML === '') { messagesContainer.innerHTML = '<div class="text-center py-4 text-gray-500"><p>No messages yet.</p></div>'; } return; }
 
-        let newMessagesHtml = ''; let latestTimeInBatch = 0;
+        let newMessagesHtml = ''; 
+        let latestTimeInBatch = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to beginning of today
+
+        // Track date changes for date separators
+        let lastMessageDate = null;
 
         messages.forEach(message => {
             const messageIdStr = message.id.toString();
-             if (!append || !displayedMessageIds.has(messageIdStr)) {
-                 displayedMessageIds.add(messageIdStr);
+            if (!append || !displayedMessageIds.has(messageIdStr)) {
+                displayedMessageIds.add(messageIdStr);
 
-                 const isAdmin = message.is_admin;
-                 let timeString = '';
-                 try { const messageDate = new Date(message.timestamp); timeString = messageDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); const messageTime = messageDate.getTime(); if (messageTime > lastMessageTimestamp) { lastMessageTimestamp = messageTime; } if (messageTime > latestTimeInBatch) { latestTimeInBatch = messageTime; } } catch (e) { console.error("Error parsing timestamp:", message.timestamp, e); timeString = 'Invalid time'; }
-                 const escapedMessage = document.createElement('div'); escapedMessage.textContent = message.message;
+                const isAdmin = message.is_admin;
+                let timeString = '';
+                let messageDate = null;
+                
+                try { 
+                    messageDate = new Date(message.timestamp); 
+                    const messageTime = messageDate.getTime();
+                    
+                    // Check if message is from today or another day
+                    const isToday = messageDate >= today;
+                    
+                    if (isToday) {
+                        // For today's messages, just show the time
+                        timeString = messageDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+                    } else {
+                        // For older messages, show date and time
+                        timeString = messageDate.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + 
+                                     messageDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+                    }
+                    
+                    if (messageTime > lastMessageTimestamp) { lastMessageTimestamp = messageTime; } 
+                    if (messageTime > latestTimeInBatch) { latestTimeInBatch = messageTime; } 
+                } catch (e) { 
+                    console.error("Error parsing timestamp:", message.timestamp, e); 
+                    timeString = 'Invalid time'; 
+                }
+                
+                const escapedMessage = document.createElement('div'); 
+                escapedMessage.textContent = message.message;
 
-                 const messageBubbleHtml = `
-                     <div class="${isAdmin ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-900'} rounded-lg px-3 py-2 shadow-sm">
-                         <div class="break-words text-sm">${escapedMessage.innerHTML}</div>
-                         <div class="text-xs mt-1 text-right ${isAdmin ? 'text-purple-200' : 'text-gray-500'} opacity-75">${timeString}</div>
-                     </div>
-                 `;
+                // Insert date separator if this is a different day than the last message
+                if (messageDate) {
+                    const messageDateString = messageDate.toDateString();
+                    
+                    // If this is the first message or a different day than the last message
+                    if (!lastMessageDate || lastMessageDate !== messageDateString) {
+                        lastMessageDate = messageDateString;
+                        
+                        // Format date header nicely
+                        let dateHeaderText;
+                        const messageDay = messageDate.getDate();
+                        const messageMonth = messageDate.getMonth();
+                        const messageYear = messageDate.getFullYear();
+                        const todayDay = today.getDate();
+                        const todayMonth = today.getMonth();
+                        const todayYear = today.getFullYear();
+                        
+                        if (messageDay === todayDay && messageMonth === todayMonth && messageYear === todayYear) {
+                            dateHeaderText = 'Today';
+                        } else {
+                            const yesterday = new Date(today);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            const yesterdayDay = yesterday.getDate();
+                            const yesterdayMonth = yesterday.getMonth();
+                            const yesterdayYear = yesterday.getFullYear();
+                            
+                            if (messageDay === yesterdayDay && messageMonth === yesterdayMonth && messageYear === yesterdayYear) {
+                                dateHeaderText = 'Yesterday';
+                            } else {
+                                dateHeaderText = messageDate.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: messageYear !== todayYear ? 'numeric' : undefined });
+                            }
+                        }
+                        
+                        newMessagesHtml += `
+                            <div class="flex items-center my-4">
+                                <div class="flex-grow border-t border-gray-300"></div>
+                                <div class="px-3 text-xs text-gray-500 font-medium">${dateHeaderText}</div>
+                                <div class="flex-grow border-t border-gray-300"></div>
+                            </div>
+                        `;
+                    }
+                }
 
-                 if (isAdmin) {
-                     // ** FIX: Changed items-end to items-start **
-                     newMessagesHtml += `
-                         <div class="flex items-start justify-end mb-3">
-                             <div class="max-w-[75%] mr-2"> ${messageBubbleHtml} </div>
-                             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs font-semibold">AD</div>
-                         </div>
-                     `;
-                 } else {
-                     // ** FIX: Changed items-end to items-start **
-                     newMessagesHtml += `
-                         <div class="flex items-start mb-3">
-                             <img src="${currentUserAvatarUrl}" alt="User" class="flex-shrink-0 w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=User&background=random';">
-                             <div class="max-w-[75%]"> ${messageBubbleHtml} </div>
-                         </div>
-                     `;
-                 }
-             }
+                const messageBubbleHtml = `
+                    <div class="${isAdmin ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-900'} rounded-lg px-3 py-2 shadow-sm">
+                        <div class="break-words text-sm">${escapedMessage.innerHTML}</div>
+                        <div class="text-xs mt-1 text-right ${isAdmin ? 'text-purple-200' : 'text-gray-500'} opacity-75">${timeString}</div>
+                    </div>
+                `;
+
+                if (isAdmin) {
+                    newMessagesHtml += `
+                        <div class="flex items-start justify-end mb-3">
+                            <div class="max-w-[75%] mr-2"> ${messageBubbleHtml} </div>
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs font-semibold">AD</div>
+                        </div>
+                    `;
+                } else {
+                    newMessagesHtml += `
+                        <div class="flex items-start mb-3">
+                            <img src="${currentUserAvatarUrl}" alt="User" class="flex-shrink-0 w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=User&background=random';">
+                            <div class="max-w-[75%]"> ${messageBubbleHtml} </div>
+                        </div>
+                    `;
+                }
+            }
         });
 
         if (latestTimeInBatch > lastMessageTimestamp) { lastMessageTimestamp = latestTimeInBatch; }
