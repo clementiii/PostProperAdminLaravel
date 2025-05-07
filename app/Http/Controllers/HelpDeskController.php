@@ -18,7 +18,7 @@ class HelpDeskController extends Controller
      */
     public function index()
     {
-        // ** FIX: Fetch ALL users, not just those with messages **
+        // Fetch ALL users except archived ones, ordered alphabetically
         $allUsers = UserAccount::select('user_accounts.*')
             // Subquery to get latest timestamp (will be NULL if no messages)
             ->selectSub(function ($query) {
@@ -44,10 +44,11 @@ class HelpDeskController extends Controller
                     ->orWhere(function($subQuery) { $subQuery->whereColumn('messages.sender_id', 'user_accounts.id')->where('messages.is_admin', 1); })
                     ->orderBy('timestamp', 'desc')->limit(1);
             }, 'latest_message_is_admin')
-            // ** FIX: Removed the whereExists clause that filtered users **
-            // ->whereExists(...) // <-- REMOVED
-
-            // ** FIX: Changed ordering to alphabetical **
+            // Filter out archived users
+            ->where(function($query) {
+                $query->where('archived', 0)->orWhereNull('archived');
+            })
+            // Order alphabetically
             ->orderBy('firstName', 'asc')
             ->orderBy('lastName', 'asc')
             ->get();
@@ -55,7 +56,6 @@ class HelpDeskController extends Controller
         $selectedUser = null; // No user selected initially
         $messages = collect(); // No messages loaded initially
 
-        // ** FIX: Pass the new variable name to the view **
         return view('help-desk.index', compact('allUsers', 'selectedUser', 'messages'));
     }
 
