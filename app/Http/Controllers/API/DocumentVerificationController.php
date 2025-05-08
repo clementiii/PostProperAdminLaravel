@@ -62,29 +62,44 @@ class DocumentVerificationController extends Controller
         
         if (!empty($documentSignature->public_key) && !empty($documentSignature->signed_data)) {
             try {
-                // With phpseclib3, we need to approach verification differently
-                // Convert base64 signature back to binary
-                $signatureData = base64_decode($signature);
+                // Load public key
+                $publicKey = RSA::loadPublicKey($documentSignature->public_key);
+                
+                // Get the original signed data
                 $originalData = $documentSignature->signed_data;
                 
-                // In phpseclib3, we need to use a different approach for verification
-                // Since direct verification methods have changed, we'll use a database-only approach for now
-                // Database verification is already done by checking the hash
-                $verified = true;
-                $verificationMethod = "database";
+                // Convert base64 signature back to binary for verification
+                $signatureData = base64_decode($signature);
                 
-                // Log that we're using database verification only
-                Log::info('Document verified via database method. Cryptographic verification bypassed.');
+                // Verify the signature with phpseclib3
+                $verified = $publicKey->verify($originalData, $signatureData);
+                
+                if ($verified) {
+                    $verificationMethod = "cryptographic";
+                    Log::info('Document verified via cryptographic method successfully.');
+                } else {
+                    Log::warning('Cryptographic verification failed for signature: ' . $signatureHash);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid document signature. Cryptographic verification failed.'
+                    ], 400);
+                }
             } catch (\Exception $e) {
                 // Log the verification error
                 Log::error('Document verification error: ' . $e->getMessage());
                 
-                // If cryptographic verification fails, fall back to database verification
-                $verified = true; // Already verified by the database lookup
+                // Return error response when verification fails
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error verifying document: ' . $e->getMessage()
+                ], 400);
             }
         } else {
-            // Legacy fallback - database verification only
-            $verified = true;
+            // If required data is missing, return error
+            return response()->json([
+                'success' => false,
+                'message' => 'Incomplete signature data. This document cannot be cryptographically verified.'
+            ], 400);
         }
         
         // Get verification details from signed data if available
@@ -110,14 +125,14 @@ class DocumentVerificationController extends Controller
                     'is_expired' => $isExpired,
                     'verified' => true,
                     'verification_method' => $verificationMethod,
-                    'signature' => $signature
+                    'document_details' => $documentDetails
                 ]
             ]);
         } else {
             // Signature verification failed
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid document signature. Cryptographic verification failed.'
+                'message' => 'Invalid document signature. Verification failed.'
             ], 400);
         }
     }
