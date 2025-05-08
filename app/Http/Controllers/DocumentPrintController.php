@@ -90,7 +90,7 @@ class DocumentPrintController extends Controller
         $publicKeyData = $public->toString('PKCS8');
         
         // Improved data to sign including more document details and expiry date
-        $expiryDate = Carbon::now()->addYear()->format('Y-m-d H:i:s'); // Documents valid for 1 year
+        $expiryDate = Carbon::now()->addDays(90)->format('Y-m-d H:i:s'); // Documents valid for 90 days
         $dataToSign = json_encode([
             'id' => $request->Id,
             'name' => $request->Name,
