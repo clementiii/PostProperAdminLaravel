@@ -41,22 +41,11 @@
         <div class="h-1 bg-purple-800"></div>
 
         <!-- Header Section -->
-        <div class="p-6 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+        <div class="p-6">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-semibold font-poppins text-purple-800">Recent Pending Document Requests
                 </h2>
                 <p class="text-gray-500 mt-1">Manage and view all recent pending document requests from residents</p>
-            </div>
-
-            <!-- Search and Filter Section -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <!-- Search Input -->
-                <div class="relative w-full sm:w-auto">
-                    <input type="text" wire:model.live="search" placeholder="Search requests..."
-                        class="pl-10 pr-4 py-2 w-full sm:w-72 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
-                    <span
-                        class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
-                </div>
             </div>
         </div>
 

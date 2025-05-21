@@ -12,7 +12,7 @@ class DocumentRequestTable extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public $search = ''; // Keep this for compatibility with pagination
     public $filterField = '';
     public $sortField = 'Id';
     public $sortDirection = 'desc';
@@ -35,6 +35,7 @@ class DocumentRequestTable extends Component
         $this->resetPage();
     }
 
+
     public function render()
     {
         $query = DocumentRequest::query()
@@ -48,18 +49,6 @@ class DocumentRequestTable extends Component
                 'pickup_status'
             ])
             ->where('Status', 'pending')
-            ->when($this->search, function ($query) {
-                $query->where(function ($query) {
-                    $searchTerm = $this->search;
-                    if (Str::startsWith(strtolower($searchTerm), 'txn-')) {
-                        $searchTerm = substr($searchTerm, 4); // Remove 'TXN-' prefix
-                    }
-                    
-                    $query->where('Id', 'like', '%' . $searchTerm . '%')
-                        ->orWhere('Name', 'like', '%' . $this->search . '%')
-                        ->orWhere('DocumentType', 'like', '%' . $this->search . '%');
-                });
-            })
             ->when($this->filterField, function ($query) {
                 $query->orderBy($this->filterField);
             })
