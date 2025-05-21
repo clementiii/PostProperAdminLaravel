@@ -103,7 +103,8 @@
                     <div>
                         <h3 class="text-xl font-semibold text-purple-900">TXN-{{ $row->Id }}</h3>
                         <p class="text-gray-600">{{ $row->Name }}</p>
-                        <p class="text-sm text-gray-500">Requested on {{ $row->DateRequested }}</p>
+                        <p class="font-medium text-purple-700 bg-purple-100 inline-block px-3 py-1 rounded-md">{{ $row->DocumentType }}</p>
+                        <p class="text-sm text-gray-500 mt-1">Requested on {{ $row->DateRequested }}</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <span class="px-3 py-1 rounded-full text-sm font-semibold 
