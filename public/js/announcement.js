@@ -1,3 +1,24 @@
+// Image Preview Modal Functions
+function openImagePreviewModal(imageUrl) {
+    const modal = document.getElementById('imagePreviewModal');
+    const modalImage = document.getElementById('previewModalImage');
+    
+    // Set image source
+    modalImage.src = imageUrl;
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+}
+
+function hideImagePreviewModal() {
+    const modal = document.getElementById('imagePreviewModal');
+    
+    // Hide modal
+    modal.classList.add('hidden');
+    document.body.style.overflow = ''; // Re-enable scrolling
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Image upload handling
     const uploadContainer = document.getElementById('upload-container');
@@ -64,7 +85,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const previewImage = document.createElement('img');
                     previewImage.src = e.target.result;
-                    previewImage.className = 'w-full h-full object-cover rounded-md';
+                    previewImage.className = 'w-full h-full object-cover rounded-md cursor-pointer';
+                    
+                    // Add click event to open image preview modal
+                    previewImage.addEventListener('click', function() {
+                        openImagePreviewModal(e.target.result);
+                    });
                     
                     const removeButton = document.createElement('button');
                     removeButton.type = 'button';

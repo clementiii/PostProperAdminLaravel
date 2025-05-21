@@ -43,7 +43,8 @@
                                     <div class="relative w-24 h-24 mr-2 mb-2">
                                         <img src="{{ $image }}" 
                                             alt="Announcement image {{ $index + 1 }}"
-                                            class="w-full h-full object-cover rounded-md">
+                                            class="w-full h-full object-cover rounded-md cursor-pointer"
+                                            onclick="openImagePreviewModal('{{ $image }}')">
                                     </div>
                                 @endforeach
                             @else
@@ -261,4 +262,57 @@
             backface-visibility: hidden;
         }
     </style>
+    <!-- Image Preview Modal -->
+    <div id="imagePreviewModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="relative bg-white rounded-lg shadow-xl p-2 max-w-4xl max-h-full m-4 overflow-auto transform transition-all">
+            <button type="button" onclick="hideImagePreviewModal()" class="absolute top-1 right-1 text-gray-500 hover:text-gray-700 z-50 bg-white rounded-full p-1">
+                <span class="material-icons">close</span>
+            </button>
+            <img id="previewModalImage" src="" alt="Image Preview" class="max-h-[80vh] max-w-full object-contain">
+        </div>
+    </div>
+    
+    <!-- Image Preview Script -->
+    <script>
+        function openImagePreviewModal(imageUrl) {
+            const modal = document.getElementById('imagePreviewModal');
+            const modalImage = document.getElementById('previewModalImage');
+            
+            // Set image source
+            modalImage.src = imageUrl;
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+        
+        function hideImagePreviewModal() {
+            const modal = document.getElementById('imagePreviewModal');
+            
+            // Hide modal
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }
+        
+        // Close modal when clicking outside the image
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagePreviewModal = document.getElementById('imagePreviewModal');
+            if (imagePreviewModal) {
+                imagePreviewModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideImagePreviewModal();
+                    }
+                });
+            }
+            
+            // Add click event to all existing preview images
+            const previewImages = document.querySelectorAll('#image-preview-container img');
+            previewImages.forEach(img => {
+                img.classList.add('cursor-pointer');
+                img.addEventListener('click', function() {
+                    openImagePreviewModal(this.src);
+                });
+            });
+        });
+    </script>
 @endsection
