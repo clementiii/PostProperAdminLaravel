@@ -11,8 +11,9 @@ class DocumentRequests extends Component
 
     public $search = '';
     public $statusFilter = '';
+    public $dateFilter = '';
 
-    protected $queryString = ['search', 'statusFilter'];
+    protected $queryString = ['search', 'statusFilter', 'dateFilter'];
 
     public function updatingSearch()
     {
@@ -24,10 +25,15 @@ class DocumentRequests extends Component
         $this->resetPage(); // Ensure pagination resets when the filter changes
     }
 
+    public function updatingDateFilter()
+    {
+        $this->resetPage(); // Ensure pagination resets when the date filter changes
+    }
+
     public function updated($propertyName)
     {
-        if ($propertyName === 'statusFilter') {
-            $this->resetPage(); // Reset pagination when statusFilter is updated
+        if ($propertyName === 'statusFilter' || $propertyName === 'dateFilter') {
+            $this->resetPage(); // Reset pagination when filters are updated
         }
     }
 
@@ -42,6 +48,19 @@ class DocumentRequests extends Component
             })
             ->when($this->statusFilter, function ($query) {
                 $query->where('Status', $this->statusFilter); // Ensure exact match for the filter
+            })
+            ->when($this->dateFilter, function ($query) {
+                // Using LIKE for partial date matching (e.g., year only, month and year, etc.)
+                if ($this->dateFilter === 'today') {
+                    $query->whereDate('DateRequested', now()->format('Y-m-d'));
+                } elseif ($this->dateFilter === 'this_week') {
+                    $query->whereBetween('DateRequested', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+                } elseif ($this->dateFilter === 'this_month') {
+                    $query->whereMonth('DateRequested', now()->month)
+                          ->whereYear('DateRequested', now()->year);
+                } elseif ($this->dateFilter === 'this_year') {
+                    $query->whereYear('DateRequested', now()->year);
+                }
             })
             ->paginate(10);
 

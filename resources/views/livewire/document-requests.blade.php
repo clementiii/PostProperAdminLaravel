@@ -81,6 +81,20 @@
                     <i class="material-icons-outlined text-gray-400">arrow_drop_down</i>
                 </div>
             </div>
+            <div class="w-full md:w-60 relative">
+                <select
+                    class="w-full py-3 px-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
+                    wire:model.live="dateFilter">
+                    <option value="">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="this_week">This Week</option>
+                    <option value="this_month">This Month</option>
+                    <option value="this_year">This Year</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <i class="material-icons-outlined text-gray-400">arrow_drop_down</i>
+                </div>
+            </div>
         </div>
 
         <div class="space-y-4">

@@ -172,36 +172,78 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="border rounded-lg p-4">
                             <h5 class="text-2xl font-semibold text-purple-700 mb-4">Personal Details</h5>
-                            <div class="space-y-2"> <!-- Added line height spacing -->
-                                <div class="info-item"><span class="font-bold text-xl">Name:</span> <span
-                                        class="text-xl">{{ $documentRequest->Name }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Address:</span> <span
-                                        class="text-xl">{{ $documentRequest->Address ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Age:</span> <span
-                                        class="text-xl">{{ $documentRequest->Age }} years old</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Date of Birth:</span>
-                                    <span
-                                        class="text-xl">{{ $documentRequest->birthday ? \Carbon\Carbon::createFromFormat('m-d-y', $documentRequest->birthday)->format('F d, Y') : 'N/A' }}</span>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Name:</p>
+                                        <p class="font-medium">{{ $documentRequest->Name }}</p>
+                                    </div>
                                 </div>
-                                <div class="info-item"><span class="font-bold text-xl">Place of Birth:</span> <span
-                                        class="text-xl">{{ $documentRequest->PlaceOfBirth ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Alias:</span> <span
-                                        class="text-xl">{{ $documentRequest->Alias ?? 'N/A' }}</span></div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Address:</p>
+                                        <p class="font-medium">{{ $documentRequest->Address ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Age:</p>
+                                        <p class="font-medium">{{ $documentRequest->Age }} years old</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Date of Birth:</p>
+                                        <p class="font-medium">{{ $documentRequest->birthday ? \Carbon\Carbon::createFromFormat('m-d-y', $documentRequest->birthday)->format('F d, Y') : 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Place of Birth:</p>
+                                        <p class="font-medium">{{ $documentRequest->PlaceOfBirth ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Alias:</p>
+                                        <p class="font-medium">{{ $documentRequest->Alias ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="border rounded-lg p-4">
                             <h5 class="text-2xl font-semibold text-purple-700 mb-4">Additional Information</h5>
-                            <div class="space-y-2"> <!-- Added line height spacing -->
-                                <div class="info-item"><span class="font-bold text-xl">Citizenship:</span> <span
-                                        class="text-xl">{{ $documentRequest->Citizenship ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Occupation:</span> <span
-                                        class="text-xl">{{ $documentRequest->Occupation ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Gender:</span> <span
-                                        class="text-xl">{{ $documentRequest->Gender ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Civil Status:</span> <span
-                                        class="text-xl">{{ $documentRequest->CivilStatus ?? 'N/A' }}</span></div>
-                                <div class="info-item"><span class="font-bold text-xl">Length of Stay:</span> <span
-                                        class="text-xl">{{ $documentRequest->LengthOfStay ?? 'N/A' }} years</span></div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Citizenship:</p>
+                                        <p class="font-medium">{{ $documentRequest->Citizenship ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Occupation:</p>
+                                        <p class="font-medium">{{ $documentRequest->Occupation ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Gender:</p>
+                                        <p class="font-medium">{{ $documentRequest->Gender ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Civil Status:</p>
+                                        <p class="font-medium">{{ $documentRequest->CivilStatus ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Length of Stay:</p>
+                                        <p class="font-medium">{{ $documentRequest->LengthOfStay ?? 'N/A' }} years</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -210,25 +252,57 @@
                     <div class="border rounded-lg p-4">
                         <h5 class="text-2xl font-semibold text-purple-700 mb-4">Document Details</h5>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="info-item"><span class="font-bold text-xl">Document Type:</span> <span
-                                    class="text-xl">{{ $documentRequest->DocumentType }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">Purpose:</span> <span
-                                    class="text-xl">{{ $documentRequest->Purpose }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">TIN No:</span> <span
-                                    class="text-xl">{{ $documentRequest->TIN_No ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">CTC No:</span> <span
-                                    class="text-xl">{{ $documentRequest->CTC_No ?? 'N/A' }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">Quantity:</span> <span
-                                    class="text-xl">{{ $documentRequest->Quantity ?? 1 }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">Price:</span> <span
-                                    class="text-xl">{{ $price }}</span></div>
-                            <div class="info-item"><span class="font-bold text-xl">Date Requested:</span>
-                                <span
-                                    class="text-xl">{{ $documentRequest->DateRequested ? \Carbon\Carbon::parse($documentRequest->DateRequested)->format('F d, Y h:i A') : 'N/A' }}</span>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Document Type:</p>
+                                        <p class="font-medium">{{ $documentRequest->DocumentType }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Purpose:</p>
+                                        <p class="font-medium">{{ $documentRequest->Purpose }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">TIN No:</p>
+                                        <p class="font-medium">{{ $documentRequest->TIN_No ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">CTC No:</p>
+                                        <p class="font-medium">{{ $documentRequest->CTC_No ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="info-item"><span class="font-bold text-xl">Date Approved:</span>
-                                <span
-                                    class="text-xl">{{ $documentRequest->date_approved ? \Carbon\Carbon::parse($documentRequest->date_approved)->format('F d, Y h:i A') : '-' }}</span>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Quantity:</p>
+                                        <p class="font-medium">{{ $documentRequest->Quantity ?? 1 }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Price:</p>
+                                        <p class="font-medium">{{ $price }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Date Requested:</p>
+                                        <p class="font-medium">{{ $documentRequest->DateRequested ? \Carbon\Carbon::parse($documentRequest->DateRequested)->format('F d, Y h:i A') : 'N/A' }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1">
+                                    <div class="mb-1">
+                                        <p class="text-gray-500 text-sm">Date Approved:</p>
+                                        <p class="font-medium">{{ $documentRequest->date_approved ? \Carbon\Carbon::parse($documentRequest->date_approved)->format('F d, Y h:i A') : '-' }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
