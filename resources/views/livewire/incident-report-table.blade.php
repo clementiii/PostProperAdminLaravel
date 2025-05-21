@@ -104,11 +104,11 @@
                 <tbody class="text-gray-700">
                     @foreach($reports as $report)
                         <tr class="border-t text-center hover:bg-gray-200">
-                            <td class="p-4">{{ $report->name }}</td>
-                            <td class="p-4">{{ $report->title }}</td>
-                            <td class="p-4">{{ $report->description }}</td>
-                            <td class="p-4">{{ date('m/d/Y', strtotime($report->date_submitted)) }}</td>
-                            <td class="p-4">
+                            <td class="p-2">{{ $report->name }}</td>
+                            <td class="p-2">{{ $report->title }}</td>
+                            <td class="p-2">{{ $report->description }}</td>
+                            <td class="p-2">{{ date('m/d/Y', strtotime($report->date_submitted)) }}</td>
+                            <td class="p-2">
                                 <span
                                     class="px-3 py-1 rounded-full {{ $report->status === 'pending' ? 'bg-[#FEF9C3] text-gray-700' : 'bg-[#DCFCE7] text-[#1A6838]' }}">
                                     {{ ucfirst($report->status) }}
@@ -116,7 +116,7 @@
                             </td>
                             <td class="p-2">
                                 <a href="{{ route('incident-reports.show', $report->id) }}"
-                                    class="bg-purple-700 hover:bg-purple-800 text-white font-medium py-2 px-6 rounded-lg"
+                                    class="bg-purple-900 hover:bg-purple-800 text-white py-1 px-3 rounded text-sm font-medium"
                                     title="View Details">
                                     View
                                 </a>
@@ -136,9 +136,61 @@
                     {{ $reports->total() }} results
                 </div>
 
-                <!-- Pagination Links -->
-                <div class="flex items-center justify-end">
-                    {{ $reports->links() }}
+                <div class="flex items-center gap-4">
+                    <!-- Items Per Page Dropdown -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg text-gray-700">Rows per page</span>
+                        <select wire:model.live="perPage" class="border rounded px-2 py-1 text-lg text-gray-600">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex items-center space-x-2">
+                        <!-- First Page -->
+                        <button wire:click="gotoPage(1)" @if($reports->onFirstPage()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
+                            «
+                        </button>
+
+                        <!-- Previous Page -->
+                        <button wire:click="previousPage" @if($reports->onFirstPage()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
+                            ‹
+                        </button>
+
+                        <!-- Page Numbers -->
+                        @for ($i = 1; $i <= $reports->lastPage(); $i++)
+                            @if($i == $reports->currentPage())
+                                <button wire:click="gotoPage({{ $i }})"
+                                    class="px-3 py-1 rounded-full bg-purple-900 text-white text-lg">
+                                    {{ $i }}
+                                </button>
+                            @elseif($i == 1 || $i == $reports->lastPage() || abs($reports->currentPage() - $i) <= 2)
+                                <button wire:click="gotoPage({{ $i }})"
+                                    class="px-3 py-1 text-lg text-gray-600 hover:text-purple-800">
+                                    {{ $i }}
+                                </button>
+                            @elseif(abs($reports->currentPage() - $i) == 3)
+                                <span class="text-gray-600">...</span>
+                            @endif
+                        @endfor
+
+                        <!-- Next Page -->
+                        <button wire:click="nextPage" @if(!$reports->hasMorePages()) disabled @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-3xl font-bold">
+                            ›
+                        </button>
+
+                        <!-- Last Page -->
+                        <button wire:click="gotoPage({{ $reports->lastPage() }})" @if(!$reports->hasMorePages()) disabled
+                        @endif
+                            class="p-1 text-gray-600 hover:text-purple-800 disabled:text-gray-300 disabled:cursor-not-allowed text-2xl font-bold">
+                            »
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
