@@ -107,7 +107,7 @@
                             <td class="p-2">{{ $report->name }}</td>
                             <td class="p-2">{{ $report->title }}</td>
                             <td class="p-2">{{ $report->description }}</td>
-                            <td class="p-2">{{ date('m/d/Y', strtotime($report->date_submitted)) }}</td>
+                            <td class="p-2">{{ \Carbon\Carbon::parse($report->date_submitted)->format('F d, Y h:i A') }}</td>
                             <td class="p-2">
                                 <span
                                     class="px-3 py-1 rounded-full {{ $report->status === 'pending' ? 'bg-[#FEF9C3] text-gray-700' : 'bg-[#DCFCE7] text-[#1A6838]' }}">

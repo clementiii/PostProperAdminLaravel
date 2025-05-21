@@ -70,7 +70,7 @@
                     <div class="bg-gray-100 rounded-md">
                         <div class="p-4">
                             <h4 class="font-semibold text-gray-800">{{ $announcement->announcement_title }}</h4>
-                            <p class="text-sm text-gray-600">Posted on {{ date('d/m/Y', strtotime($announcement->created_at)) }}
+                            <p class="text-sm text-gray-600">Posted on {{ \Carbon\Carbon::parse($announcement->created_at)->format('F d, Y h:i A') }}
                             </p>
                             <div class="flex justify-end mt-3 space-x-2">
                                 <a href="{{ route('announcements.edit', $announcement->id) }}"

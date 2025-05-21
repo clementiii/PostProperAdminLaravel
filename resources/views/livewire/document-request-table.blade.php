@@ -109,7 +109,7 @@
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DocumentType }}
                             </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->Quantity }}</td>
-                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ $request->DateRequested }}
+                            <td class="px-4 sm:px-6 py-4 text-sm sm:text-base text-gray-700">{{ \Carbon\Carbon::parse($request->DateRequested)->format('F d, Y h:i A') }}
                             </td>
                             <td class="px-4 sm:px-6 py-4 text-sm sm:text-base">
                                 <button
