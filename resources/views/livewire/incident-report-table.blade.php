@@ -50,12 +50,19 @@
                         class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
                 </div>
 
-                <!-- Items Per Page Dropdown -->
-                <select wire:model.live="perPage" class="border rounded-lg px-4 py-2">
-                    <option value="10">10 per page</option>
-                    <option value="25">25 per page</option>
-                    <option value="50">50 per page</option>
-                </select>
+                <!-- Filter Dropdown -->
+                <div class="relative">
+                    <select wire:model.live="filterField"
+                        class="border rounded-lg px-4 py-2 pr-10 appearance-none bg-white">
+                        <option value="">Filter by</option>
+                        <option value="title">Report Title</option>
+                        <option value="date_submitted">Date Submitted</option>
+                        <option value="status">Status</option>
+                    </select>
+                    <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                        arrow_drop_down
+                    </span>
+                </div>
             </div>
         </div>
 
