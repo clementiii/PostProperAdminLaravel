@@ -158,10 +158,9 @@
                                             <div>
                                                 <p class="text-gray-500 text-sm">Gender</p>
                                                 <p class="font-medium">{{ $user->gender }}</p>
-                                            </div>
-                                            <div>
+                                            </div>                                            <div>
                                                 <p class="text-gray-500 text-sm">Date of Birth</p>
-                                                <p class="font-medium">{{ $user->birthday }}</p>
+                                                <p class="font-medium">{{ \Carbon\Carbon::parse($user->birthday)->format('F d, Y') }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-gray-500 text-sm">Address</p>

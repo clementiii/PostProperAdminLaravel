@@ -11,7 +11,6 @@ class UserTable extends Component
     use WithPagination;
 
     public $search = '';
-    public $filterField = '';
     public $sortField = 'lastName';
     public $sortDirection = 'asc';
     public $perPage = 10;
@@ -51,9 +50,6 @@ class UserTable extends Component
                         ->orWhere('adrZone', 'like', '%' . $this->search . '%')
                         ->orWhere('status', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->filterField, function ($query) {
-                $query->orderBy($this->filterField);
             })
             ->orderBy($this->sortField, $this->sortDirection);
 

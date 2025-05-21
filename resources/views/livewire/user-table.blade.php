@@ -53,29 +53,6 @@
                     <span
                         class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
                 </div>
-
-                <!-- Filter Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open"
-                        class="flex items-center bg-gray-100 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200">
-                        <span>Filter by</span>
-                        <span class="material-icons-outlined ml-2">arrow_drop_down</span>
-                    </button>
-                    <!-- Dropdown Menu -->
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-50">
-                        <ul class="text-gray-700">
-                            <li><button wire:click="$set('filterField', 'lastName')"
-                                    class="px-4 py-2 hover:bg-gray-100 w-full text-left">Last Name</button></li>
-                            <li><button wire:click="$set('filterField', 'firstName')"
-                                    class="px-4 py-2 hover:bg-gray-100 w-full text-left">First Name</button></li>
-                            <li><button wire:click="$set('filterField', 'adrStreet')"
-                                    class="px-4 py-2 hover:bg-gray-100 w-full text-left">Address</button></li>
-                            <li><button wire:click="$set('filterField', 'status')"
-                                    class="px-4 py-2 hover:bg-gray-100 w-full text-left">Status</button></li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
 
