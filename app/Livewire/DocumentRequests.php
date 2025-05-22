@@ -62,6 +62,7 @@ class DocumentRequests extends Component
                     $query->whereYear('DateRequested', now()->year);
                 }
             })
+            ->orderBy('DateRequested', 'desc') // Sort by latest document request
             ->paginate(10);
 
         $totalRequest = DocumentRequest::count();

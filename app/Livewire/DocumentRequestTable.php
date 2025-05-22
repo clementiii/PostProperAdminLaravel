@@ -14,7 +14,7 @@ class DocumentRequestTable extends Component
 
     public $search = ''; // Keep this for compatibility with pagination
     public $filterField = '';
-    public $sortField = 'Id';
+    public $sortField = 'DateRequested'; // Changed from 'Id' to 'DateRequested' for latest documents first
     public $sortDirection = 'desc';
     public $perPage = 10;
 
@@ -52,7 +52,7 @@ class DocumentRequestTable extends Component
             ->when($this->filterField, function ($query) {
                 $query->orderBy($this->filterField);
             })
-            ->orderBy($this->sortField, $this->sortDirection);
+            ->orderBy($this->sortField, $this->sortDirection); // Will now sort by DateRequested desc by default
 
         $requests = $query->paginate($this->perPage);
 
