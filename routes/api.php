@@ -114,6 +114,13 @@ Route::get('android/get-user-requests', function() {
     return response('', 200, ['Content-Type' => 'application/json']);
 });
 
+// Check Document Request Limit (GET)
+Route::get('android/check-document-limit', function() {
+    $_GET = request()->query();
+    require app_path('API/check_document_limit.php');
+    return response('', 200, ['Content-Type' => 'application/json']);
+});
+
 // Cancel Document Request (POST)
 Route::post('android/cancel-request', function() {
     $_POST = request()->post();
