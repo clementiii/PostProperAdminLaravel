@@ -394,11 +394,13 @@
                                     onclick="openConfirmationModal()">
                                     Save Changes
                                 </button>
+                                @if(strtolower($documentRequest->DocumentType) !== 'cedula')
                                 <a href="{{ route('documents.print.barangay_clearance', $documentRequest->Id) }}"
                                    class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 transition duration-150 ease-in-out text-lg"
                                    target="_blank">
                                     <i class="fas fa-print mr-2"></i> Print
                                 </a>
+                                @endif
                             </div>
                         </form>
                     </div>
