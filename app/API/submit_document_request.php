@@ -13,6 +13,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('User ID is required');
         }
         
+        // Check daily document request limit (4 per day)
+        $today = date('Y-m-d');
+        $checkLimitSql = "SELECT COUNT(*) FROM document_requests 
+                          WHERE userId = :userId 
+                          AND DATE(DateRequested) = :today";
+        
+        $checkStmt = $conn->prepare($checkLimitSql);
+        $checkStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $checkStmt->bindParam(':today', $today);
+        $checkStmt->execute();
+        
+        $dailyRequestCount = $checkStmt->fetchColumn();
+        
+        if ($dailyRequestCount >= 4) {
+            throw new Exception('Daily limit reached: You have already submitted 4 document requests today. Please try again tomorrow.');
+        }
+        
         $documentType = $_POST['documentType'];
         $name = $_POST['name'] ?? '';
         $address = $_POST['address'] ?? '';
