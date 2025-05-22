@@ -12,8 +12,9 @@ class DocumentRequests extends Component
     public $search = '';
     public $statusFilter = '';
     public $dateFilter = '';
+    public $perPage = 10;
 
-    protected $queryString = ['search', 'statusFilter', 'dateFilter'];
+    protected $queryString = ['search', 'statusFilter', 'dateFilter', 'perPage'];
 
     public function updatingSearch()
     {
@@ -63,7 +64,7 @@ class DocumentRequests extends Component
                 }
             })
             ->orderBy('DateRequested', 'desc') // Sort by latest document request
-            ->paginate(10);
+            ->paginate($this->perPage);
 
         $totalRequest = DocumentRequest::count();
         $pendingCount = DocumentRequest::where('Status', 'pending')->count();

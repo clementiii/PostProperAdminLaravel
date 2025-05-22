@@ -139,8 +139,8 @@
             {{ $documentRequests->total() }} results
         </div>
         <div class="flex items-center space-x-2">
-            <span class="text-sm">Rows per page</span>
-            <select class="border rounded-lg p-2 text-sm" wire:model="perPage">
+            <span class="text-sm">Documents shown</span>
+            <select class="border rounded-lg p-2 text-sm" wire:model.live="perPage">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
