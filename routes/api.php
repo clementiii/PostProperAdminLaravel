@@ -2,7 +2,19 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\API\ChatController;
+
+// SIMPLE TEST ROUTE - This should work first
+Route::get('android/test-endpoint', function() {
+    return response()->json([
+        'success' => true,
+        'message' => 'API is working',
+        'timestamp' => now()
+    ]);
+});
 
 // Android Login 
 Route::post('android/login', function() {
@@ -187,3 +199,118 @@ Route::get('/chat/messages', [ChatController::class, 'getMessages'])->name('api.
 Route::post('/chat/messages', [ChatController::class, 'sendMessage'])->name('api.chat.messages.store');
 // This is the route causing the 404
 Route::get('/chat/messages/new', [ChatController::class, 'checkNewMessages'])->name('api.chat.messages.checkNew');
+
+// NOTIFICATION ROUTES - SIMPLIFIED VERSION
+Route::get('android/notifications', function(Request $request) {
+    try {
+        $userId = $request->query('user_id');
+        
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User ID is required'
+            ], 400);
+        }
+
+        // Try to get notifications from database
+        $notifications = DB::table('notifications')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'notifications' => $notifications,
+            'count' => $notifications->count()
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching notifications: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::post('android/notifications/mark-read', function(Request $request) {
+    try {
+        $notificationId = $request->input('notification_id');
+        
+        if (!$notificationId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification ID is required'
+            ], 400);
+        }
+        
+        $updated = DB::table('notifications')
+            ->where('id', $notificationId)
+            ->update(['is_read' => true]);
+            
+        if ($updated) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Notification not found'
+        ], 404);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating notification: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test route to create a notification manually
+Route::get('android/create-test-notification', function(Request $request) {
+    try {
+        $userId = $request->query('user_id', 58);
+        
+        DB::table('notifications')->insert([
+            'user_id' => $userId,
+            'type' => 'test',
+            'title' => 'Test Notification',
+            'message' => 'This is a test notification created at ' . now(),
+            'related_id' => null,
+            'is_read' => false,
+            'created_at' => now(),
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Test notification created for user ' . $userId
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error creating notification: ' . $e->getMessage()
+        ]);
+    }
+});
+
+// TEMPORARY - Cache clearing route
+Route::get('android/clear-cache', function() {
+    try {
+        Artisan::call('route:clear');
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache cleared successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error clearing cache: ' . $e->getMessage()
+        ]);
+    }
+});

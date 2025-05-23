@@ -63,6 +63,9 @@ class DocumentRequestController extends Controller
             $reason = $request->input('reason');
             $pickupStatus = $request->input('pickup_status');
 
+            // Store old status to check for changes
+            $oldStatus = $documentRequest->Status;
+
             $dateApproved = $documentRequest->date_approved;
             if ($newStatus === 'approved' && strtolower($documentRequest->Status) !== 'approved') {
                 $dateApproved = Carbon::now('Asia/Manila');
@@ -91,6 +94,11 @@ class DocumentRequestController extends Controller
 
             // Update the document
             $documentRequest->update($updateData);
+
+            // Create notifications for status changes (only if status actually changed)
+            if (strtolower($oldStatus) !== strtolower($newStatus)) {
+                $this->createStatusChangeNotification($documentRequest, $newStatus, $reason);
+            }
 
             return response()->json([
                 'success' => true,
@@ -130,6 +138,70 @@ class DocumentRequestController extends Controller
         }
     }
 
+    // Helper method to create status change notifications
+    private function createStatusChangeNotification($documentRequest, $newStatus, $reason = null)
+    {
+        try {
+            // Only create notification if we have a valid user ID
+            if (!$documentRequest->userId) {
+                Log::warning("No userId found for document request ID: " . $documentRequest->Id);
+                return;
+            }
+
+            $title = '';
+            $message = '';
+
+            switch (strtolower($newStatus)) {
+                case 'approved':
+                    $title = 'Document Approved';
+                    $message = "Your {$documentRequest->DocumentType} request has been approved. Please visit the barangay office to pick it up during office hours (Monday-Friday, 8:00 AM - 5:00 PM).";
+                    break;
+                    
+                case 'rejected':
+                    $title = 'Document Rejected';
+                    $message = "Your {$documentRequest->DocumentType} request has been rejected.";
+                    if ($reason) {
+                        $message .= " Reason: {$reason}";
+                    }
+                    $message .= " Please contact the barangay office for more information.";
+                    break;
+                    
+                case 'cancelled':
+                    $title = 'Document Cancelled';
+                    $message = "Your {$documentRequest->DocumentType} request has been cancelled.";
+                    break;
+                    
+                case 'overdue':
+                    $title = 'Document Overdue';
+                    $message = "Your {$documentRequest->DocumentType} request is now overdue. Please contact the barangay office.";
+                    break;
+                    
+                default:
+                    // Don't create notification for other status changes
+                    return;
+            }
+
+            // Create the notification record directly in database
+            DB::table('notifications')->insert([
+                'user_id' => $documentRequest->userId,
+                'type' => 'document_status',
+                'title' => $title,
+                'message' => $message,
+                'related_id' => $documentRequest->Id,
+                'is_read' => false,
+                'created_at' => now(),
+            ]);
+
+            Log::info("Notification created for user {$documentRequest->userId} - Document {$documentRequest->Id} status changed to {$newStatus}");
+
+        } catch (\Exception $e) {
+            Log::error('Error creating notification: ' . $e->getMessage(), [
+                'document_id' => $documentRequest->Id,
+                'user_id' => $documentRequest->userId,
+                'status' => $newStatus
+            ]);
+        }
+    }
 
     // Helper function for price calculation (extracted from old PHP)
     private function calculatePrice($documentType, $quantity) {
