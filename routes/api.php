@@ -200,7 +200,7 @@ Route::post('/chat/messages', [ChatController::class, 'sendMessage'])->name('api
 // This is the route causing the 404
 Route::get('/chat/messages/new', [ChatController::class, 'checkNewMessages'])->name('api.chat.messages.checkNew');
 
-// NOTIFICATION ROUTES - SIMPLIFIED VERSION
+// REPLACE your existing notifications route with this fixed version
 Route::get('android/notifications', function(Request $request) {
     try {
         $userId = $request->query('user_id');
@@ -212,12 +212,18 @@ Route::get('android/notifications', function(Request $request) {
             ], 400);
         }
 
-        // Try to get notifications from database
+        // Get notifications from database
         $notifications = DB::table('notifications')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit(50)
             ->get();
+
+        // Convert is_read from 0/1 to true/false
+        $notifications = $notifications->map(function($notification) {
+            $notification->is_read = (bool)$notification->is_read;
+            return $notification;
+        });
 
         return response()->json([
             'success' => true,
@@ -311,6 +317,165 @@ Route::get('android/clear-cache', function() {
         return response()->json([
             'success' => false,
             'message' => 'Error clearing cache: ' . $e->getMessage()
+        ]);
+    }
+});
+
+// Helper function to create notifications - Add this to your api.php
+function createNotification($userId, $type, $title, $message, $relatedId = null) {
+    try {
+        DB::table('notifications')->insert([
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'related_id' => $relatedId,
+            'is_read' => false,
+            'created_at' => now(),
+        ]);
+        return true;
+    } catch (Exception $e) {
+        Log::error('Error creating notification: ' . $e->getMessage());
+        return false;
+    }
+}
+
+// Route to create notifications for recent document status changes
+Route::get('android/create-document-notifications', function() {
+    try {
+        $created = 0;
+        
+        // Get recently approved documents (last 30 days)
+        $approvedDocs = DB::table('document_requests')
+            ->where('Status', 'approved')
+            ->where('date_approved', '>=', now()->subDays(30))
+            ->get();
+            
+        foreach ($approvedDocs as $doc) {
+            // Check if notification already exists for this document
+            $existingNotification = DB::table('notifications')
+                ->where('user_id', $doc->userId)
+                ->where('type', 'document_status')
+                ->where('related_id', $doc->Id)
+                ->first();
+                
+            if (!$existingNotification) {
+                $success = createNotification(
+                    $doc->userId,
+                    'document_status',
+                    'Document Approved',
+                    "Your {$doc->DocumentType} request has been approved and is ready for pickup.",
+                    $doc->Id
+                );
+                if ($success) $created++;
+            }
+        }
+        
+        // Get recently rejected documents
+        $rejectedDocs = DB::table('document_requests')
+            ->where('Status', 'rejected')
+            ->whereNotNull('rejection_reason')
+            ->where('updated_at', '>=', now()->subDays(30))
+            ->get();
+            
+        foreach ($rejectedDocs as $doc) {
+            $existingNotification = DB::table('notifications')
+                ->where('user_id', $doc->userId)
+                ->where('type', 'document_status')
+                ->where('related_id', $doc->Id)
+                ->first();
+                
+            if (!$existingNotification) {
+                $success = createNotification(
+                    $doc->userId,
+                    'document_status',
+                    'Document Request Update',
+                    "Your {$doc->DocumentType} request requires attention. Reason: {$doc->rejection_reason}",
+                    $doc->Id
+                );
+                if ($success) $created++;
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Created {$created} notifications for recent document changes"
+        ]);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ]);
+    }
+});
+
+// Route to manually trigger notification for a specific document (for testing)
+Route::get('android/notify-document-status', function(Request $request) {
+    try {
+        $documentId = $request->query('document_id');
+        
+        if (!$documentId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Document ID is required'
+            ], 400);
+        }
+        
+        $doc = DB::table('document_requests')->where('Id', $documentId)->first();
+        
+        if (!$doc) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Document not found'
+            ], 404);
+        }
+        
+        $message = '';
+        $title = '';
+        
+        switch ($doc->Status) {
+            case 'approved':
+                $title = 'Document Approved';
+                $message = "Your {$doc->DocumentType} request has been approved and is ready for pickup.";
+                break;
+            case 'rejected':
+                $title = 'Document Request Update';
+                $message = "Your {$doc->DocumentType} request requires attention. Reason: {$doc->rejection_reason}";
+                break;
+            case 'pending':
+                $title = 'Document Under Review';
+                $message = "Your {$doc->DocumentType} request is being reviewed.";
+                break;
+            default:
+                $title = 'Document Status Update';
+                $message = "Your {$doc->DocumentType} request status has been updated to: {$doc->Status}";
+        }
+        
+        $success = createNotification(
+            $doc->userId,
+            'document_status',
+            $title,
+            $message,
+            $doc->Id
+        );
+        
+        if ($success) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification created successfully'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create notification'
+            ]);
+        }
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
         ]);
     }
 });
