@@ -173,10 +173,39 @@ $(document).ready(function () {
     window.closeModal = closeModal;
 });
 
-// Vanilla JS part for fetching dashboard data - MODIFIED
+// Optimized dashboard data fetching with intelligent caching and reduced polling
 document.addEventListener("DOMContentLoaded", function () {
+    // Cache configuration - similar to Android app
+    const CACHE_DURATION = 30000; // 30 seconds cache duration
+    const POLLING_INTERVAL_FOREGROUND = 45000; // 45 seconds when tab is active
+    const POLLING_INTERVAL_BACKGROUND = 120000; // 2 minutes when tab is inactive
+    
+    let lastCacheTime = 0;
+    let cachedData = null;
+    let pollingInterval = null;
+    let isTabActive = true;
+    
+    // Track tab visibility
+    document.addEventListener('visibilitychange', function() {
+        isTabActive = !document.hidden;
+        restartPolling();
+    });
+    
+    // Check if data is cached and still valid
+    function isCacheValid() {
+        return cachedData && (Date.now() - lastCacheTime) < CACHE_DURATION;
+    }
+    
     function fetchDashboardData() {
-        fetch("/dashboard/fetch-data")
+        // Check cache first
+        if (isCacheValid()) {
+            console.log("Using cached dashboard data");
+            updateDashboardElements(cachedData);
+            return Promise.resolve(cachedData);
+        }
+        
+        console.log("Fetching fresh dashboard data");
+        return fetch("/dashboard/fetch-data")
             .then((response) => {
                 // Check for server errors first
                 if (!response.ok) {
@@ -187,30 +216,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then((data) => {
-                // Only update elements if we're on the main dashboard page
-                // Check for an element that should only exist on the dashboard page
-                const isDashboardPage = document.querySelector('.dashboard-specific-content') !== null;
+                // Cache the data
+                cachedData = data;
+                lastCacheTime = Date.now();
                 
-                if (!isDashboardPage) {
-                    console.log("Not on the main dashboard page, skipping stats updates.");
-                    return;
-                }
-                
-                // Update dashboard elements
-                const residentsCountEl = document.getElementById("residentsCount");
-                if (residentsCountEl) {
-                    residentsCountEl.textContent = data.registeredResidents;
-                }
-
-                const pendingDocsCountEl = document.getElementById("pendingDocsCount");
-                if (pendingDocsCountEl) {
-                    pendingDocsCountEl.textContent = data.pendingDocuments;
-                }
-
-                const incidentCountEl = document.getElementById("incidentCount");
-                if (incidentCountEl) {
-                    incidentCountEl.textContent = data.incidentReports;
-                }
+                updateDashboardElements(data);
+                return data;
             })
             .catch((error) => {
                 // Log the actual error, including potential JSON parsing errors or HTTP errors
@@ -218,7 +229,58 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Error fetching or processing dashboard data:",
                     error
                 );
+                // If we have cached data, use it as fallback
+                if (cachedData) {
+                    console.log("Using cached data as fallback");
+                    updateDashboardElements(cachedData);
+                }
             });
+    }
+    
+    function updateDashboardElements(data) {
+        // Only update elements if we're on the main dashboard page
+        // Check for an element that should only exist on the dashboard page
+        const isDashboardPage = document.querySelector('.dashboard-specific-content') !== null;
+        
+        if (!isDashboardPage) {
+            console.log("Not on the main dashboard page, skipping stats updates.");
+            return;
+        }
+        
+        // Update dashboard elements
+        const residentsCountEl = document.getElementById("residentsCount");
+        if (residentsCountEl) {
+            residentsCountEl.textContent = data.registeredResidents;
+        }
+
+        const pendingDocsCountEl = document.getElementById("pendingDocsCount");
+        if (pendingDocsCountEl) {
+            pendingDocsCountEl.textContent = data.pendingDocuments;
+        }
+
+        const incidentCountEl = document.getElementById("incidentCount");
+        if (incidentCountEl) {
+            incidentCountEl.textContent = data.incidentReports;
+        }
+    }
+    
+    function startPolling() {
+        const interval = isTabActive ? POLLING_INTERVAL_FOREGROUND : POLLING_INTERVAL_BACKGROUND;
+        console.log(`Starting dashboard polling with ${interval/1000}s interval (tab ${isTabActive ? 'active' : 'inactive'})`);
+        
+        pollingInterval = setInterval(fetchDashboardData, interval);
+    }
+    
+    function stopPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+    
+    function restartPolling() {
+        stopPolling();
+        startPolling();
     }
 
     // Only start polling if we're on the dashboard page
@@ -227,9 +289,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     if (isDashboardPage) {
         fetchDashboardData(); // Initial fetch
-        // Fetch data every 10 seconds
-        setInterval(fetchDashboardData, 10000);
-        console.log("Dashboard polling started.");
+        startPolling();
+        console.log("Dashboard polling started with intelligent caching and reduced frequency.");
     } else {
         console.log(
             "Not on the main dashboard page, skipping dashboard data polling."
