@@ -402,14 +402,14 @@ try {
     $incident_picture_json = json_encode($uploadedImages);
     
     error_log("Inserting report into database");
-    // Insert into database with all required fields
+    // Insert into database with all required fields including user_id
     $stmt = $conn->prepare("INSERT INTO incident_reports (
-        name, title, description, incident_picture, incident_video, 
+        user_id, name, title, description, incident_picture, incident_video, 
         date_submitted, status, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
     
     if (!$stmt->execute([
-        $name, $title, $description, $incident_picture_json, $uploadedVideo,
+        $postData['user_id'], $name, $title, $description, $incident_picture_json, $uploadedVideo,
         $date_submitted, $status
     ])) {
         $error = $stmt->errorInfo();

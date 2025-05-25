@@ -13,7 +13,7 @@ class IncidentReport extends Model
     protected $table = 'incident_reports';
 
     protected $fillable = [
-        'id', 'name', 'title', 'description', 'date_submitted', 'status', 'incident_picture', 'incident_video', 'resolved_at'
+        'id', 'user_id', 'name', 'title', 'description', 'date_submitted', 'status', 'incident_picture', 'incident_video', 'resolved_at'
     ];
 
     protected $dates = [

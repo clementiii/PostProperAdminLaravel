@@ -11,10 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         
         $sql = "SELECT i.id, i.title, i.description, i.incident_picture, 
-                       i.date_submitted, i.status, i.resolved_at, ua.full_name as name 
+                       i.date_submitted, i.status, i.resolved_at, i.name 
                 FROM incident_reports i 
-                JOIN user_accounts ua ON i.name = ua.full_name 
-                WHERE ua.id = :userId 
+                WHERE i.user_id = :userId 
                 ORDER BY date_submitted DESC";
                 
         $stmt = $conn->prepare($sql);
