@@ -1,13 +1,49 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <h1 align="center">Barangay Post Proper Southside Information System</h1>
 </p>
 
-## About Laravel
+## About This Project
+
+This project is an Information System for Barangay Post Proper Southside. It is designed to manage community data, services, and administrative tasks efficiently. The system is built using the Laravel framework.
+
+### Key Features:
+
+*   **Authentication:** Secure login for administrators and users.
+*   **Dashboard:** An overview of key information and system statistics.
+*   **Admin Staff Management:** Tools for managing administrator accounts.
+*   **User Account Management:** Functionality for user registration, verification, approval, rejection, and archiving of user accounts.
+*   **Announcements:** A module for creating, updating, deleting, and displaying barangay announcements.
+*   **Document Request Management:** Streamlined process for handling resident document requests, such as Barangay Clearance, including status updates and printing capabilities.
+*   **Admin Profile Management:** Allows administrators to manage their profile information, including profile picture updates.
+*   **Incident Reporting:** A system for logging and managing incident reports within the barangay.
+*   **Help Desk:** A support feature to assist users with queries and issues.
+
+## Built With
+
+*   [Laravel](https://laravel.com/) - The PHP framework used.
+*   [Tailwind CSS](https://tailwindcss.com/) - For styling the user interface.
+*   [Livewire](https://laravel-livewire.com/) - For dynamic interfaces.
+*   [Jetstream](https://jetstream.laravel.com/) - For authentication scaffolding.
+*   Other PHP and JavaScript libraries as defined in `composer.json` and `package.json`.
+
+
+## Getting Started
+
+(To be filled in with instructions on how to set up and run the project locally)
+
+## Contributing
+
+(To be filled in if contributions are welcome, along with guidelines)
+
+## License
+
+The Barangay Post Proper Southside Information System is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## About Laravel (Original README Content)
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
@@ -49,7 +85,7 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 - **[byte5](https://byte5.de)**
 - **[OP.GG](https://op.gg)**
 
-## Contributing
+## Contributing to Laravel
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
@@ -61,6 +97,6 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+## License (Laravel Framework)
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
